@@ -56,7 +56,6 @@ class CameraModule(DirectObject):
         # attach a pusher to the sphere
         self.camPusher = CollisionHandlerPusher()
         # Do this when the camera gets activated
-        # self.cTrav.addCollider(self.ccSphereNodePath, self.camPusher)
         self.camPusher.addCollider(self.ccSphereNodePath, base.camera)
 
         # Set a special mode on the pusher so that it doesn't get
@@ -139,7 +138,7 @@ class CameraModule(DirectObject):
         base.cmod = self
 
     def debugCameraPosition(self, task):
-        print(camera, camera.getPosHpr(), self.orbitalCamera.getPosHpr())
+        print(camera, camera.getPosHpr(), self.orbitalCamera.getPosHpr())  # noqa
         return task.again
 
     def enable(self):
