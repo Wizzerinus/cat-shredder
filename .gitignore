@@ -4,7 +4,6 @@ dependencies/astrond.exe
 dependencies/astrond
 user
 server
-resources
 .idea
 __pycache__
 .ruff_cache
