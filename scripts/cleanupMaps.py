@@ -4,16 +4,18 @@ import subprocess
 from toontown.toonbase import ConfigureUberGlobals  # noqa: F401
 from toontown.toon import ClothingGlobals
 
-all_bam_files = glob.glob("**/*.bam", recursive=True)
+all_bam_files = glob.glob("resources/**/*.bam", recursive=True)
 all_strings = []
 origins = {}
 for file in all_bam_files:
     strings = subprocess.run(["strings", file], stdout=subprocess.PIPE).stdout.decode().split("\n")
     strings = [s.strip() for s in strings]
-    strings = [s for s in strings if s[-4:].lower() in (".rgb", ".png", ".jpg")]
+    strings = [s for s in strings if s[-4:].lower() in (".rgb", ".png", ".jpg") or s[-5:-1].lower() == ".jpg"]
     strings = [s.replace("resources/", "") for s in strings]
     new_strings = []
     for s in strings:
+        if s[-5:-1].lower() == ".jpg":
+            s = s[:-1]
         if ".." in s:
             collapse_count = s.count("../") + 1
             resolved_parent = "/".join(file.replace("resources/", "").split("/")[:-collapse_count]).strip("/")
