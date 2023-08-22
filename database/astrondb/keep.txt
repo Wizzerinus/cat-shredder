@@ -1,0 +1,1 @@
+Some versions of astron crash if the database folder is not there, so this file exists to make sure it always exists.

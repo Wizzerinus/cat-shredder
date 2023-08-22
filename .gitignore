@@ -1,4 +1,5 @@
-database/astrondb
+database/astrondb/*.yaml
+database/astrondb/*.yml
 database/accounts
 user
 server
