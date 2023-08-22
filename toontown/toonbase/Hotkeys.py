@@ -49,7 +49,7 @@ class HotkeyManager:
     @property
     def chatCanAutoFocus(self):
         controls = base.settings.getOption("controls", {})
-        controls = [value for key, value in controls if key != self.chatKeyName]
+        controls = [value for key, value in controls.items() if key != self.chatKeyName]
         return not any(self.isAlphanumeric(control) for control in controls)
 
     @staticmethod
