@@ -1,1 +1,0 @@
-Put the file named `astrond.exe` (Windows) or `astrond` (Linux) here to launch the game server.

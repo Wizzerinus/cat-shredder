@@ -1,10 +1,9 @@
 database/astrondb
 database/accounts
-dependencies/astrond.exe
-dependencies/astrond
 user
 server
 .idea
 __pycache__
 .ruff_cache
 excess.txt
+PPYTHON_PATH
