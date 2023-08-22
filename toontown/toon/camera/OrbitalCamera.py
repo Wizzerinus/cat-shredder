@@ -40,6 +40,7 @@ class OrbitalCamera(FSM, NodePath, ParamObj):
 
     TopNodeName = "OrbitCam"
     usingOrbitalRun = toonWasWalking = False
+    acceptingMovement = True
 
     def __init__(self, subject):
         ParamObj.__init__(self)
