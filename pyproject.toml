@@ -6,7 +6,7 @@ ignore = ["F405", "F403", "C408"]  # star imports
 builtins = ["base", "loader", "messenger", "directNotify", "simbase", "taskMgr", "uber",
             "globalClock", "__dev__",
             "camera", "render", "hidden", "render2d", "aspect2d"]
-extend-exclude = ["otp/distributed/DCClassImports.py", "toontown/ai/AIStart.py", "toontown/uberdog/UDStart.py",
+extend-exclude = ["scripts", "otp/distributed/DCClassImports.py", "toontown/ai/AIStart.py", "toontown/uberdog/UDStart.py",
                   "toontown/toonbase/ToontownStart.py", "toontown/toonbase/TTLocalizer.py"]
 line-length = 120
 target-version = "py39"

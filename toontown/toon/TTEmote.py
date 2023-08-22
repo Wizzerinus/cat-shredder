@@ -6,7 +6,6 @@ from panda3d.otp import *
 from otp.avatar import Emote
 from toontown.toonbase import TTLSpeedChat, TTLocalizer
 from toontown.toonbase.globals.TTGlobalsChat import EmoteName2Id, Emotes
-from . import ToonDNA
 
 EmoteSleepIndex = 4
 EmoteClear = -1

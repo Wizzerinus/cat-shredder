@@ -6,7 +6,7 @@ from direct.fsm import ClassicFSM
 from direct.fsm import State
 from direct.fsm import StateData
 from panda3d.core import *
-from panda3d.toontown import DNAStorage, loadDNAFile
+from panda3d.toontown import DNAStorage
 
 from toontown.toonbase.globals.TTGlobalsGUI import getInterfaceFont, getSignFont, getSuitFont
 from toontown.toonbase.globals.TTGlobalsWorld import ZoneIDs
@@ -97,13 +97,13 @@ class PlayGame(StateData.StateData):
         if not hasattr(self, "dnaStore"):
             self.dnaStore = DNAStorage()
             # No storage DNA needed for Cashbot HQ
-            # loadDNAFile(self.dnaStore, "phase_4/dna/storage.dna")
+            # loadDNAFile(self.dnaStore, "phase_4/dna/storage.dna")  # noqa
 
             self.dnaStore.storeFont("humanist", getInterfaceFont())
             self.dnaStore.storeFont("mickey", getSignFont())
             self.dnaStore.storeFont("suit", getSuitFont())
 
-            # loadDNAFile(self.dnaStore, "phase_3.5/dna/storage_interior.dna")
+            # loadDNAFile(self.dnaStore, "phase_3.5/dna/storage_interior.dna")  # noqa
 
     def unloadDnaStore(self):
         if hasattr(self, "dnaStore"):
