@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.MsgTypes import MsgName2Id
@@ -176,7 +176,9 @@ class LoginOperation(GameOperation):
     def getAccountCreationDate(self):
         accountCreationDate = self.account.get("CREATED", "")
         try:
-            accountCreationDate = datetime.fromtimestamp(time.mktime(time.strptime(accountCreationDate)), tz=UTC)
+            accountCreationDate = datetime.fromtimestamp(
+                time.mktime(time.strptime(accountCreationDate)), tz=timezone.utc
+            )
         except ValueError:
             accountCreationDate = ""
 
@@ -186,7 +188,7 @@ class LoginOperation(GameOperation):
         accountCreationDate = self.getAccountCreationDate()
         accountDays = -1
         if accountCreationDate:
-            now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())), tz=UTC)
+            now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())), tz=timezone.utc)
             accountDays = abs((now - accountCreationDate).days)
 
         return accountDays
