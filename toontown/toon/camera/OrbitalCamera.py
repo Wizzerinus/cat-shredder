@@ -609,7 +609,6 @@ class OrbitCamera(CameraMode.CameraMode, NodePath, ParamObj):
         subjectTurning = (
             inputState.isSet("turnRight") or inputState.isSet("turnLeft")
         ) and self.subject.controlManager.isEnabled
-        # if subjectMoving:
         hNode = self
 
         if self.mouseDelta[0] or self.mouseDelta[1]:
@@ -633,7 +632,6 @@ class OrbitCamera(CameraMode.CameraMode, NodePath, ParamObj):
         self.baseH = baseH
         self.minH = minH
         self.maxH = maxH
-        # if self.isSubjectMoving():
         hNode = self
 
         hNode.setH(maxH)
@@ -695,7 +693,6 @@ class OrbitCamera(CameraMode.CameraMode, NodePath, ParamObj):
             self.lastGeomH = h
 
     def setCameraPos(self, y, h, p, zDelta=0):
-        (-14 - y) / -12
         z = self.subject.getHeight() + zDelta
         self._collSolid.setPointB(0, y + 1, 0)
         self.camOffset.setY(y)
