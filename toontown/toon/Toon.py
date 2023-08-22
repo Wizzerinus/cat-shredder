@@ -163,9 +163,6 @@ LegDict = {
     "l": "/models/char/tt_a_chr_dgl_shorts_legs_",
 }
 TorsoDict = {
-    "s": "/models/char/dogSS_Naked-torso-",
-    "m": "/models/char/dogMM_Naked-torso-",
-    "l": "/models/char/dogLL_Naked-torso-",
     "ss": "/models/char/tt_a_chr_dgs_shorts_torso_",
     "ms": "/models/char/tt_a_chr_dgm_shorts_torso_",
     "ls": "/models/char/tt_a_chr_dgl_shorts_torso_",
@@ -214,10 +211,6 @@ class Toon(Avatar.Avatar, ToonHead):
     standWalkRunReverse = None
 
     def __init__(self):
-        if hasattr(self, "Toon_initialized"):
-            raise RuntimeError("bro")
-        self.Toon_initialized = True
-
         Avatar.Avatar.__init__(self)
         ToonHead.__init__(self)
         self.forwardSpeed = 0.0
@@ -308,10 +301,6 @@ class Toon(Avatar.Avatar, ToonHead):
             self.stunTrack = None
 
     def delete(self):
-        if hasattr(self, "Toon_deleted"):
-            raise RuntimeError("bro")
-        self.Toon_deleted = True
-
         self.stopAnimations()
         self.rightHands = None
         self.rightHand = None
@@ -367,7 +356,6 @@ class Toon(Avatar.Avatar, ToonHead):
                 else:
                     self.attach("head", "torso", "joint_head", lodName)
                 self.attach("torso", "legs", "joint_hips", lodName)
-
         else:
             self.attach("head", "torso", "joint_head")
             self.attach("torso", "legs", "joint_hips")
@@ -512,12 +500,8 @@ class Toon(Avatar.Avatar, ToonHead):
         if filePrefix is None:
             self.notify.error("unknown torso style: %s" % torsoStyle)
         self.loadModel("phase_3" + filePrefix + "1000", "torso", "1000", copy)
-        if len(torsoStyle) == 1:
-            self.loadModel("phase_3" + filePrefix + "1000", "torso", "500", copy)
-            self.loadModel("phase_3" + filePrefix + "1000", "torso", "250", copy)
-        else:
-            self.loadModel("phase_3" + filePrefix + "500", "torso", "500", copy)
-            self.loadModel("phase_3" + filePrefix + "250", "torso", "250", copy)
+        self.loadModel("phase_3" + filePrefix + "500", "torso", "500", copy)
+        self.loadModel("phase_3" + filePrefix + "250", "torso", "250", copy)
         if not copy:
             self.showPart("torso", "1000")
             self.showPart("torso", "500")
@@ -525,7 +509,7 @@ class Toon(Avatar.Avatar, ToonHead):
         self.loadAnims(TorsoAnimDict[torsoStyle], "torso", "1000")
         self.loadAnims(TorsoAnimDict[torsoStyle], "torso", "500")
         self.loadAnims(TorsoAnimDict[torsoStyle], "torso", "250")
-        if genClothes == 1 and len(torsoStyle) != 1:
+        if genClothes == 1:
             self.generateToonClothes()
 
     def swapToonTorso(self, torsoStyle, copy=1, genClothes=1):
@@ -572,9 +556,6 @@ class Toon(Avatar.Avatar, ToonHead):
         legColor = self.style.getLegColor()
         for lodName in self.getLODNames():
             torso = self.getPart("torso", lodName)
-            if len(self.style.torso) == 1:
-                parts = torso.findAllMatches("**/torso*")
-                parts.setColor(armColor)
             for pieceName in ("arms", "neck"):
                 piece = torso.find("**/" + pieceName)
                 piece.setColor(armColor)

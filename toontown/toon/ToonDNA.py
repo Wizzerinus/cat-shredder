@@ -83,32 +83,12 @@ def getSpecies(head):
 
 def getSpeciesName(head):
     species = getSpecies(head)
-    if species == "d":
-        speciesName = "dog"
-    elif species == "c":
-        speciesName = "cat"
-    elif species == "h":
-        speciesName = "horse"
-    elif species == "m":
-        speciesName = "mouse"
-    elif species == "r":
-        speciesName = "rabbit"
-    elif species == "f":
-        speciesName = "duck"
-    elif species == "p":
-        speciesName = "monkey"
-    elif species == "b":
-        speciesName = "bear"
-    elif species == "s":
-        speciesName = "pig"
-    else:
-        raise ValueError(f"Unknown species {species}")
-    return speciesName
+    return HeadLetterToAnimal[species]
 
 
 # 8 species with 4 heads, mice with 2 heads
 allToonHeadAnimalIndices = list(range(8 * 4 + 2))
-toonTorsoTypes = ["ss", "ms", "ls", "sd", "md", "ld", "s", "m", "l"]
+toonTorsoTypes = ["ss", "ms", "ls", "sd", "md", "ld"]
 toonLegTypes = ["s", "m", "l"]
 
 
@@ -541,7 +521,7 @@ class ToonDNA:
         return toonType
 
     def getAnimal(self):
-        return HeadLetterToAnimal[self.head[0]]
+        return getSpeciesName(self.head)
 
     def getGender(self):
         return self.gender

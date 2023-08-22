@@ -11,3 +11,7 @@ dc-file etc/toontown.dc
 # 0x1234567
 dc-file-hash 19088743
 server-version 1.0
+
+# Prevent make a toon from breaking
+merge-lod-bundles 0
+

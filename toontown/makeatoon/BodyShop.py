@@ -33,11 +33,6 @@ class BodyShop(StateData.StateData):
         self.torsoChoice = ToonDNA.toonTorsoTypes.index(self.dna.torso) % 3
         self.legStart = 0
         self.legChoice = ToonDNA.toonLegTypes.index(self.dna.legs)
-        if CLOTHESSHOP in shopsVisited:
-            self.clothesPicked = 1
-        else:
-            self.clothesPicked = 0
-        self.clothesPicked = 1
         if gender == "m" or ToonDNA.GirlBottoms[self.dna.botTex][1] == ToonDNA.SHORTS:
             torsoPool = ToonDNA.toonTorsoTypes[:3]
         else:
@@ -276,10 +271,7 @@ class BodyShop(StateData.StateData):
 
     def __swapTorso(self, offset):
         gender = self.toon.style.getGender()
-        if not self.clothesPicked:
-            length = len(ToonDNA.toonTorsoTypes[6:])
-            torsoOffset = 6
-        elif gender == "m":
+        if gender == "m":
             length = len(ToonDNA.toonTorsoTypes[:3])
             torsoOffset = 0
             if self.dna.armColor not in ToonDNA.defaultBoyColorList:
