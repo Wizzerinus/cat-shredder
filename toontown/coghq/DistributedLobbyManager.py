@@ -35,4 +35,5 @@ class DistributedLobbyManager(DistributedObject.DistributedObject):
             "zoneId": zoneId,
             "hoodId": hoodId,
         }
-        self.cr.playGame.getPlace().elevator.signalDone(doneStatus)
+        self.cr.playGame.getPlace().fsm.request("elevator", [None])
+        messenger.send("elevatorDone", [doneStatus])

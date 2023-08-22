@@ -3,7 +3,7 @@ from panda3d.otp import Nametag, NametagGroup
 from toontown.toonbase import TTLocalizer
 from . import DistributedElevator
 from .ElevatorUtils import *
-from ..toonbase.globals.TTGlobalsGUI import getBuildingNametagFont
+from toontown.toonbase.globals.TTGlobalsGUI import getBuildingNametagFont
 
 
 class DistributedElevatorExt(DistributedElevator.DistributedElevator):

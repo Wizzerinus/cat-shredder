@@ -106,7 +106,6 @@ class CogHQLobby(Place.Place):
         self.elevator = Elevator.Elevator(self.fsm.getStateNamed("elevator"), self.elevatorDoneEvent, distElevator)
         if skipDFABoard:
             self.elevator.skipDFABoard = 1
-        distElevator.elevatorFSM = self.elevator
         self.elevator.load()
         self.elevator.enter()
 

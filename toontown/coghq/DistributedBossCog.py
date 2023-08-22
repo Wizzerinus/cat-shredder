@@ -19,6 +19,7 @@ from toontown.toonbase.globals.TTGlobalsMovement import *
 from toontown.toonbase.globals.TTGlobalsRender import *
 from toontown.world import ZoneUtil
 from . import BossCog
+from .BossSpeedrunTimer import BossSpeedrunTimer
 
 
 class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
@@ -31,8 +32,6 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         BossCog.BossCog.__init__(self)
 
         self.gotAllToons = 0
-        self.toonsA = []
-        self.toonsB = []
         self.involvedToons = []
         self.toonRequest = None
         self.arenaSide = 0
@@ -54,6 +53,12 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         self.flashInterval = None
 
         self.elevatorType = ElevatorConstants.ELEVATOR_VP
+        self.bossSpeedrunTimer = BossSpeedrunTimer()
+        self.bossSpeedrunTimer.hide()
+
+    def updateTimer(self, secs):
+        self.bossSpeedrunTimer.override_time(secs)
+        self.bossSpeedrunTimer.update_time()
 
     def announceGenerate(self):
         DistributedAvatar.DistributedAvatar.announceGenerate(self)
@@ -131,25 +136,15 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
 
         self.cr.relatedObjectMgr.abortRequest(self.toonRequest)
         self.toonRequest = None
+        self.bossSpeedrunTimer.cleanup()
 
     def delete(self):
         self.ignoreAll()
         DistributedAvatar.DistributedAvatar.delete(self)
         BossCog.BossCog.delete(self)
 
-    def setDNAString(self, dnaString):
-        BossCog.BossCog.setDNAString(self, dnaString)
-
-    def getDNAString(self):
-        return self.dna.makeNetString()
-
-    def setDNA(self, dna):
-        BossCog.BossCog.setDNA(self, dna)
-
-    def setToonIds(self, involvedToons, toonsA, toonsB):
+    def setToonIds(self, involvedToons):
         self.involvedToons = involvedToons
-        self.toonsA = toonsA
-        self.toonsB = toonsB
 
         self.cr.relatedObjectMgr.abortRequest(self.toonRequest)
         self.gotAllToons = 0
@@ -209,7 +204,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
 
     def hasLocalToon(self):
         doId = base.localAvatar.doId
-        return (doId in self.toonsA) or (doId in self.toonsB)
+        return doId in self.involvedToons
 
     def setArenaSide(self, arenaSide):
         self.arenaSide = arenaSide
@@ -515,24 +510,6 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
     def localToonDied(self):
         assert self.notify.debug("localToonToSafeZone()")
 
-        target_sz = ZoneUtil.getSafeZoneId(base.localAvatar.defaultZone)
-
-        place = self.cr.playGame.getPlace()
-        place.fsm.request(
-            "died",
-            [
-                {
-                    "loader": ZoneUtil.getLoaderName(target_sz),
-                    "where": ZoneUtil.getWhereName(target_sz, 1),
-                    "how": "teleportIn",
-                    "hoodId": target_sz,
-                    "zoneId": target_sz,
-                    "shardId": None,
-                    "avId": -1,
-                }
-            ],
-        )
-
     def __touchedBoss(self, entry):
         assert self.notify.debug("__touchedBoss()")
 
@@ -819,8 +796,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
 
     def loadEnvironment(self):
         self.elevatorMusic = base.loader.loadMusic("phase_7/audio/bgm/tt_elevator.ogg")
-        self.stingMusic = base.loader.loadMusic("phase_7/audio/bgm/encntr_suit_winning_indoor.ogg")
-        self.epilogueMusic = base.loader.loadMusic("phase_9/audio/bgm/encntr_hall_of_fame.ogg")
+        self.battleThreeMusic = base.loader.loadMusic("phase_7/audio/bgm/encntr_suit_winning_indoor.ogg")
 
     def unloadEnvironment(self):
         pass
@@ -899,40 +875,6 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         intervalName = "ElevatorMovie"
         self.clearInterval(intervalName)
         self.elevatorMusic.stop()
-
-        ElevatorUtils.closeDoors(self.leftDoor, self.rightDoor, self.elevatorType)
-
-    def enterIntroduction(self):
-        assert self.notify.debug("enterIntroduction()")
-
-        self.controlToons()
-
-        ElevatorUtils.openDoors(self.leftDoor, self.rightDoor, self.elevatorType)
-
-        NametagGlobals.setMasterArrowsOn(0)
-
-        intervalName = "IntroductionMovie"
-        delayDeletes = []
-
-        seq = Sequence(self.makeIntroductionMovie(delayDeletes), Func(self.__beginBattleOne), name=intervalName)
-        seq.delayDeletes = delayDeletes
-        seq.start()
-        self.storeInterval(seq, intervalName)
-
-    def __beginBattleOne(self):
-        intervalName = "IntroductionMovie"
-        self.clearInterval(intervalName)
-
-        self.doneBarrier("Introduction")
-
-    def exitIntroduction(self):
-        self.notify.debug("DistributedBossCog.exitIntroduction:")
-        intervalName = "IntroductionMovie"
-        self.clearInterval(intervalName)
-        self.unstickToons()
-        self.releaseToons()
-
-        NametagGlobals.setMasterArrowsOn(1)
 
         ElevatorUtils.closeDoors(self.leftDoor, self.rightDoor, self.elevatorType)
 

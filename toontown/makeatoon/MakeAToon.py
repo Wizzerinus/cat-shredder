@@ -17,8 +17,8 @@ from . import GenderShop
 from . import MakeClothesGUI
 from . import NameShop
 from .MakeAToonGlobals import *
-from ..toonbase.globals.TTGlobalsGUI import getInterfaceFont, getSignFont
-from ..toonbase.globals.TTGlobalsRender import DefaultCameraFov
+from toontown.toonbase.globals.TTGlobalsGUI import getInterfaceFont, getSignFont
+from toontown.toonbase.globals.TTGlobalsRender import DefaultCameraFov
 
 
 class MakeAToon(StateData.StateData):

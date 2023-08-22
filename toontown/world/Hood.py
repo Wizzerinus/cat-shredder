@@ -6,8 +6,8 @@ from pandac.PandaModules import *
 from . import QuietZoneState
 from . import ZoneUtil
 from .HoodClientData import getFullnameFromId
-from ..toonbase.TTLZones import PlaceNames
-from ..toonbase.globals.TTGlobalsGUI import getSignFont
+from toontown.toonbase.TTLZones import PlaceNames
+from toontown.toonbase.globals.TTGlobalsGUI import getSignFont
 
 
 class Hood(StateData.StateData):

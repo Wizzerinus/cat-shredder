@@ -67,5 +67,9 @@ class StartBoss(MagicWord, StartBossStub):
         else:
             return False, "Lobby manager not found in this area!"
 
+        transitions = base.cr.playGame.getPlace().fsm.getCurrentState().getTransitions()
+        if "elevator" not in transitions:
+            return False, "Cannot do it here! If you're teleporting in wait for the teleport animation to finish."
+
         item.d_requestSoloBoss()
         return True, "Successfully started a new boss run!"

@@ -6,10 +6,10 @@ from direct.task.Task import Task
 
 from toontown.distributed import DelayDelete
 from .ElevatorUtils import *
-from ..boarding import BoardingGroupShow
-from ..toonbase.globals.TTGlobalsGUI import getSignFont
-from ..toonbase.globals.TTGlobalsRender import WallBitmask
-from ..world import ZoneUtil
+from toontown.boarding import BoardingGroupShow
+from toontown.toonbase.globals.TTGlobalsGUI import getSignFont
+from toontown.toonbase.globals.TTGlobalsRender import WallBitmask
+from toontown.world import ZoneUtil
 
 
 class DistributedElevator(DistributedObject.DistributedObject):

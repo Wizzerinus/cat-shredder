@@ -31,6 +31,7 @@ class DistributedLobbyManagerAI(DistributedObjectAI.DistributedObjectAI):
             if avId:
                 bossCog.addToon(avId)
 
+        bossCog.acceptNewToons()
         bossCog.generateWithRequired(bossZone)
         self.acceptOnce(bossCog.uniqueName("BossDone"), self.destroyBossOffice, extraArgs=[bossCog])
         bossCog.b_setState("WaitForToons")

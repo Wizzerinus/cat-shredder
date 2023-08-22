@@ -97,17 +97,10 @@ class ToontownAIRepository(ToontownInternalRepository):
             assert self._population > 0
         self._population = max(0, self._population - 1)
 
-    def allocateZone(self, owner=None):
-        zoneId = self.zoneAllocator.allocate()
-        if owner:
-            self.zoneId2owner[zoneId] = owner
-
-        return zoneId
+    def allocateZone(self):
+        return self.zoneAllocator.allocate()
 
     def deallocateZone(self, zone):
-        if self.zoneId2owner.get(zone):
-            del self.zoneId2owner[zone]
-
         self.zoneAllocator.free(zone)
 
     def createPondBingoMgrAI(self, estate):

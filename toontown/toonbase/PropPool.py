@@ -66,10 +66,10 @@ class PropPool:
                 animDict = {name: self.propStrings[name][1]}
                 prop.loadAnims(animDict)
                 prop.setName(name)
-                prop.setBlend(frameBlend=base.wantSmoothAnimations)
+                prop.setBlend()
                 self.storeProp(name, prop)
             outProp = Actor.Actor(other=self.props[name])
-            outProp.setBlend(frameBlend=base.wantSmoothAnimations)
+            outProp.setBlend()
             return outProp
 
         if name not in self.props:

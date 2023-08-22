@@ -31,8 +31,6 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
 
         self.__teleportAvailable = 0
 
-        self.inventory = None
-
         self.ignoreList = set()
 
         self.lastFailedTeleportMessage = {}
@@ -51,9 +49,6 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
             return
 
         self.DistributedPlayer_deleted = True
-        if self.inventory:
-            self.inventory.unload()
-        del self.inventory
         DistributedAvatar.DistributedAvatar.delete(self)
 
     def generate(self):

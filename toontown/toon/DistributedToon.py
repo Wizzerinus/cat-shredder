@@ -197,11 +197,6 @@ class DistributedToon(
             self.displayWhisper(fromId, chatString, WhisperPopup.WTQuickTalker)
             base.talkAssistant.receiveSCMessage(TTGlobalsChat.SPEEDCHAT_NORMAL, msgIndex, fromId, True)
 
-    def setMaxHp(self, hitPoints):
-        DistributedPlayer.DistributedPlayer.setMaxHp(self, hitPoints)
-        if self.inventory:
-            self.inventory.updateGUI()
-
     def died(self):
         messenger.send(self.uniqueName("died"))
         if self.isLocal():

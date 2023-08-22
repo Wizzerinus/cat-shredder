@@ -34,20 +34,22 @@ class Elevator(StateData.StateData):
         self.dfaDoneEvent = "elevatorDfaDoneEvent"
         self.elevatorState = elevatorState
         self.distElevator = distElevator
-        distElevator.elevatorFSM = self
+        if distElevator:
+            distElevator.elevatorFSM = self
         self.reverseBoardingCamera = False
         self.skipDFABoard = 0
 
     def load(self):
         self.elevatorState.addChild(self.fsm)
         self.buttonModels = loader.loadModel("phase_3.5/models/gui/inventory_gui")
-        self.upButton = self.buttonModels.find("**//InventoryButtonUp")
+        self.upButton = self.buttonModels.find("**/InventoryButtonUp")
         self.downButton = self.buttonModels.find("**/InventoryButtonDown")
         self.rolloverButton = self.buttonModels.find("**/InventoryButtonRollover")
 
     def unload(self):
         self.elevatorState.removeChild(self.fsm)
-        self.distElevator.elevatorFSM = None
+        if self.distElevator:
+            self.distElevator.elevatorFSM = None
         del self.distElevator
         del self.fsm
         del self.elevatorState
@@ -59,7 +61,8 @@ class Elevator(StateData.StateData):
 
     def enter(self):
         self.fsm.enterInitialState()
-        self.fsm.request("requestBoard")
+        if self.distElevator:
+            self.fsm.request("requestBoard")
 
     def exit(self):
         self.ignoreAll()

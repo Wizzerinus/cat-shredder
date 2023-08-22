@@ -79,7 +79,7 @@ class CogHQBossBattle(Place):
 
     def enter(self, requestStatus, bossCog):
         self.zoneId = requestStatus["zoneId"]
-        Place.enter(requestStatus)
+        Place.enter(self)
         self.fsm.enterInitialState()
         self.bossCog = bossCog
         if self.bossCog:
@@ -87,7 +87,6 @@ class CogHQBossBattle(Place):
         else:
             self.acceptOnce("announceBoss", self.__bossGenerate)
         NametagGlobals.setMasterArrowsOn(1)
-        base.localAvatar.inventory.setRespectInvasions(0)
         self.fsm.request(requestStatus["how"], [requestStatus])
 
     def __bossGenerate(self, boss):
@@ -98,7 +97,6 @@ class CogHQBossBattle(Place):
 
     def exit(self):
         self.fsm.requestFinalState()
-        base.localAvatar.inventory.setRespectInvasions(1)
         if self.bossCog:
             self.bossCog.d_avatarExit()
         self.bossCog = None

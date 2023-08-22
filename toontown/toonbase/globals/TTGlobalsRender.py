@@ -13,6 +13,7 @@ CameraBitmask = BitMask32(0x04)
 CameraTransparentBitmask = BitMask32(0x08)
 GhostBitmask = BitMask32(0x800)
 PieBitmask = BitMask32(0x100)
+CashbotBossObjectBitmask = BitMask32(0x10)
 
 
 def setCameraBitmask(default, node_path, camera_bitmask, tag=None, tag_function=None, context=None):
@@ -64,6 +65,7 @@ def setAdditiveEffect(node_path, tag=None, bin_name=None, lighting_on=False, ref
 
 OriginalCameraFov = 70.0
 DefaultCameraFov = 70.0
+BossBattleCameraFov = 72.0
 FloorOffset = 0.025
 CogHQCameraFov = 60.0
 

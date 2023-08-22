@@ -5,12 +5,13 @@ from otp.ai.AIBaseGlobal import *
 from otp.avatar import DistributedPlayerAI
 from toontown.chat import ResistanceChat
 from . import ToonDNA
-from ..toonbase.globals.TTGlobalsWorld import ValidStartingLocations
+from toontown.toonbase.globals.TTGlobalsWorld import ValidStartingLocations
 
 
 class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoothNodeAI.DistributedSmoothNodeAI):
     notify = directNotify.newCategory("DistributedToonAI")
     immortalMode = False
+    ghostMode = False
 
     def __init__(self, air):
         DistributedPlayerAI.DistributedPlayerAI.__init__(self, air)

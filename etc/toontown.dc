@@ -17,9 +17,6 @@ from toontown.distributed import TTFriendsManager/UD
 from toontown.boarding import DistributedBoardingParty/AI
 from toontown.chat.magic import DistributedMagicWordManager/AI
 
-from toontown.coghq import DistributedBossCog/AI
-// from toontown.coghq import DistributedGoon/AI
-// apparently this dclass is not used for cfo
 from toontown.toon import DistributedToon/AI/UD
 
 from toontown.coghq import DistributedLobbyManager/AI
@@ -29,6 +26,18 @@ from toontown.elevators import DistributedElevator/AI
 from toontown.elevators import DistributedElevatorExt/AI
 from toontown.world import DistributedDoor/AI
 from toontown.world.coghq import DistributedCogHQDoor/AI
+
+from toontown.coghq import DistributedBossCog/AI
+from toontown.coghq.cfo import DistributedCashbotBoss/AI
+from toontown.coghq.cfo import DistributedCashbotBossCL/AI
+from toontown.coghq.cfo import DistributedCashbotBossCrane/AI
+from toontown.coghq.cfo import DistributedCashbotBossHeavyCrane/AI
+from toontown.coghq.cfo import DistributedCashbotBossSideCrane/AI
+from toontown.coghq.cfo import DistributedCashbotBossObject/AI
+from toontown.coghq.cfo import DistributedCashbotBossGoon/AI
+from toontown.coghq.cfo import DistributedCashbotBossSafe/AI
+from toontown.coghq.cfo import DistributedCashbotBossTreasure/AI
+from toontown.world import DistributedTreasure/AI
 
 typedef uint8 bool;
 
@@ -55,8 +64,19 @@ struct PotentialAvatar {
     uint8 avPosition;
 };
 
+struct BarrierData {
+    uint16 context;
+    string name;
+    uint32 avIds[];
+};
 
-dclass DistributedObject {};
+dclass DistributedObject {
+    setBarrierData(BarrierData []) broadcast ram;
+    setBarrierReady(uint16) airecv clsend;
+    execCommand(string, uint32, uint32, uint32);
+    broadcastMessage() broadcast;
+}
+
 dclass DistributedObjectGlobal {};
 
 dclass DistributedNode: DistributedObject {
@@ -261,20 +281,6 @@ dclass DistributedBoardingParty : DistributedObject {
     setGroupSize(uint8) required broadcast ram;
 };
 
-
-dclass DistributedBossCog : DistributedNode {
-    setDNAString(string) required broadcast db;
-    setToonIds(uint32[]) broadcast ram;
-    avatarEnter() airecv clsend;
-    avatarExit() airecv clsend;
-    avatarNearEnter() airecv clsend;
-    avatarNearExit() airecv clsend;
-    toonDied(uint32) broadcast;
-    zapToon(int16/10, int16/10, int16/10, int16/10, int16/10, int16/10, int8/100, int8/100, uint8, int16) airecv clsend;
-    showZapToon(uint32, int16/10, int16/10, int16/10, int16/10, int16/10, int16/10, uint8, int16) broadcast;
-    setAttackCode(uint8, uint32) broadcast;
-};
-
 dclass DistributedToon: DistributedPlayer {
     setGM(uint8 = 0) required broadcast ownrecv db;
     setDNAString(blob) required broadcast ownrecv db;
@@ -356,4 +362,183 @@ dclass DistributedMagicWordManager : DistributedObject {
     runMagicWord(string wordname, blob args[]) airecv clsend;
     runMagicWordClient(string wordName, blob args[]);
     receiveResult(uint8 err, string wordName, string status);
+};
+
+// CFO fight
+dclass DistributedBossCog : DistributedNode {
+    setDNAString(string) required broadcast db;
+    setToonIds(uint32[]) required broadcast ram;
+    avatarEnter() airecv clsend;
+    avatarExit() airecv clsend;
+    avatarNearEnter() airecv clsend;
+    avatarNearExit() airecv clsend;
+    toonDied(uint32) broadcast;
+    zapToon(int16/10, int16/10, int16/10, int16/10, int16/10, int16/10, int8/100, int8/100, uint8, int16) airecv clsend;
+    showZapToon(uint32, int16/10, int16/10, int16/10, int16/10, int16/10, int16/10, uint8, int16) broadcast;
+    setAttackCode(uint8, uint32) broadcast;
+    updateTimer(uint32/255) broadcast ram;
+    timesUp() broadcast ram;
+};
+
+struct CraneLeagueRuleset {
+    bool TIMER_MODE;
+    int32 TIMER_MODE_TIME_LIMIT;
+    int32 CFO_MAX_HP;
+    int16/100 MIN_GOON_IMPACT;
+    int16/100 MIN_SAFE_IMPACT;
+    int16/100 MIN_DEHELMET_IMPACT;
+    bool WANT_LOW_LAFF_BONUS;
+    int16/100 LOW_LAFF_BONUS;
+    int32 LOW_LAFF_BONUS_THRESHOLD;
+    bool LOW_LAFF_BONUS_INCLUDE_PENALTIES;
+    bool RESTART_CRANE_ROUND_ON_FAIL;
+    bool REVIVE_TOONS_UPON_DEATH;
+    int32 REVIVE_TOONS_TIME;
+    int32 POINTS_GOON_STOMP;
+    int32 POINTS_STUN;
+    int32 POINTS_SIDESTUN;
+    int32 POINTS_IMPACT;
+    int32 POINTS_DESAFE;
+    int32 POINTS_GOON_KILLED_BY_SAFE;
+    int32 POINTS_PENALTY_SAFEHEAD;
+    int32 POINTS_PENALTY_GO_SAD;
+    int32 POINTS_PENALTY_SANDBAG;
+    int32 POINTS_PENALTY_UNSTUN;
+    int16/100 COMBO_DURATION;
+    bool WANT_BACKWALL;
+    bool CFO_FLINCHES_ON_HIT;
+    bool SAFES_STUN_GOONS;
+    bool GOONS_ALWAYS_WAKE_WHEN_GRABBED;
+};
+
+struct CraneLeagueModifier {
+    int32 ENUM;
+    int32 TIER;
+};
+
+dclass DistributedCashbotBoss : DistributedBossCog {
+    addToActivityLog(uint32, string) broadcast;
+    updateSpectators(uint32[]) broadcast ram;
+    setRawRuleset(CraneLeagueRuleset) required broadcast ram;
+    setModifiers(CraneLeagueModifier[]) broadcast ram;
+    setToonSpawnpoints(uint8[]) broadcast ram;
+    setState(string) broadcast ram;
+    setBossDamage(uint32) broadcast ram;
+    setCraneSpawn(bool, uint8, uint32) broadcast ram;
+    setRewardId(uint16) broadcast ram;
+    applyReward() airecv clsend;
+    killingBlowDealt(uint32 avId) broadcast ram;
+    updateDamageDealt(uint32 avId, uint32) broadcast ram;
+    updateStunCount(uint32 avId, uint32) broadcast ram;
+    updateGoonsStomped(uint32 avId) broadcast ram;
+    updateSafePoints(uint32 avId, int32) broadcast ram;
+    updateMaxImpactHits(uint32 avId) broadcast ram;
+    updateLowImpactHits(uint32 avId) broadcast ram;
+    updateCombo(uint32 avId, uint8) broadcast ram;
+    awardCombo(uint32 avId, uint8, int32) broadcast ram;
+    announceCraneRestart() broadcast ram;
+    revivedToon(uint32 avId) broadcast ram;
+    goonKilledBySafe(uint32 avId) broadcast ram;
+    updateUnstun(uint32 avId) broadcast ram;
+};
+
+dclass DistributedCashbotBossCL : DistributedCashbotBoss {};
+
+struct LinkPosition {
+    int16/100 x;
+    int16/100 y;
+    int16/100 z;
+};
+
+dclass DistributedCashbotBossCrane : DistributedObject {
+    setBossCogId(uint32) required broadcast ram;
+    setIndex(uint8) required broadcast ram;
+    setState(char, uint32) broadcast ram;
+    requestControl() airecv clsend;
+    requestFree() airecv clsend;
+    clearSmoothing(int8) broadcast clsend;
+    setCablePos(uint8, int16/100, uint16%360/100, LinkPosition [3], int16) broadcast clsend;
+};
+
+dclass DistributedCashbotBossSideCrane : DistributedCashbotBossCrane {};
+dclass DistributedCashbotBossHeavyCrane : DistributedCashbotBossCrane {};
+
+dclass DistributedCashbotBossObject : DistributedObject {
+    setBossCogId(uint32) required broadcast ram;
+    setObjectState(char, uint32, uint32) broadcast ram;
+    resetSpeedCaching() broadcast ram;
+    requestGrab() airecv clsend;
+    rejectGrab();
+    requestDrop() airecv clsend;
+    hitFloor() clsend;
+    requestFree(int16/10, int16/10, int16/10, uint16%360/100) airecv clsend;
+    hitBoss(uint16/255, uint32) airecv clsend;
+    setX(int16/10) broadcast ram clsend airecv;
+    setY(int16/10) broadcast ram clsend airecv;
+    setZ(int16/10) broadcast ram clsend airecv;
+    setH(int16%360/10) broadcast ram clsend airecv;
+    setP(int16%360/10) broadcast ram clsend airecv;
+    setR(int16%360/10) broadcast ram clsend airecv;
+    setPos : setX, setY, setZ;
+    setHpr : setH, setP, setR;
+    setPosHpr : setX, setY, setZ, setH, setP, setR;
+    setXY : setX, setY;
+    setXZ : setX, setZ;
+    setXYH : setX, setY, setH;
+    setXYZH : setX, setY, setZ, setH;
+    setComponentL(uint64) broadcast ram clsend airecv;
+    setComponentX(int16/10) broadcast ram clsend airecv;
+    setComponentY(int16/10) broadcast ram clsend airecv;
+    setComponentZ(int16/10) broadcast ram clsend airecv;
+    setComponentH(int16%360/10) broadcast ram clsend airecv;
+    setComponentP(int16%360/10) broadcast ram clsend airecv;
+    setComponentR(int16%360/10) broadcast ram clsend airecv;
+    setComponentT(int16) broadcast ram clsend airecv;
+    setSmStop : setComponentT;
+    setSmH : setComponentH, setComponentT;
+    setSmZ : setComponentZ, setComponentT;
+    setSmXY : setComponentX, setComponentY, setComponentT;
+    setSmXZ : setComponentX, setComponentZ, setComponentT;
+    setSmPos : setComponentX, setComponentY, setComponentZ, setComponentT;
+    setSmHpr : setComponentH, setComponentP, setComponentR, setComponentT;
+    setSmXYH : setComponentX, setComponentY, setComponentH, setComponentT;
+    setSmXYZH : setComponentX, setComponentY, setComponentZ, setComponentH, setComponentT;
+    setSmPosHpr : setComponentX, setComponentY, setComponentZ, setComponentH, setComponentP, setComponentR, setComponentT;
+    setSmPosHprL : setComponentL, setComponentX, setComponentY, setComponentZ, setComponentH, setComponentP, setComponentR, setComponentT;
+    clearSmoothing(int8) broadcast clsend;
+};
+
+dclass DistributedCashbotBossSafe : DistributedCashbotBossObject {
+    setIndex(uint8) required broadcast ram;
+    requestInitial() airecv clsend;
+    move(int16/10, int16/10, int16/10, int16/10) broadcast ram clsend airecv;
+    destroyedGoon()  airecv clsend;
+};
+
+dclass DistributedCashbotBossGoon : DistributedCashbotBossObject {
+    requestBattle(int16/10) airecv clsend;
+    requestStunned(int16/10) airecv clsend;
+    requestWalk() airecv clsend;
+    setVelocity(uint32/10) broadcast ram;
+    setHFov(uint8) broadcast ram;
+    setAttackRadius(uint8) broadcast ram;
+    setStrength(uint32) broadcast ram;
+    setGoonScale(uint16/50) broadcast ram;
+    setupGoon : setVelocity, setHFov, setAttackRadius, setStrength, setGoonScale;
+    setTarget(int16/10, int16/10, uint16%360/100, int16) broadcast ram;
+    destroyGoon() broadcast clsend airecv;
+};
+
+dclass DistributedTreasure : DistributedObject {
+    setPosition(int16/10, int16/10, int16/10) required broadcast ram;
+    requestGrab() airecv clsend;
+    setGrab(uint32) broadcast ram;
+    setReject() broadcast;
+};
+
+dclass DistributedCashbotBossTreasure : DistributedTreasure {
+    setGoonId(uint32) required broadcast ram;
+    setFinalPosition(int16/10, int16/10, int16/10) required broadcast ram;
+    setStyle(uint16) required broadcast ram;
+    deductScoreboardPoints(uint32 avId, int32) broadcast ram;
 };

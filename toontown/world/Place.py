@@ -9,7 +9,7 @@ from toontown.toon.Toon import teleportDebug
 from toontown.toonbase import TTLocalizer
 from . import PublicWalk, ZoneUtil
 from . import QuietZoneState
-from ..toonbase.globals.TTGlobalsCore import SPRender
+from toontown.toonbase.globals.TTGlobalsCore import SPRender
 
 
 class Place(StateData.StateData):
@@ -158,7 +158,6 @@ class Place(StateData.StateData):
     def exitPush(self):
         base.localAvatar.laffMeter.stop()
         base.localAvatar.setTeleportAvailable(0)
-        base.localAvatar.stopUpdateSmartCamera()
         base.localAvatar.cmod.disable()
         base.localAvatar.stopPosHprBroadcast()
         self.ignore("teleportQuery")

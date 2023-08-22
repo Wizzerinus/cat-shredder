@@ -7,6 +7,7 @@ from direct.interval.IntervalGlobal import *
 from direct.task import Task
 from panda3d.core import *
 
+from toontown.toon import AccessoryGlobals, ClothingGlobals
 from toontown.toonbase.globals.TTGlobalsAvatars import ToonBodyScales
 
 HeadDict = {
@@ -1112,3 +1113,56 @@ class ToonHead(Actor.Actor):
         for muzzleNum in range(len(self.__surpriseMuzzles)):
             self.__surpriseMuzzles[muzzleNum].hide()
             self.__muzzles[muzzleNum].show()
+
+    # Hacky bs to get a hat to show up on the scoreboard
+    def setupToonHeadHat(self, hat, headStyle):
+        if hat[0] != 0:
+            hatGeom = loader.loadModel(ClothingGlobals.HatModels[hat[0]], okMissing=True)
+            if hatGeom:
+                if hat[1] != 0:
+                    texName = ClothingGlobals.HatTextures[hat[1]]
+                    tex = loader.loadTexture(texName, okMissing=True)
+                    tex.setMinfilter(Texture.FTLinearMipmapLinear)
+                    tex.setMagfilter(Texture.FTLinear)
+                    hatGeom.setTexture(tex, 1)
+                transOffset = None
+                if AccessoryGlobals.ExtendedHatTransTable.get(hat[0]):
+                    transOffset = AccessoryGlobals.ExtendedHatTransTable[hat[0]].get(headStyle[:2])
+                if transOffset is None:
+                    transOffset = AccessoryGlobals.HatTransTable.get(headStyle[:2])
+                    if transOffset is None:
+                        return
+                hatGeom.setPos(transOffset[0][0], transOffset[0][1], transOffset[0][2])
+                hatGeom.setHpr(transOffset[1][0], transOffset[1][1], transOffset[1][2])
+                hatGeom.setScale(transOffset[2][0], transOffset[2][1], transOffset[2][2])
+                headNodes = self.findAllMatches("**/__Actor_head")
+                for headNode in headNodes:
+                    hatNode = headNode.attachNewNode("hatNode")
+                    hatGeom.instanceTo(hatNode)
+
+    # Hacky bys to get glasses to show up on the scoreboard
+    def setupToonHeadGlasses(self, glasses, headStyle):
+        if glasses[0] != 0:
+            glassesGeom = loader.loadModel(ClothingGlobals.GlassesModels[glasses[0]], okMissing=True)
+            if glassesGeom:
+                if glasses[1] != 0:
+                    texName = ClothingGlobals.GlassesTextures[glasses[1]]
+                    tex = loader.loadTexture(texName, okMissing=True)
+                    if tex:
+                        tex.setMinfilter(Texture.FTLinearMipmapLinear)
+                        tex.setMagfilter(Texture.FTLinear)
+                        glassesGeom.setTexture(tex, 1)
+                transOffset = None
+                if AccessoryGlobals.ExtendedGlassesTransTable.get(glasses[0]):
+                    transOffset = AccessoryGlobals.ExtendedGlassesTransTable[glasses[0]].get(headStyle[:2])
+                if transOffset is None:
+                    transOffset = AccessoryGlobals.GlassesTransTable.get(headStyle[:2])
+                    if transOffset is None:
+                        return
+                glassesGeom.setPos(transOffset[0][0], transOffset[0][1], transOffset[0][2])
+                glassesGeom.setHpr(transOffset[1][0], transOffset[1][1], transOffset[1][2])
+                glassesGeom.setScale(transOffset[2][0], transOffset[2][1], transOffset[2][2])
+                headNodes = self.findAllMatches("**/__Actor_head")
+                for headNode in headNodes:
+                    glassesNode = headNode.attachNewNode("glassesNode")
+                    glassesGeom.instanceTo(glassesNode)

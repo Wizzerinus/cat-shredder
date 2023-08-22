@@ -2,7 +2,7 @@ from direct.gui import DirectGui
 from pandac.PandaModules import DecalEffect
 
 from toontown.toonbase.globals.TTGlobalsGUI import getSuitFont
-from toontown.toonbase.globals.TTGlobalsWorld import ZoneIDs
+from toontown.toonbase.globals.TTGlobalsWorld import DynamicZonesBegin, ZoneIDs
 from toontown.world.coghq import CashbotHQExterior, CogHQLoader
 
 
@@ -27,6 +27,8 @@ class CashbotCogHQLoader(CogHQLoader.CogHQLoader):
         self.notify.info("loadPlaceGeom: %s" % zoneId)
 
         zoneId = zoneId - (zoneId % 100)
+        if zoneId >= DynamicZonesBegin:
+            return
 
         if zoneId == ZoneIDs.CashbotHQ:
             self.geom = loader.loadModel(self.cogHQExteriorModelPath)

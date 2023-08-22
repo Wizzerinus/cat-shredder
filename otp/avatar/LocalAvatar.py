@@ -128,7 +128,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         1, but it may be set to 0 in unusual cases
         """
         self.teleportAllowed = flag
-        self.refreshOnscreenButtons()
 
     def sendFriendsListEvent(self):
         self.wakeUp()

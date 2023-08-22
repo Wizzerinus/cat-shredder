@@ -1,5 +1,6 @@
 from toontown.boarding import DistributedBoardingPartyAI
 from toontown.coghq.DistributedLobbyManagerAI import DistributedLobbyManagerAI
+from toontown.coghq.cfo.DistributedCashbotBossCLAI import DistributedCashbotBossCLAI
 from toontown.elevators import DistributedCFOElevatorAI
 from toontown.elevators import DoorTypes
 from toontown.toonbase.globals.TTGlobalsWorld import ZoneIDs
@@ -14,7 +15,7 @@ class CashbotHQDataAI(HoodDataAI.HoodDataAI):
     def startup(self):
         HoodDataAI.HoodDataAI.startup(self)
 
-        self.lobbyMgr = DistributedLobbyManagerAI(self.air, None)
+        self.lobbyMgr = DistributedLobbyManagerAI(self.air, DistributedCashbotBossCLAI)
         self.lobbyMgr.generateWithRequired(ZoneIDs.CashbotHQLobby)
         self.addDistObj(self.lobbyMgr)
 

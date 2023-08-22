@@ -12,11 +12,11 @@ from toontown.toonbase import TTLocalizer
 from . import AccessoryGlobals
 from . import Motion, ToonDNA
 from .ToonHead import *
-from ..toonbase.globals.TTGlobalsAvatars import *
-from ..toonbase.globals.TTGlobalsChat import CheesyEffects
-from ..toonbase.globals.TTGlobalsGUI import getToonFont
-from ..toonbase.globals.TTGlobalsMovement import *
-from ..toonbase.globals.TTGlobalsRender import PieBitmask
+from toontown.toonbase.globals.TTGlobalsAvatars import *
+from toontown.toonbase.globals.TTGlobalsChat import CheesyEffects
+from toontown.toonbase.globals.TTGlobalsGUI import getToonFont
+from toontown.toonbase.globals.TTGlobalsMovement import *
+from toontown.toonbase.globals.TTGlobalsRender import PieBitmask
 
 
 def teleportDebug(requestStatus, msg, onlyIfToAv=True):
@@ -209,6 +209,7 @@ class Toon(Avatar.Avatar, ToonHead):
     notify = directNotify.newCategory("Toon")
     afkTimeout = ConfigVariableInt("afk-timeout", 600).value
     standWalkRunReverse = None
+    isStunned = 0
 
     def __init__(self):
         Avatar.Avatar.__init__(self)

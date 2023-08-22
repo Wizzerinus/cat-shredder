@@ -16,5 +16,5 @@ class DoorReject(IntEnum):
 DoorRejectNames = {}
 
 
-DynamicZonesBegin = 61001
+DynamicZonesBegin = 61000
 DynamicZonesEnd = 999999

@@ -6,7 +6,7 @@ from panda3d.core import *
 
 from toontown.toonbase import TTLocalizer
 from .MakeAToonGlobals import *
-from ..toonbase.globals.TTGlobalsGUI import getInterfaceFont
+from toontown.toonbase.globals.TTGlobalsGUI import getInterfaceFont
 
 
 class ShuffleButton:

@@ -100,7 +100,7 @@ class BossCog(Avatar.Avatar):
             self.doorA = None
             self.doorB = None
 
-    def setDNA(self, dna):
+    def setDNAString(self, dna):
         if self.style:
             pass
         else:
@@ -233,11 +233,14 @@ class BossCog(Avatar.Avatar):
         self.healthBarGlow = glow
         self.healthCondition = 0
 
+    def getBossMaxDamage(self):
+        return self.bossMaxDamage
+
     def updateHealthBar(self):
         if self.healthBar is None:
             return
 
-        health = 1.0 - (float(self.bossDamage) / float(self.bossMaxDamage))
+        health = 1.0 - (float(self.bossDamage) / float(self.getBossMaxDamage()))
         if health > 0.95:
             condition = 0
         elif health > 0.7:

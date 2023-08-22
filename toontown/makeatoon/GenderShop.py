@@ -5,7 +5,7 @@ from toontown.toon import Toon
 from toontown.toon import ToonDNA
 from toontown.toonbase import TTLocalizer
 from .MakeAToonGlobals import *
-from ..toonbase.globals.TTGlobalsGUI import getInterfaceFont
+from toontown.toonbase.globals.TTGlobalsGUI import getInterfaceFont
 
 
 class GenderShop(StateData.StateData):

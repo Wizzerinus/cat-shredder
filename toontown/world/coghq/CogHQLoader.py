@@ -3,7 +3,7 @@ from direct.fsm import StateData
 from pandac.PandaModules import *
 
 from . import CogHQLobby
-from .. import QuietZoneState, ZoneUtil
+from toontown.world import QuietZoneState, ZoneUtil
 
 
 class CogHQLoader(StateData.StateData):

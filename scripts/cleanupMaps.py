@@ -23,6 +23,8 @@ for file in all_bam_files:
                 resolved_parent += "/"
             s = resolved_parent + s.replace("../", "")
         new_strings.append(s)
+        if s.endswith("_a.rgb"):
+            new_strings.append(s[:-6] + ".jpg")
 
     all_strings.extend(new_strings)
     for s in new_strings:
@@ -55,6 +57,8 @@ exclusions = (
         # Onscreen images
         "phase_3/maps/background.png",
         "phase_3/maps/toontown-logo.png",
+        "phase_10/maps/heat.png",
+        "phase_9/maps/HealthBarBosses.png",
         # These files are used in toon head code
         "phase_3/maps/eyes.png",
         "phase_3/maps/eyesClosed.png",
@@ -97,12 +101,17 @@ missing_textures = all_strings - all_images
 if missing_textures:
     print("Detected missing textures:")
     mt_tb = []
+    files = []
     for file in missing_textures:
         mt_tb.append(file)
+        files.append(file)
         mt_tb.append("    " + origins.get(file, "exclusion"))
         mt_tb.append("")
     mt_text = "\n".join(mt_tb)
+    files_text = "\n".join(files)
     print(mt_text)
+    with open("excess.txt", "w") as f:
+        f.write(files_text)
     exit(1)
 
 excess_textures = all_images - all_strings

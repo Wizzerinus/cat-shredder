@@ -73,18 +73,21 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
         self.removeToon(avId)
 
     def addToon(self, avId):
-        assert self.notify.debug("%s.addToon(%s)" % (self.doId, avId))
         if avId not in self.looseToons and avId not in self.involvedToons:
             self.looseToons.append(avId)
 
             event = self.air.getAvatarExitEvent(avId)
             self.acceptOnce(event, self.__handleUnexpectedExit, extraArgs=[avId])
 
-    def removeToon(self, avId):
+    def removeToon(self, avId, died=False):
         assert self.notify.debug("%s.removeToon(%s)" % (self.doId, avId))
         for arr in (self.looseToons, self.involvedToons, self.nearToons):
             with contextlib.suppress(ValueError):
                 arr.remove(avId)
+
+        if not died:
+            with contextlib.suppress(ValueError):
+                self.involvedToons.remove(avId)
 
         event = self.air.getAvatarExitEvent(avId)
         self.ignore(event)
@@ -110,8 +113,8 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
                     alive = 1
         return alive
 
-    def sendToonIds(self):
-        self.sendUpdate("setToonIds", [self.involvedToons])
+    def getToonIds(self):
+        return self.involvedToons
 
     def damageToon(self, toon, deduction):
         toon.takeDamage(deduction)
@@ -151,9 +154,6 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
     def getState(self):
         return self.state
 
-    def formatReward(self):
-        return "unspecified"
-
     def enterOff(self):
         assert self.notify.debug("enterOff()")
 
@@ -163,70 +163,14 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
     def enterWaitForToons(self):
         assert self.notify.debug("%s.enterWaitForToons()" % (self.doId))
 
-        self.acceptNewToons()
-
         self.barrier = self.beginBarrier("WaitForToons", self.involvedToons, 5, self.__doneWaitForToons)
 
     def __doneWaitForToons(self, toons):
         assert self.notify.debug("%s.__doneWaitForToons()" % (self.doId))
-        self.b_setState("Elevator")
+        self.b_setState("BattleThree")
 
     def exitWaitForToons(self):
         self.ignoreBarrier(self.barrier)
-
-    def enterElevator(self):
-        assert self.notify.debug("%s.enterElevator()" % (self.doId))
-
-        if self.notify.getDebug():
-            for toonId in self.involvedToons:
-                toon = simbase.air.doId2do.get(toonId)
-                if toon:
-                    self.notify.debug(
-                        "%s. involved toon %s, %s/%s" % (self.doId, toonId, toon.getHp(), toon.getMaxHp())
-                    )
-
-        self.barrier = self.beginBarrier("Elevator", self.involvedToons, 30, self.__doneElevator)
-
-    def __doneElevator(self, avIds):
-        assert self.notify.debug("%s.__doneElevator()" % (self.doId))
-        self.b_setState("Introduction")
-
-    def exitElevator(self):
-        self.ignoreBarrier(self.barrier)
-
-    def enterIntroduction(self):
-        assert self.notify.debug("%s.enterIntroduction()" % (self.doId))
-
-        self.barrier = self.beginBarrier("Introduction", self.involvedToons, 45, self.doneIntroduction)
-
-    def doneIntroduction(self, avIds):
-        self.b_setState("BattleThree")
-
-    def exitIntroduction(self):
-        self.ignoreBarrier(self.barrier)
-
-        for toonId in self.involvedToons:
-            toon = simbase.air.doId2do.get(toonId)
-            if toon:
-                toon.b_setCogIndex(-1)
-
-    def enterReward(self):
-        assert self.notify.debug("%s.enterReward()" % (self.doId))
-        self.resetBattles()
-
-        self.barrier = self.beginBarrier("Reward", self.involvedToons, 60, self.__doneReward)
-
-    def __doneReward(self, avIds):
-        self.b_setState("Epilogue")
-
-    def exitReward(self):
-        pass
-
-    def enterEpilogue(self):
-        assert self.notify.debug("%s.enterEpilogue()" % (self.doId))
-
-    def exitEpilogue(self):
-        pass
 
     def acceptNewToons(self):
         sourceToons = self.looseToons
@@ -256,7 +200,9 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
 
         return fromValue + (toValue - fromValue) * min(t, 1)
 
-    def progressRandomValue(self, fromValue, toValue, radius=0.2):
+    def progressRandomValue(self, fromValue, toValue, radius=0.2, noRandom=False):
+        if noRandom:
+            return self.progressValue(fromValue, toValue)
         t = self.progressValue(0, 1)
 
         radius = radius * (1.0 - abs(t - 0.5) * 2.0)

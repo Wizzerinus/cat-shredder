@@ -23,6 +23,7 @@ class FontPaths:
     Sign = "phase_3/models/fonts/MickeyFont"
     Minnie = "phase_3/models/fonts/Minnie.ttf"
     BuildingNametag = "phase_3/models/fonts/MickeyFont"
+    Competition = "phase_3/models/fonts/hemiheadreg.ttf"
 
 
 LoadedFonts = {}
@@ -60,3 +61,7 @@ def getMinnieFont():
 
 def getBuildingNametagFont():
     return getFont(FontPaths.BuildingNametag)
+
+
+def getCompetitionFont():
+    return getFont(FontPaths.Competition)
