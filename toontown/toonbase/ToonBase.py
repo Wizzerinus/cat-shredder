@@ -125,14 +125,15 @@ class ToonBase(OTPBase.OTPBase):
 
     def reloadControls(self):
         self.ignore(self.SCREENSHOT)
-        self.MOVE_FORWARD = self.hotkeyManager.getKeyToken("move_forward", "arrow_up").event
-        self.MOVE_BACKWARDS = self.hotkeyManager.getKeyToken("move_backwards", "arrow_down").event
-        self.MOVE_LEFT = self.hotkeyManager.getKeyToken("move_left", "arrow_left").event
-        self.MOVE_RIGHT = self.hotkeyManager.getKeyToken("move_right", "arrow_right").event
-        self.JUMP = self.hotkeyManager.getKeyToken("jump", "control").event
-        self.SPRINT = self.hotkeyManager.getKeyToken("sprint", "shift").event
-        self.CHAT = self.hotkeyManager.getKeyToken("open_chat", "t").event
-        self.SCREENSHOT = self.hotkeyManager.getKeyToken("make_screenshot", "f12").event
+        self.MOVE_FORWARD = self.hotkeyManager.getKeyName("move_forward", "arrow_up")
+        self.MOVE_BACKWARDS = self.hotkeyManager.getKeyName("move_backwards", "arrow_down")
+        self.MOVE_LEFT = self.hotkeyManager.getKeyName("move_left", "arrow_left")
+        self.MOVE_RIGHT = self.hotkeyManager.getKeyName("move_right", "arrow_right")
+        self.JUMP = self.hotkeyManager.getKeyName("jump", "control")
+        self.SPRINT = self.hotkeyManager.getKeyName("sprint", "shift")
+        self.CHAT = self.hotkeyManager.getKeyName("open_chat", "t")
+        self.SCREENSHOT = self.hotkeyManager.getKeyName("make_screenshot", "f12")
+        self.CRANE_GRAB_KEY = self.hotkeyManager.getKeyName("crane_grab", "control")
         self.accept(self.SCREENSHOT, self.takeScreenShot)
 
     def disableShowbaseMouse(self):
