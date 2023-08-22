@@ -47,6 +47,7 @@ toonHeadTypes = [
 HeadLetterToAnimal = {
     "d": "dog",
     "c": "cat",
+    "h": "horse",
     "m": "mouse",
     "r": "rabbit",
     "f": "duck",
@@ -54,6 +55,7 @@ HeadLetterToAnimal = {
     "b": "bear",
     "s": "pig",
 }
+assert len(HeadLetterToAnimal) == len(toonSpeciesTypes)
 
 
 def getHeadList(species):
