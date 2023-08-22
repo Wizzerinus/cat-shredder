@@ -77,9 +77,8 @@ class TTChatInputMenu(FSM, DirectFrame):
             entryFont=getInterfaceFont(),
             width=self.entryWidth,
             numLines=1,
-            cursorKeys=1,
+            cursorKeys=0,
             backgroundFocus=0,
-            suppressKeys=0,
             suppressMouse=1,
             command=self.sendChat,
             focus=0,
@@ -88,6 +87,8 @@ class TTChatInputMenu(FSM, DirectFrame):
             text_pos=(0, -self.entryHeight + self.entryScale * 0.4 + self.entryBorderWidth),
             text_scale=self.entryScale,
             overflow=1,
+            focusInCommand=base.hotkeyManager.disableAlphanumerics,
+            focusOutCommand=base.hotkeyManager.enableAlphanumerics,
         )
 
         self.chatInputUnites = chatMgr.chatInputUnites
