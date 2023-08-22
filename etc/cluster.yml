@@ -1,0 +1,44 @@
+daemon:
+  name: Cat Shredder
+general:
+  dc_files:
+  - ./toontown.dc
+messagedirector:
+  bind: 0.0.0.0:7100
+roles:
+- control: 4002
+  type: stateserver
+- database: 4003
+  ranges:
+  - max: 399999999
+    min: 100000000
+  type: dbss
+- backend:
+    directory: ../database/astrondb
+    type: yaml
+  control: 4003
+  generate:
+    max: 399999999
+    min: 100000000
+  type: database
+- bind: 0.0.0.0:6667
+  channels:
+    max: 1000005000
+    min: 1000000000
+  client:
+    add_interest: enabled
+    heartbeat_timeout: 60000
+    relocate: true
+  manual_dc_hash: 19088743
+  type: clientagent
+  version: 1.0
+uberdogs:
+- anonymous: false
+  class: TTFriendsManager
+  id: 4699
+- anonymous: true
+  class: AstronLoginManager
+  id: 4670
+- anonymous: false
+  class: ChatRouter
+  id: 4681

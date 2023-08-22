@@ -1,0 +1,9 @@
+database/astrondb
+database/accounts
+dependencies/astrond.exe
+dependencies/astrond
+user
+server
+resources
+.idea
+__pycache__
