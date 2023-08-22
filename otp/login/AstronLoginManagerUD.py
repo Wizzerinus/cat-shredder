@@ -103,7 +103,6 @@ class LoginOperation(GameOperation):
     def __handleCreateAccount(self):
         self.account = {
             "ACCOUNT_AV_SET": [0] * 6,
-            "ESTATE_ID": 0,
             "ACCOUNT_AV_SET_DEL": [],
             "CREATED": time.ctime(),
             "LAST_LOGIN": time.ctime(),
@@ -581,16 +580,3 @@ class AstronLoginManagerUD(DistributedObjectGlobalUD):
 
     def killAccount(self, accId, reason, errCode=122):
         self.killConnection(self.GetAccountConnectionChannel(accId), reason, errCode)
-
-    def giveAdmin(self, accountName):
-        self.accountDb.lookup(accountName, self.__handleAdminLookup)
-
-    def __handleAdminLookup(self, account):
-        if account is None or not account.get("accountId"):
-            return
-        self.air.dbInterface.updateObject(
-            self.air.dbId,
-            account.get("accountId"),
-            self.air.dclassesByName["AccountUD"],
-            {"STAFF_ACCESS": "SYSTEM ADMIN"},
-        )
