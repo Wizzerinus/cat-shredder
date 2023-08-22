@@ -99,3 +99,5 @@ class CheesyEffects:
 SPEEDCHAT_NORMAL = 1
 SPEEDCHAT_EMOTE = 2
 SPEEDCHAT_CUSTOM = 3
+
+MagicWordStartSymbols = ["/", "~", "`"]

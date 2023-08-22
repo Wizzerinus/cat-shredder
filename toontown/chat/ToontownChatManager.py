@@ -14,6 +14,7 @@ from toontown.chat.TTChatInputSpeedChat import TTChatInputSpeedChat
 from toontown.chat.TTChatInputUnites import TTChatInputUnites
 from toontown.toonbase import TTLocalizer
 from toontown.toonbase.globals import TTGlobalsChat
+from toontown.toonbase.globals.TTGlobalsChat import MagicWordStartSymbols
 
 
 class HackedDirectRadioButton(DirectCheckButton):
@@ -415,11 +416,12 @@ class ToontownChatManager(DirectObject):
     def start(self):
         self.fsm.request("mainMenu")
         if not self.wantBackgroundFocus:
-            self.accept("/", self.__beginMagicWord)
+            for char in MagicWordStartSymbols:
+                self.accept(char, self.__beginMagicWord, [char])
 
-    def __beginMagicWord(self):
+    def __beginMagicWord(self, char):
         self.__normalButtonPressed()
-        self.chatInputMenu.chatEntry.set("/")
+        self.chatInputMenu.chatEntry.set(char)
         self.chatInputMenu.chatEntry.setCursorPosition(1)
 
     def checkUniteButton(self):

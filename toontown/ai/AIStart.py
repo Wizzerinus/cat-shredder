@@ -23,7 +23,7 @@ if override := os.getenv("DIRECTNOTIFY_LEVEL_OVERRIDE", ""):
 
 import otp.ai.AIBaseGlobal  # noqa: F401
 from toontown.ai.ToontownAIRepository import ToontownAIRepository  # noqa: F401
-from toontown.chat.magic import MagicWordImports  # noqa: F401
+from toontown.chat.magic import MagicWordImportsAI  # noqa: F401
 from otp.otpbase import PythonUtil  # noqa: F401
 
 

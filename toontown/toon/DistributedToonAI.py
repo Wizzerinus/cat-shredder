@@ -10,6 +10,7 @@ from ..toonbase.globals.TTGlobalsWorld import ValidStartingLocations
 
 class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoothNodeAI.DistributedSmoothNodeAI):
     notify = directNotify.newCategory("DistributedToonAI")
+    immortalMode = False
 
     def __init__(self, air):
         DistributedPlayerAI.DistributedPlayerAI.__init__(self, air)
@@ -138,10 +139,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 if self.hp <= 0:
                     self.hp = -1
                     messenger.send(self.getGoneSadMessage())
-        if not self.hpOwnedByBattle:
-            self.hp = min(self.hp, self.maxHp)
-            if sendTotal:
-                self.d_setHp(self.hp)
+        self.hp = min(self.hp, self.maxHp)
+        if sendTotal:
+            self.d_setHp(self.hp)
 
     @staticmethod
     def getGoneSadMessageForAvId(avId):
@@ -265,6 +265,9 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def setImmortalMode(self, flag):
         self.immortalMode = flag
 
+    def getImmortalMode(self):
+        return self.immortalMode
+
     def toonUp(self, hpGained, quietly=0, sendTotal=1):
         if hpGained > self.maxHp:
             hpGained = self.maxHp
@@ -275,9 +278,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         else:
             self.hp = max(self.hp, 0) + hpGained
         clampedHp = min(self.hp, self.maxHp)
-        if not self.hpOwnedByBattle:
-            self.hp = clampedHp
-        if sendTotal and not self.hpOwnedByBattle:
+        self.hp = clampedHp
+        if sendTotal:
             self.d_setHp(clampedHp)
 
     def isToonedUp(self):

@@ -2,6 +2,7 @@ from panda3d.otp import CFSpeech, CFThought, CFTimeout, WhisperPopup
 
 from otp.speedchat import SCDecoders
 from toontown.toonbase.globals import TTGlobalsChat
+from toontown.toonbase.globals.TTGlobalsChat import MagicWordStartSymbols
 
 
 class ChatMessage:
@@ -90,7 +91,7 @@ class TalkAssistantV2:
         if not text:
             return
 
-        if text.startswith("/"):
+        if text[0] in MagicWordStartSymbols:
             messenger.send("magicWord", [text])
             self.addMessage(ChatMessage(f"Issued magic word: {text}", messageType=ChatMessage.SYSTEM))
             return

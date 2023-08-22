@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from toontown.chat.magic.MagicBase import MagicWord, MagicWordRegistry
+from toontown.chat.magic.MagicBase import MagicWord, formatBool
 from toontown.chat.magic.commands.MagicWordAIStubs import *
 from toontown.chat.magic.commands.MagicWordClientStubs import LimeadeStub
 
@@ -42,3 +42,18 @@ class ToonUp(MagicWord, ToonUpStub):
     def invoke(self) -> Tuple[bool, str]:
         self.toon.toonUp(self.toon.getMaxHp())
         return True, "Successfully healed the toon!"
+
+
+@MagicWordRegistry.command
+class Immortal(MagicWord, ImmortalStub):
+    def invoke(self) -> Tuple[bool, str]:
+        self.toon.setImmortalMode(not self.toon.getImmortalMode())
+        return True, formatBool("Immortal mode", self.toon.getImmortalMode())
+
+
+@MagicWordRegistry.command
+class God(MagicWord, GodStub):
+    def invoke(self) -> Tuple[bool, str]:
+        self.toon.setImmortalMode(not self.toon.getImmortalMode())
+        self.addClientsideCommand("run", [bytes(self.toon.getImmortalMode())])
+        return True, formatBool("God mode", self.toon.getImmortalMode())

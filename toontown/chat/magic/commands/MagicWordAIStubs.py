@@ -37,3 +37,19 @@ class ToonUpStub(MagicWordStub):
 
     location = MagicWordLocation.SERVER
     permissionLevel = AccessLevels.DEVELOPER
+
+
+@MagicWordRegistry.stub("immortal")
+class ImmortalStub(MagicWordStub):
+    description = "The toon becomes immortal"
+
+    location = MagicWordLocation.SERVER
+    permissionLevel = AccessLevels.DEVELOPER
+
+
+@MagicWordRegistry.stub("god", "godmode")
+class GodStub(MagicWordStub):
+    description = "The toon becomes immortal and fast"
+
+    location = MagicWordLocation.SERVER
+    permissionLevel = AccessLevels.DEVELOPER

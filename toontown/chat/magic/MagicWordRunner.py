@@ -2,6 +2,7 @@ import shlex
 
 from toontown.chat.magic.MagicBase import FillValueSentinel, MagicWord, MagicWordArgPad, MagicWordRegistry
 from toontown.chat.magic.MagicWordErrors import MagicWordError
+from toontown.toonbase.globals.TTGlobalsChat import MagicWordStartSymbols
 
 
 class MagicWordRunner:
@@ -42,7 +43,7 @@ class MagicWordRunner:
     @classmethod
     def parseArgs(cls, wordString):
         # the first symbol is / slash so lets get rid of that first
-        if not wordString.startswith("/"):
+        if not wordString or wordString[0] not in MagicWordStartSymbols:
             return "", [], MagicWordError.RUNNER_ERROR, {}
 
         wordString = wordString[1:]
