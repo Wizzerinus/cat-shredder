@@ -56,3 +56,11 @@ class LogoutStub(MagicWordStub):
 
     location = MagicWordLocation.CLIENT
     permissionLevel = AccessLevels.USER
+
+
+@MagicWordRegistry.stub("startboss", "startcfo", "solo")
+class StartBossStub(MagicWordStub):
+    description = "Starts a solo boss run"
+
+    location = MagicWordLocation.CLIENT
+    permissionLevel = AccessLevels.DEVELOPER

@@ -2,8 +2,9 @@ from typing import Tuple
 
 from direct.showbase.InputStateGlobal import inputState
 
-from toontown.chat.magic.MagicBase import MagicWord, MagicWordRegistry, formatBool
+from toontown.chat.magic.MagicBase import MagicWord, formatBool
 from toontown.chat.magic.commands.MagicWordClientStubs import *
+from toontown.coghq.DistributedLobbyManager import DistributedLobbyManager
 
 
 @MagicWordRegistry.command
@@ -55,3 +56,16 @@ class Logout(MagicWord, LogoutStub):
         base.cr._userLoggingOut = True
         base.localAvatar.b_setAnimState("TeleportOut", 1, callback=lambda: base.cr.gameFSM.request("closeShard"))
         return True, "Successfully logged out!"
+
+
+@MagicWordRegistry.command
+class StartBoss(MagicWord, StartBossStub):
+    def invoke(self) -> Tuple[bool, str]:
+        for item in base.cr.doId2do.values():
+            if isinstance(item, DistributedLobbyManager):
+                break
+        else:
+            return False, "Lobby manager not found in this area!"
+
+        item.d_requestSoloBoss()
+        return True, "Successfully started a new boss run!"

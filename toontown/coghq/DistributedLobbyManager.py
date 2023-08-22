@@ -22,3 +22,17 @@ class DistributedLobbyManager(DistributedObject.DistributedObject):
 
     def getBossLevel(self):
         return 0
+
+    def d_requestSoloBoss(self):
+        self.sendUpdate("requestSoloBoss")
+
+    def setBossZoneId(self, zoneId):
+        hoodId = self.cr.playGame.hood.hoodId
+        doneStatus = {
+            "loader": "cogHQLoader",
+            "where": "cogHQBossBattle",
+            "how": "movie",
+            "zoneId": zoneId,
+            "hoodId": hoodId,
+        }
+        self.cr.playGame.getPlace().elevator.signalDone(doneStatus)

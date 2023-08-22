@@ -18,6 +18,11 @@ class DistributedLobbyManagerAI(DistributedObjectAI.DistributedObjectAI):
         self.ignoreAll()
         DistributedObjectAI.DistributedObjectAI.delete(self)
 
+    def requestSoloBoss(self):
+        toonId = self.air.getAvatarIdFromSender()
+        zoneId = self.createBossOffice([toonId])
+        self.sendUpdateToAvatarId(toonId, "setBossZoneId", [zoneId])
+
     def createBossOffice(self, avIdList):
         bossZone = self.air.allocateZone()
         self.notify.info("createBossOffice: %s" % bossZone)

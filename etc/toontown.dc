@@ -296,7 +296,10 @@ dclass DistributedToon: DistributedPlayer {
     teleportGreeting(uint32) broadcast ownsend;
 };
 
-dclass DistributedLobbyManager: DistributedObject {};
+dclass DistributedLobbyManager: DistributedObject {
+    requestSoloBoss() clsend airecv;
+    setBossZoneId(uint32 zoneId);
+};
 
 dclass DistributedElevator: DistributedObject {
     setBldgDoId(uint32 doId) required broadcast ram;
