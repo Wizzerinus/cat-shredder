@@ -85,10 +85,6 @@ class ToonHead(Actor.Actor):
     RightBC = Point3(RightB[0] - RightB[2] * (RightC[0] - RightB[0]) / (RightC[2] - RightB[2]), 0.0, 0.0)
 
     def __init__(self):
-        if hasattr(self, "ToonHead_initialized"):
-            raise RuntimeError("bro")
-        self.ToonHead_initialized = True
-
         Actor.Actor.__init__(self)
         self.toonName = "ToonHead-" + str(self.this)
         self.__blinkName = "blink-" + self.toonName
@@ -133,10 +129,6 @@ class ToonHead(Actor.Actor):
         self.lookAtPositionCallbackArgs = None
 
     def delete(self):
-        if hasattr(self, "ToonHead_deleted"):
-            raise RuntimeError("bro")
-        self.ToonHead_deleted = True
-
         taskMgr.remove(self.__blinkName)
         taskMgr.remove(self.__lookName)
         taskMgr.remove(self.__stareAtName)

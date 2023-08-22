@@ -33,10 +33,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         """
         cr is a ClientRepository
         """
-        if hasattr(self, "LocalAvatar_initialized"):
-            raise RuntimeError("bro")
-        self.LocalAvatar_initialized = True
-
         self.debugSteps = 0
         self.nudgeInProgress = False
 
@@ -139,9 +135,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         messenger.send("openFriendsList")
 
     def delete(self):
-        if hasattr(self, "LocalAvatar_deleted"):
-            raise RuntimeError("bro")
-        self.LocalAvatar_deleted = True
         self.ignoreAll()
         self.stopJumpLandTask()
         taskMgr.remove("shadowReach")

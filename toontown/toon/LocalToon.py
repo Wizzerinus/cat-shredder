@@ -16,10 +16,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     orbitalMode = False
 
     def __init__(self, cr):
-        if hasattr(self, "LocalToon_initialized"):
-            raise RuntimeError("bro")
-        self.LocalToon_initialized = True
-
         DistributedToon.DistributedToon.__init__(self, cr)
         chatMgr = ToontownChatManager.ToontownChatManager(cr, self)
         talkAssistant = TalkAssistantV2()
@@ -53,10 +49,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         pass
 
     def delete(self):
-        if hasattr(self, "LocalToon_deleted"):
-            raise RuntimeError("bro")
-        self.LocalToon_deleted = True
-
         Toon.unloadDialog()
         DistributedToon.DistributedToon.delete(self)
         LocalAvatar.LocalAvatar.delete(self)

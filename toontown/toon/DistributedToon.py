@@ -29,10 +29,6 @@ class DistributedToon(
     gmNameTag = None
 
     def __init__(self, cr, bFake=False):
-        if hasattr(self, "DistributedToon_initialized"):
-            raise RuntimeError("bro")
-        self.DistributedToon_initialized = True
-
         DistributedPlayer.DistributedPlayer.__init__(self, cr)
         Toon.Toon.__init__(self)
         DistributedSmoothNode.DistributedSmoothNode.__init__(self, cr)
@@ -70,9 +66,6 @@ class DistributedToon(
         DistributedPlayer.DistributedPlayer.disable(self)
 
     def delete(self):
-        if hasattr(self, "DistributedToon_deleted"):
-            raise RuntimeError("bro")
-        self.DistributedToon_deleted = True
         DistributedPlayer.DistributedPlayer.delete(self)
         Toon.Toon.delete(self)
         DistributedSmoothNode.DistributedSmoothNode.delete(self)

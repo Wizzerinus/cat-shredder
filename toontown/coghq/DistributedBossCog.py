@@ -133,9 +133,6 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         self.toonRequest = None
 
     def delete(self):
-        if hasattr(self, "DistributedBossCog_deleted"):
-            raise RuntimeError("bro")
-        self.DistributedBossCog_deleted = True
         self.ignoreAll()
         DistributedAvatar.DistributedAvatar.delete(self)
         BossCog.BossCog.delete(self)
