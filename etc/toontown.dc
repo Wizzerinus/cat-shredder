@@ -264,7 +264,7 @@ dclass DistributedBoardingParty : DistributedObject {
 
 dclass DistributedBossCog : DistributedNode {
     setDNAString(string) required broadcast db;
-    setToonIds(uint32[], uint32[], uint32[]) broadcast ram;
+    setToonIds(uint32[]) broadcast ram;
     avatarEnter() airecv clsend;
     avatarExit() airecv clsend;
     avatarNearEnter() airecv clsend;

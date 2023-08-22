@@ -64,10 +64,10 @@ class BoardingGroupInviterPanels:
         if self.isInvitingPanelUp():
             if inviteeId == self.__invitingPanel.avId:
                 return True
-            else:
-                self.notify.warning(
-                    "Got a response back from an invitee, but a different invitee panel was open. Maybe lag?"
-                )
+
+            self.notify.warning(
+                "Got a response back from an invitee, but a different invitee panel was open. Maybe lag?"
+            )
         return False
 
     def isInvitingPanelUp(self):
@@ -149,7 +149,8 @@ class BoardingGroupInviterPanelBase(ToonHeadDialog.ToonHeadDialog):
 
     def defineParams(self):
         self.notify.error(
-            "setupParams: This method should not be called from the base class. Derived class should override this method"
+            "setupParams: This method should not be called from the base class. "
+            "Derived class should override this method"
         )
 
     def cleanup(self):

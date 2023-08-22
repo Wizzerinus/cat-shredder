@@ -86,10 +86,8 @@ class DistributedGoonAI(DistributedObjectAI):
         self.notify.debug("resyncGoon")
         self.sendMovie(GOON_MOVIE_SYNC)
 
-        return
-
-    def sendMovie(self, type, avId=0, pauseTime=0.0):
-        if type == GOON_MOVIE_WALK:
+    def sendMovie(self, movieType, avId=0, pauseTime=0.0):
+        if movieType == GOON_MOVIE_WALK:
             self.pathStartTime = globalClock.getFrameTime()
             self.walkTrackTime = pauseTime
 
@@ -98,20 +96,20 @@ class DistributedGoonAI(DistributedObjectAI):
                 f"walkTrackTime = {self.walkTrackTime}"
             )
 
-        if type == GOON_MOVIE_WALK or type == GOON_MOVIE_SYNC:
+        if movieType in (GOON_MOVIE_WALK, GOON_MOVIE_SYNC):
             curT = globalClock.getFrameTime()
             elapsedT = curT - self.pathStartTime
 
             pathT = self.walkTrackTime + elapsedT
 
-            self.sendUpdate("setMovie", [type, avId, pathT, ClockDelta.globalClockDelta.localToNetworkTime(curT)])
+            self.sendUpdate("setMovie", [movieType, avId, pathT, ClockDelta.globalClockDelta.localToNetworkTime(curT)])
 
             taskMgr.remove(self.taskName("sync"))
             taskMgr.doMethodLater(
                 self.UPDATE_TIMESTAMP_INTERVAL, self.requestResync, self.taskName("sync"), extraArgs=None
             )
         else:
-            self.sendUpdate("setMovie", [type, avId, pauseTime, ClockDelta.globalClockDelta.getFrameNetworkTime()])
+            self.sendUpdate("setMovie", [movieType, avId, pauseTime, ClockDelta.globalClockDelta.getFrameNetworkTime()])
 
     def setVelocity(self, velocity):
         self.velocity = velocity

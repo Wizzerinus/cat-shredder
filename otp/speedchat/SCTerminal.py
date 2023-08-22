@@ -44,11 +44,10 @@ class SCTerminal(SCElement):
         if handleWhisperMode:
             self._wmcListener = DirectObject()
             self._wmcListener.accept(self.getEventName(SCWhisperModeChangeEvent), self._handleWhisperModeChange)
-        else:
-            if hasattr(self, "_wmcListener"):
-                self._wmcListener.ignoreAll()
-                del self._wmcListener
-                self.invalidate()
+        elif hasattr(self, "_wmcListener"):
+            self._wmcListener.ignoreAll()
+            del self._wmcListener
+            self.invalidate()
 
     def _handleWhisperModeChange(self, whisperMode):
         self.invalidate()
@@ -76,6 +75,7 @@ class SCTerminal(SCElement):
     def linkedEmoteEnabled(self):
         if Emote.globalEmote:
             return Emote.globalEmote.isEnabled(self.linkedEmote)
+        return None
 
     def getCharges(self):
         return self.__numCharges
@@ -102,8 +102,10 @@ class SCTerminal(SCElement):
             width += 1.3
         return width, height
 
-    def finalize(self, dbArgs={}):
+    def finalize(self, dbArgs=None):
         """catch this call and influence the appearance of our button"""
+        if dbArgs is None:
+            dbArgs = {}
         if not self.isDirty():
             return
 
@@ -126,7 +128,7 @@ class SCTerminal(SCElement):
                     "pressedColor": (0, 0, 0, 0),
                     "rolloverSound": None,
                     "clickSound": None,
-                    "text_fg": self.getColorScheme().getTextDisabledColor() + (1,),
+                    "text_fg": (*self.getColorScheme().getTextDisabledColor(), 1),
                 }
             )
 
@@ -151,25 +153,21 @@ class SCTerminal(SCElement):
     def enterVisible(self):
         SCElement.enterVisible(self)
 
-        if hasattr(self, "lastEmoteIconColor"):
-            if self.getEmoteIconColor() != self.lastEmoteIconColor:
-                self.invalidate()
+        if hasattr(self, "lastEmoteIconColor") and self.getEmoteIconColor() != self.lastEmoteIconColor:
+            self.invalidate()
 
         def handleWhisperModeChange(whisperMode):
-            if self.hasLinkedEmote():
-                if self.isVisible() and not self.isWhispering():
-                    self.updateEmoteIcon()
+            if self.hasLinkedEmote() and self.isVisible() and not self.isWhispering():
+                self.updateEmoteIcon()
 
         self.accept(self.getEventName(SCWhisperModeChangeEvent), handleWhisperModeChange)
 
         def handleEmoteEnableStateChange(self=self):
-            if self.hasLinkedEmote():
-                if self.isVisible() and not self.isWhispering():
-                    self.updateEmoteIcon()
+            if self.hasLinkedEmote() and self.isVisible() and not self.isWhispering():
+                self.updateEmoteIcon()
 
-        if self.hasLinkedEmote():
-            if Emote.globalEmote:
-                self.accept(Emote.globalEmote.EmoteEnableStateChanged, handleEmoteEnableStateChange)
+        if self.hasLinkedEmote() and Emote.globalEmote:
+            self.accept(Emote.globalEmote.EmoteEnableStateChanged, handleEmoteEnableStateChange)
 
     def exitVisible(self):
         SCElement.exitVisible(self)
@@ -180,5 +178,5 @@ class SCTerminal(SCElement):
     def getDisplayText(self):
         if self.getCharges() != -1:
             return f"{self.text} ({self.getCharges()})"
-        else:
-            return self.text
+
+        return self.text

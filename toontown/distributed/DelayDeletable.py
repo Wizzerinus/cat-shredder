@@ -10,7 +10,6 @@ class DelayDeletable(DistributedObject.DistributedObject):
         """
         Inheritors should redefine this to take appropriate action on delayDelete
         """
-        pass
 
     def acquireDelayDelete(self, name):
         if (not self._delayDeleteForceAllow) and (

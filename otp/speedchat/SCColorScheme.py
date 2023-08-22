@@ -30,8 +30,7 @@ class SCColorScheme:
         def scaleIfNone(color, srcColor, mult):
             if color is not None:
                 return color
-            else:
-                return scaleColor(srcColor, mult)
+            return scaleColor(srcColor, mult)
 
         self.__arrowColor = arrowColor
         self.__rolloverColor = rolloverColor

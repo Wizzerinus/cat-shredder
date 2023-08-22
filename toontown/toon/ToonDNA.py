@@ -44,6 +44,17 @@ toonHeadTypes = [
     "sll",
 ]
 
+HeadLetterToAnimal = {
+    "d": "dog",
+    "c": "cat",
+    "m": "mouse",
+    "r": "rabbit",
+    "f": "duck",
+    "p": "monkey",
+    "b": "bear",
+    "s": "pig",
+}
+
 
 def getHeadList(species):
     headList = []
@@ -58,12 +69,14 @@ def getHeadStartIndex(species):
     for head in toonHeadTypes:
         if head[0] == species:
             return toonHeadTypes.index(head)
+    return None
 
 
 def getSpecies(head):
     for species in toonSpeciesTypes:
         if species == head[0]:
             return species
+    return None
 
 
 def getSpeciesName(head):
@@ -98,20 +111,17 @@ toonLegTypes = ["s", "m", "l"]
 
 
 def getRandomTop(gender, tailorId=MAKE_A_TOON, generator=None):
-    if generator == None:
+    if generator is None:
         generator = random
     collection = TailorCollections[tailorId]
-    if gender == "m":
-        style = generator.choice(collection[BOY_SHIRTS])
-    else:
-        style = generator.choice(collection[GIRL_SHIRTS])
+    style = generator.choice(collection[BOY_SHIRTS]) if gender == "m" else generator.choice(collection[GIRL_SHIRTS])
     styleList = ShirtStyles[style]
     colors = generator.choice(styleList[2])
     return (styleList[0], colors[0], styleList[1], colors[1])
 
 
 def getRandomBottom(gender, tailorId=MAKE_A_TOON, generator=None, girlBottomType=None):
-    if generator == None:
+    if generator is None:
         generator = random
     collection = TailorCollections[tailorId]
     if gender == "m":
@@ -136,13 +146,10 @@ def getRandomBottom(gender, tailorId=MAKE_A_TOON, generator=None, girlBottomType
 
 
 def getRandomizedTops(gender, tailorId=MAKE_A_TOON, generator=None):
-    if generator == None:
+    if generator is None:
         generator = random
     collection = TailorCollections[tailorId]
-    if gender == "m":
-        collection = collection[BOY_SHIRTS][:]
-    else:
-        collection = collection[GIRL_SHIRTS][:]
+    collection = collection[BOY_SHIRTS][:] if gender == "m" else collection[GIRL_SHIRTS][:]
     tops = []
     generator.shuffle(collection)
     for style in collection:
@@ -155,13 +162,10 @@ def getRandomizedTops(gender, tailorId=MAKE_A_TOON, generator=None):
 
 
 def getRandomizedBottoms(gender, tailorId=MAKE_A_TOON, generator=None):
-    if generator == None:
+    if generator is None:
         generator = random
     collection = TailorCollections[tailorId]
-    if gender == "m":
-        collection = collection[BOY_SHORTS][:]
-    else:
-        collection = collection[GIRL_BOTTOMS][:]
+    collection = collection[BOY_SHORTS][:] if gender == "m" else collection[GIRL_BOTTOMS][:]
     bottoms = []
     generator.shuffle(collection)
     for style in collection:
@@ -207,23 +211,16 @@ defaultGirlColorList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1
 allColorsListApproximations = [
     VBase4(round(x[0], 3), round(x[1], 3), round(x[2], 3), round(x[3], 3)) for x in allColorsList
 ]
-allowedColors = set([allColorsListApproximations[x] for x in set(defaultBoyColorList + defaultGirlColorList + [26])])
+allowedColors = {allColorsListApproximations[x] for x in set(defaultBoyColorList + defaultGirlColorList + [26])}
 
 
 class ToonDNA:
-    def __init__(self, str=None, type=None, dna=None, r=None, b=None, g=None):
-        if str != None:
-            self.makeFromNetString(str)
-        elif type != None:
-            if type == "t":
-                if dna == None:
-                    self.newToonRandom(r, g, b)
-                else:
-                    self.newToonFromProperties(*dna.asTuple())
+    def __init__(self, dnaString=None):
+        if dnaString is not None:
+            self.makeFromNetString(dnaString)
         else:
             self.type = "u"
         self.cache = ()
-        return
 
     def clone(self):
         d = ToonDNA()
@@ -266,8 +263,8 @@ class ToonDNA:
         dgi = PyDatagramIterator(dg)
         if dgi.getRemainingSize() != 15:
             return False
-        type = dgi.getFixedString(1)
-        if type not in ("t",):
+        dnaType = dgi.getFixedString(1)
+        if dnaType not in ("t",):
             return False
         headIndex = dgi.getUint8()
         torsoIndex = dgi.getUint8()
@@ -279,10 +276,7 @@ class ToonDNA:
         if legsIndex >= len(toonLegTypes):
             return False
         gender = dgi.getUint8()
-        if gender == 1:
-            gender = "m"
-        else:
-            gender = "f"
+        gender = "m" if gender == 1 else "f"
         topTex = dgi.getUint8()
         topTexColor = dgi.getUint8()
         sleeveTex = dgi.getUint8()
@@ -343,7 +337,6 @@ class ToonDNA:
             self.headColor = dgi.getUint8()
         else:
             notify.error("unknown avatar type: ", self.type)
-        return None
 
     def defaultColor(self):
         return 25
@@ -368,7 +361,7 @@ class ToonDNA:
             self.sleeveTexColor = 0
             self.botTex = 0
             self.botTexColor = 0
-            if color == None:
+            if color is None:
                 color = self.defaultColor()
             self.armColor = color
             self.legColor = color
@@ -376,7 +369,6 @@ class ToonDNA:
             self.gloveColor = 0
         else:
             notify.error("tuple must be in format ('%s', '%s', '%s', '%s')")
-        return
 
     def newToonFromProperties(
         self,
@@ -459,15 +451,15 @@ class ToonDNA:
         if bottomTextureColor:
             self.botTexColor = bottomTextureColor
         if shirt:
-            str, colorIndex = shirt
-            defn = ShirtStyles[str]
+            clothName, colorIndex = shirt
+            defn = ShirtStyles[clothName]
             self.topTex = defn[0]
             self.topTexColor = defn[2][colorIndex][0]
             self.sleeveTex = defn[1]
             self.sleeveTexColor = defn[2][colorIndex][1]
         if bottom:
-            str, colorIndex = bottom
-            defn = BottomStyles[str]
+            clothName, colorIndex = bottom
+            defn = BottomStyles[clothName]
             self.botTex = defn[0]
             self.botTexColor = defn[1][colorIndex]
 
@@ -478,7 +470,7 @@ class ToonDNA:
         else:
             generator = random
         self.type = "t"
-        self.legs = generator.choice(toonLegTypes + ["m", "l", "l", "l"])
+        self.legs = generator.choice([*toonLegTypes, "m", "l", "l", "l"])
         self.gender = gender
         if not npc:
             if stage == MAKE_A_TOON:
@@ -541,32 +533,13 @@ class ToonDNA:
 
     def getType(self):
         if self.type == "t":
-            type = self.getAnimal()
+            toonType = self.getAnimal()
         else:
-            notify.error("Invalid DNA type: ", self.type)
-        return type
+            raise ValueError(f"Invalid DNA type: {self.type}")
+        return toonType
 
     def getAnimal(self):
-        if self.head[0] == "d":
-            return "dog"
-        elif self.head[0] == "c":
-            return "cat"
-        elif self.head[0] == "m":
-            return "mouse"
-        elif self.head[0] == "h":
-            return "horse"
-        elif self.head[0] == "r":
-            return "rabbit"
-        elif self.head[0] == "f":
-            return "duck"
-        elif self.head[0] == "p":
-            return "monkey"
-        elif self.head[0] == "b":
-            return "bear"
-        elif self.head[0] == "s":
-            return "pig"
-        else:
-            notify.error("unknown headStyle: ", self.head[0])
+        return HeadLetterToAnimal[self.head[0]]
 
     def getGender(self):
         return self.gender
@@ -574,23 +547,23 @@ class ToonDNA:
     def getArmColor(self):
         try:
             return allColorsList[self.armColor]
-        except:
+        except IndexError:
             return allColorsList[0]
 
     def getLegColor(self):
         try:
             return allColorsList[self.legColor]
-        except:
+        except IndexError:
             return allColorsList[0]
 
     def getHeadColor(self):
         try:
             return allColorsList[self.headColor]
-        except:
+        except IndexError:
             return allColorsList[0]
 
     def getGloveColor(self):
         try:
             return allColorsList[self.gloveColor]
-        except:
+        except IndexError:
             return allColorsList[0]

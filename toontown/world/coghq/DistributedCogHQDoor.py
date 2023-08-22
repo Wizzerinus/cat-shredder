@@ -18,7 +18,7 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
 
     def getRequestStatus(self):
         zoneId = self.otherZoneId
-        request = {
+        return {
             "loader": ZoneUtil.getBranchLoaderName(zoneId),
             "where": ZoneUtil.getToonWhereName(zoneId),
             "how": "doorIn",
@@ -29,7 +29,6 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
             "allowRedirect": 0,
             "doorDoId": self.otherDoId,
         }
-        return request
 
     def enterClosing(self, ts):
         doorFrameHoleRight = self.findDoorNode("doorFrameHoleRight")
@@ -44,10 +43,7 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
 
         otherNP = self.getDoorNodePath()
         trackName = "doorClose-%d" % (self.doId)
-        if self.rightSwing:
-            h = 100
-        else:
-            h = -100
+        h = 100 if self.rightSwing else -100
         self.finishDoorTrack()
         self.doorTrack = Parallel(
             Sequence(
@@ -81,10 +77,7 @@ class DistributedCogHQDoor(DistributedDoor.DistributedDoor):
 
         if ZoneUtil.isInterior(self.zoneId):
             doorFrameHoleLeft.setColor(1.0, 1.0, 1.0, 1.0)
-        if self.leftSwing:
-            h = -100
-        else:
-            h = 100
+        h = -100 if self.leftSwing else 100
         leftDoor = self.findDoorNode("leftDoor")
         if not leftDoor.isEmpty():
             otherNP = self.getDoorNodePath()

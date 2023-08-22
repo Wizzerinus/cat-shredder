@@ -26,32 +26,32 @@ class TTFriendsManager(DistributedObjectGlobal):
         ]
         base.cr.n_handleGetAvatarDetailsResp(friendId, fields=fields)
 
-    def d_teleportQuery(self, id):
-        self.sendUpdate("routeTeleportQuery", [id])
+    def d_teleportQuery(self, avId):
+        self.sendUpdate("routeTeleportQuery", [avId])
 
-    def teleportQuery(self, id):
+    def teleportQuery(self, avId):
         if not base.localAvatar:
-            self.sendUpdate("teleportResponse", [id, 0, 0, 0])
+            self.sendUpdate("teleportResponse", [avId, 0, 0, 0])
             return
-        if not hasattr(base.localAvatar, "ghostMode" or hasattr(base.localAvatar, "getTeleportAvailable")):
-            self.sendUpdate("teleportResponse", [id, 0, 0, 0])
+        if not hasattr(base.localAvatar, "ghostMode"):
+            self.sendUpdate("teleportResponse", [avId, 0, 0, 0])
             return
 
-        avatar = base.cr.identifyFriend(id)
+        avatar = base.cr.identifyAvatar(avId)
 
         if base.localAvatar.ghostMode or not base.localAvatar.getTeleportAvailable():
             if hasattr(avatar, "getName"):
-                base.localAvatar.setSystemMessage(id, WhisperFailedVisit % avatar.getName())
-            self.sendUpdate("teleportResponse", [id, 0, 0, 0])
+                base.localAvatar.setSystemMessage(avId, WhisperFailedVisit % avatar.getName())
+            self.sendUpdate("teleportResponse", [avId, 0, 0, 0])
             return
 
-        hoodId = base.cr.playGame.getPlaceId()
+        base.cr.playGame.getPlaceId()
         if hasattr(avatar, "getName"):
-            base.localAvatar.setSystemMessage(id, WhisperComingToVisit % avatar.getName())
+            base.localAvatar.setSystemMessage(avId, WhisperComingToVisit % avatar.getName())
         self.sendUpdate(
             "teleportResponse",
             [
-                id,
+                avId,
                 base.localAvatar.getTeleportAvailable(),
                 base.localAvatar.defaultShard,
                 base.localAvatar.getZoneId(),

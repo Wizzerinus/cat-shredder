@@ -232,7 +232,7 @@ class DistributedElevator(DistributedObject.DistributedObject):
                     return
                 place.detectedElevatorCollision(self)
                 elevator = self.getPlaceElevator()
-                if elevator == None:
+                if elevator is None:
                     place.fsm.request("elevator")
                     elevator = self.getPlaceElevator()
                 if not elevator:
@@ -343,7 +343,6 @@ class DistributedElevator(DistributedObject.DistributedObject):
             self.localToonOnBoard = 0
         else:
             toon.startSmooth()
-        return
 
     def emptySlot(self, index, avId, bailFlag, timestamp, timeSent=0):
         if self.fillSlotTrack:
@@ -435,8 +434,8 @@ class DistributedElevator(DistributedObject.DistributedObject):
 
         if task.time >= task.duration:
             return Task.done
-        else:
-            return Task.cont
+
+        return Task.cont
 
     def countdown(self, duration):
         countdownTask = Task(self.timerTask)
@@ -451,7 +450,6 @@ class DistributedElevator(DistributedObject.DistributedObject):
         self.elevatorSphereNodePath.unstash()
         self.accept(self.uniqueName("enterelevatorSphere"), self.handleEnterSphere)
         self.accept("elevatorExitButton", self.handleExitButton)
-        return
 
     def exitWaitCountdown(self):
         self.elevatorSphereNodePath.stash()
@@ -477,15 +475,13 @@ class DistributedElevator(DistributedObject.DistributedObject):
         """this is called when the elevator doors finish closing on the client"""
         for avId in list(self.boardedAvIds.keys()):
             av = self.cr.doId2do.get(avId)
-            if av is not None:
-                if av.getParent().compareTo(self.getElevatorModel()) == 0:
-                    av.detachNode()
+            if av is not None and av.getParent().compareTo(self.getElevatorModel()) == 0:
+                av.detachNode()
         self.boardedAvIds = {}
 
     def enterClosed(self, ts):
         self.forceDoorsClosed()
         self.__doorsClosed(self.getZoneId())
-        return
 
     def exitClosed(self):
         return
@@ -511,7 +507,6 @@ class DistributedElevator(DistributedObject.DistributedObject):
 
     def enterOpening(self, ts):
         self.openDoors.start(ts)
-        return
 
     def exitOpening(self):
         return
@@ -555,11 +550,11 @@ class DistributedElevator(DistributedObject.DistributedObject):
         if place:
             if hasattr(place, "elevator"):
                 return place.elevator
-            else:
-                self.notify.warning(
-                    "Place was in state '%s' instead of Elevator." % (place.fsm.getCurrentState().getName())
-                )
-                place.detectedElevatorCollision(self)
+
+            self.notify.warning(
+                "Place was in state '%s' instead of Elevator." % (place.fsm.getCurrentState().getName())
+            )
+            place.detectedElevatorCollision(self)
         else:
             self.notify.warning("Place didn't exist")
         return None
@@ -615,15 +610,12 @@ class DistributedElevator(DistributedObject.DistributedObject):
         return self.offsetNP.getPos(render)
 
     def canHideBoardingQuitBtn(self, avId):
-        if (
+        return (
             (avId == base.localAvatar.doId)
             and hasattr(base.localAvatar, "boardingParty")
             and base.localAvatar.boardingParty
             and base.localAvatar.boardingParty.groupPanel
-        ):
-            return True
-        else:
-            return False
+        )
 
     def getBoardingTrack(self, toon, seatIndex, wantToonRotation):
         """

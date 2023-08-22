@@ -66,14 +66,8 @@ def isPlayground(zoneId):
     whereName = getWhereName(zoneId, False)
     if whereName == "cogHQExterior":
         return True
-    else:
-        return zoneId % 1000 == 0 and zoneId < DynamicZonesBegin
 
-
-def isPetshop(zoneId):
-    if zoneId == 2522 or zoneId == 1510 or zoneId == 3511 or zoneId == 4508 or zoneId == 5505 or zoneId == 9508:
-        return True
-    return False
+    return zoneId % 1000 == 0 and zoneId < DynamicZonesBegin
 
 
 def getWhereName(zoneId, isToon):
@@ -89,10 +83,7 @@ def getWhereName(zoneId, isToon):
     elif suffix == 0:
         where = "playground"
     elif suffix >= 500:
-        if isToon:
-            where = "toonInterior"
-        else:
-            where = "suitInterior"
+        where = "toonInterior" if isToon else "suitInterior"
     else:
         where = "street"
     assert where, f"Invalid zone ID: {zoneId}"
@@ -101,15 +92,10 @@ def getWhereName(zoneId, isToon):
 
 def getBranchZone(zoneId):
     branchId = zoneId - (zoneId % 100)
-    if not isCogHQZone(zoneId):
-        if (zoneId % 1000) >= 500:
-            branchId -= 500
+    if not isCogHQZone(zoneId) and (zoneId % 1000) >= 500:
+        branchId -= 500
     assert zoneUtilNotify.debug("getBranchZone(zoneId=" + str(zoneId) + ") returning " + str(branchId))
     return branchId
-
-
-def getCanonicalBranchZone(zoneId):
-    return getBranchZone(zoneId)
 
 
 def getHoodId(zoneId):
@@ -119,16 +105,7 @@ def getHoodId(zoneId):
 def getSafeZoneId(zoneId):
     """returns hoodId of nearest playground; maps HQ zones to their
     closest safezone"""
-    hoodId = getHoodId(zoneId)
-    return hoodId
-
-
-def getCanonicalHoodId(zoneId):
     return getHoodId(zoneId)
-
-
-def getCanonicalSafeZoneId(zoneId):
-    return getSafeZoneId(zoneId)
 
 
 def isInterior(zoneId):

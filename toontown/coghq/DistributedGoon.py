@@ -57,35 +57,12 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
 
         self.colorHat()
 
-        if self.level:
-            self.initClipPlanes()
-
-            self.level.setEntityCreateCallback(self.parentEntId, self.initPath)
-        else:
-            self.enterOff()
-            taskMgr.doMethodLater(0.1, self.makeCollidable, self.taskName("makeCollidable"))
+        self.enterOff()
+        taskMgr.doMethodLater(0.1, self.makeCollidable, self.taskName("makeCollidable"))
 
         self.setGoonScale(self.scale)
         self.animMultiplier = self.velocity / (ANIM_WALK_RATE * self.scale)
         self.setPlayRate(self.animMultiplier, "walk")
-
-    def initPath(self):
-        """
-        Initialize this goon's position and then setup its collision.
-        This avoids issues with delays in positioning causing undesired
-        collisions. We found this sequence of events in a bug:
-            1.) Goon created at origin, waits for path to load in level.
-            2.) Goon's collision activated.
-            3.) Path loads, callback positions goon.
-            4.) This move shoves the toon. (Not entirely sure why...)
-        Clearly there is something wrong in step 4, but this at least sets
-        position before collision.
-        """
-
-        self.enterOff()
-        self.setPath()
-
-        taskMgr.doMethodLater(0.1, self.makeCollidable, self.taskName("makeCollidable"))
 
     def makeCollidable(self, task):
         """
@@ -151,25 +128,6 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
             del self.cSphereNode
             del self.cSphere
 
-    def initClipPlanes(self):
-        zoneNum = self.getZoneEntity().getZoneNum()
-        clipList = self.level.goonClipPlanes.get(zoneNum)
-        if clipList:
-            for id in clipList:
-                clipPlane = self.level.getEntity(id)
-                self.radar.setClipPlane(clipPlane.getPlane())
-
-    def disableClipPlanes(self):
-        if self.radar:
-            self.radar.clearClipPlane()
-
-    def setPath(self):
-        self.path = self.level.getEntity(self.parentEntId)
-        if self.walkTrack:
-            self.walkTrack.pause()
-            self.walkTrack = None
-        self.walkTrack = self.path.makePathTrack(self, self.velocity, self.uniqueName("goonWalk"), turnTime=T_TURN)
-
     def disable(self):
         self.notify.debug(f"DistributedGoon {self.getDoId()}: disabling")
         self.ignoreAll()
@@ -178,7 +136,6 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
         taskMgr.remove(self.taskName("recoveryDone"))
         self.request("Off")
         self.disableBodyCollisions()
-        self.disableClipPlanes()
         if self.animTrack:
             self.animTrack.finish()
             self.animTrack = None
@@ -262,10 +219,6 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
             self.animTrack = None
 
         self.isStunned = 0
-
-        if avId == base.localAvatar.doId:
-            if self.level:
-                self.level.b_setOuch(self.strength)
         self.animTrack = self.makeAttackTrack()
         self.animTrack.loop()
 
@@ -344,7 +297,7 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
         self.accept(self.uniqueName("entertoonSphere"), self.handleStun)
 
     def makeAttackTrack(self):
-        track = Parallel(
+        return Parallel(
             Sequence(
                 LerpColorScaleInterval(self.eye, 0.2, Vec4(1, 0, 0, 1)),
                 LerpColorScaleInterval(self.eye, 0.2, Vec4(0, 0, 1, 1)),
@@ -354,7 +307,6 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
             ),
             SoundInterval(self.attackSound, node=self, volume=0.4),
         )
-        return track
 
     def doDetect(self):
         pass
@@ -420,11 +372,11 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
         if toon:
             toonDistance = self.getPos(toon).length()
             if toonDistance > self.attackRadius:
-                self.notify.warning("Stunned a good, but outside of attack radius")
+                self.notify.warning("Stunned a goon, but outside of attack radius")
                 return False
-            else:
-                self.request("Stunned")
-                requestedStunned = True
+
+            self.request("Stunned")
+            requestedStunned = True
 
         if self.walkTrack:
             self.pauseTime = self.walkTrack.pause()
@@ -454,8 +406,8 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
                     if toonDistance > self.attackRadius:
                         self.notify.warning("Stunned a goon, but outside of attack radius")
                         return
-                    else:
-                        self.request("Stunned", ts)
+
+                    self.request("Stunned", ts)
         elif mode == GOON_MOVIE_RECOVERY:
             if self.state != "Recovery":
                 self.request("Recovery", ts, pauseTime)
@@ -463,7 +415,7 @@ class DistributedGoon(DistributedObject, Goon.Goon, FSM.FSM):
             if self.walkTrack:
                 self.walkTrack.pause()
                 self.paused = 1
-            if self.state == "Off" or self.state == "Walk":
+            if self.state in ("Off", "Walk"):
                 self.request("Walk", avId, pauseTime + ts)
         else:
             if self.walkTrack:

@@ -76,7 +76,7 @@ class ToonBarrier(DirectObject.DirectObject):
         self.ignoreAll()
 
     def clear(self, avId):
-        if not (avId in self.pendingToons):
+        if avId not in self.pendingToons:
             self.notify.warning(f"{self.uniqueName}: tried to clear {avId}, who was not listed.")
             return
 

@@ -74,7 +74,6 @@ class SCElement(SCObject, NodePath):
 
     def onMouseClick(self, event):
         """the user just clicked on this entity"""
-        pass
 
     """ inheritors should override these methods and perform whatever
     actions are appropriate when this element becomes 'active' and
@@ -143,9 +142,8 @@ class SCElement(SCObject, NodePath):
         we need to re-create our button"""
         SCObject.invalidate(self)
         parentMenu = self.getParentMenu()
-        if parentMenu is not None:
-            if not parentMenu.isFinalizing():
-                parentMenu.invalidate()
+        if parentMenu is not None and not parentMenu.isFinalizing():
+            parentMenu.invalidate()
 
     def enterVisible(self):
         SCObject.enterVisible(self)
@@ -157,9 +155,8 @@ class SCElement(SCObject, NodePath):
 
     def privScheduleFinalize(self):
         def finalizeElement(task):
-            if self.parentMenu is not None:
-                if self.parentMenu.isDirty():
-                    return Task.done
+            if self.parentMenu is not None and self.parentMenu.isDirty():
+                return Task.done
             self.finalize()
             return Task.done
 
@@ -169,10 +166,12 @@ class SCElement(SCObject, NodePath):
     def privCancelFinalize(self):
         taskMgr.remove(self.FinalizeTaskName)
 
-    def finalize(self, dbArgs={}):
+    def finalize(self, dbArgs=None):
         """'dbArgs' can contain parameters (and parameter overrides) for
         the DirectButton.
         """
+        if dbArgs is None:
+            dbArgs = {}
         if not self.isDirty():
             return
 
@@ -185,18 +184,17 @@ class SCElement(SCObject, NodePath):
         halfHeight = self.height / 2.0
 
         textX = 0
-        if "text_align" in dbArgs:
-            if dbArgs["text_align"] == TextNode.ACenter:
-                textX = self.width / 2.0
+        if "text_align" in dbArgs and dbArgs["text_align"] == TextNode.ACenter:
+            textX = self.width / 2.0
 
         args = {
             "text": self.getDisplayText(),
             "frameColor": (0, 0, 0, 0),
-            "rolloverColor": self.getColorScheme().getRolloverColor() + (1,),
-            "pressedColor": self.getColorScheme().getPressedColor() + (1,),
+            "rolloverColor": (*self.getColorScheme().getRolloverColor(), 1),
+            "pressedColor": (*self.getColorScheme().getPressedColor(), 1),
             "text_font": getInterfaceFont(),
             "text_align": TextNode.ALeft,
-            "text_fg": self.getColorScheme().getTextColor() + (1,),
+            "text_fg": (*self.getColorScheme().getTextColor(), 1),
             "text_pos": (textX, -0.25 - halfHeight, 0),
             "relief": DirectGuiGlobals.FLAT,
             "pressEffect": 0,

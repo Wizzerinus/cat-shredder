@@ -153,7 +153,7 @@ class ParamObj:
         def getDefaultValue(cls, param):
             cls._compileDefaultParams()
             dv = cls._Params[param]
-            if hasattr(dv, "__call__"):
+            if callable(dv):
                 dv = dv()
             return dv
 
@@ -166,7 +166,7 @@ class ParamObj:
                 bases.remove(object)
             mostDerivedLast(bases)
             cls._Params = {}
-            for c in bases + [cls]:
+            for c in [*bases, cls]:
                 c._compileDefaultParams()
                 if "Params" in c.__dict__:
                     cls._Params.update(c.Params)
@@ -205,7 +205,7 @@ class ParamObj:
                 setattr(self, setterName, defaultSetter)
             if not hasattr(self, getterName):
 
-                def defaultGetter(self, param=param, default=self.ParamSet.getDefaultValue(param)):
+                def defaultGetter(self, param=param, default=self.ParamSet.getDefaultValue(param)):  # noqa
                     return getattr(self, param, default)
 
                 setattr(self, getterName, defaultGetter)
@@ -267,7 +267,6 @@ class ParamObj:
             self.__dict__[setterName].destroy()
             del self.__dict__[setterName]
         """
-        pass
 
     def setDefaultParams(self):
         self.ParamSet().applyTo(self)
@@ -345,7 +344,8 @@ def configureLogs(baseDir, keepStdout=True):
 
     dirPath = pathlib.Path(baseDir, "logs")
     dirPath.mkdir(parents=True, exist_ok=True)
-    log = open(dirPath / logfile, "a")
+    # we want this file to be open permanently so we don't make a context manager
+    log = open(dirPath / logfile, "a")  # noqa
     logOut = LogAndOutput(sys.__stdout__, log)
     logErr = LogAndOutput(sys.__stderr__, log)
     sys.stdout = logOut

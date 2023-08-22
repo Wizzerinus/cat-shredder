@@ -53,8 +53,7 @@ class Train(DirectObject):
             self.locomotive.reparentTo(render)
 
     def __networkTimeInSeconds(self):
-        time = globalClockDelta.getRealNetworkTime(bits=32) / NetworkTimePrecision
-        return time
+        return globalClockDelta.getRealNetworkTime(bits=32) / NetworkTimePrecision
 
     def doNextRun(self, bFirstRun=False):
         if self.locomotive:
@@ -152,7 +151,6 @@ class Train(DirectObject):
         self.nextRun = None
         del self.trainPassingSfx
         del self.trainStopStartSfx
-        return
 
     def uniqueName(self, name):
         Train.nameId += 1

@@ -144,7 +144,7 @@ class CogHQLoader(StateData.StateData):
         self.requestStatus = self.place.doneStatus
         assert self.notify.debug("placeDone() doneStatus=" + str(self.requestStatus))
         status = self.place.doneStatus
-        if (status.get("shardId") == None) and self.isInThisHq(status):
+        if (status.get("shardId") is None) and self.isInThisHq(status):
             self.unloadPlaceGeom()
             zoneId = status["zoneId"]
             self.loadPlaceGeom(zoneId)
@@ -156,8 +156,8 @@ class CogHQLoader(StateData.StateData):
     def isInThisHq(self, status):
         if ZoneUtil.isDynamicZone(status["zoneId"]):
             return status["hoodId"] == self.hood.hoodId
-        else:
-            return ZoneUtil.getHoodId(status["zoneId"]) == self.hood.hoodId
+
+        return ZoneUtil.getHoodId(status["zoneId"]) == self.hood.hoodId
 
     def enterCogHQExterior(self, requestStatus):
         self.placeClass = self.getExteriorPlaceClass()

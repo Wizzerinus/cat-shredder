@@ -46,12 +46,11 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
 
     def setLocation(self, parentId, zoneId, teleport=0):
         DistributedAvatarAI.DistributedAvatarAI.setLocation(self, parentId, zoneId, teleport)
-        if self.isPlayerControlled():
-            if not self.air.isValidPlayerLocation(parentId, zoneId):
-                self.notify.info(f"booting player {self.doId} for doing setLocation to ({parentId}, {zoneId})")
-                self.air.writeServerEvent("suspicious", self.doId, f"invalid setLocation: ({parentId}, {zoneId})")
-                self.requestDelete()
-                return False
+        if self.isPlayerControlled() and not self.air.isValidPlayerLocation(parentId, zoneId):
+            self.notify.info(f"booting player {self.doId} for doing setLocation to ({parentId}, {zoneId})")
+            self.air.writeServerEvent("suspicious", self.doId, f"invalid setLocation: ({parentId}, {zoneId})")
+            self.requestDelete()
+            return False
 
         return True
 
@@ -92,7 +91,7 @@ class DistributedPlayerAI(DistributedAvatarAI.DistributedAvatarAI, PlayerBase.Pl
         return self.friendsList
 
     def extendFriendsList(self, friendId, flag=0):
-        self.notify.warning(f"extendFriendsList called on parent DistributedPlayerAI!")
+        self.notify.warning("extendFriendsList called on parent DistributedPlayerAI!")
 
     def setStaffAccess(self, staffAccess):
         self.staffAccess = staffAccess

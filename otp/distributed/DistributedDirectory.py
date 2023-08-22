@@ -7,5 +7,3 @@ class DistributedDirectory(DistributedObject):
     is still needed.  It is used as a parent for the individual games.
     The dc system uses the parenting rules as if this object existed.
     """
-
-    pass

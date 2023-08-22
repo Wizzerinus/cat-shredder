@@ -44,7 +44,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         self.exitDoorDoLaterTask = None
         self.avatarsWhoAreEntering = {}
         self.avatarsWhoAreExiting = {}
-        return
 
     def delete(self):
         taskMgr.remove(self.uniqueName("door_opening-timer"))
@@ -72,8 +71,7 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         return self.doorType
 
     def getZoneIdAndBlock(self):
-        r = [self.zoneId, self.block]
-        return r
+        return [self.zoneId, self.block]
 
     def setOtherDoor(self, door):
         self.otherDoor = door
@@ -89,7 +87,7 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
 
     def isOpen(self):
         state = self.fsm.getCurrentState().getName()
-        return state == "open" or state == "opening"
+        return state in ("open", "opening")
 
     def isClosed(self):
         return not self.isOpen()
@@ -124,9 +122,8 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         stateName = doorFsm.getCurrentState().getName()
         if stateName == "open":
             doorFsm.request("open")
-        else:
-            if stateName != "opening":
-                doorFsm.request("opening")
+        elif stateName != "opening":
+            doorFsm.request("opening")
 
     def requestExit(self):
         avatarID = self.air.getAvatarIdFromSender()
@@ -136,10 +133,9 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
     def enqueueAvatarIdExit(self, avatarID):
         if avatarID in self.avatarsWhoAreEntering:
             del self.avatarsWhoAreEntering[avatarID]
-        else:
-            if avatarID not in self.avatarsWhoAreExiting:
-                self.avatarsWhoAreExiting[avatarID] = 1
-                self.openDoor(self.exitDoorFSM)
+        elif avatarID not in self.avatarsWhoAreExiting:
+            self.avatarsWhoAreExiting[avatarID] = 1
+            self.openDoor(self.exitDoorFSM)
 
     def requestSuitEnter(self, avatarID):
         self.enqueueAvatarIdEnter(avatarID)
@@ -172,7 +168,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.doLaterTask:
             taskMgr.remove(self.doLaterTask)
             self.doLaterTask = None
-        return
 
     def closingTask(self, task):
         self.fsm.request("closed")
@@ -192,7 +187,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.doLaterTask:
             taskMgr.remove(self.doLaterTask)
             self.doLaterTask = None
-        return
 
     def openingTask(self, task):
         self.fsm.request("open")
@@ -207,7 +201,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.doLaterTask:
             taskMgr.remove(self.doLaterTask)
             self.doLaterTask = None
-        return
 
     def exitDoorEnterOff(self):
         pass
@@ -229,7 +222,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.exitDoorDoLaterTask:
             taskMgr.remove(self.exitDoorDoLaterTask)
             self.exitDoorDoLaterTask = None
-        return
 
     def exitDoorClosingTask(self, task):
         self.exitDoorFSM.request("closed")
@@ -242,7 +234,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.exitDoorDoLaterTask:
             taskMgr.remove(self.exitDoorDoLaterTask)
             self.exitDoorDoLaterTask = None
-        return
 
     def exitDoorEnterOpening(self):
         self.d_setExitDoorState("opening")
@@ -254,7 +245,6 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.exitDoorDoLaterTask:
             taskMgr.remove(self.exitDoorDoLaterTask)
             self.exitDoorDoLaterTask = None
-        return
 
     def exitDoorOpeningTask(self, task):
         self.exitDoorFSM.request("open")
@@ -271,4 +261,3 @@ class DistributedDoorAI(DistributedObjectAI.DistributedObjectAI):
         if self.exitDoorDoLaterTask:
             taskMgr.remove(self.exitDoorDoLaterTask)
             self.exitDoorDoLaterTask = None
-        return

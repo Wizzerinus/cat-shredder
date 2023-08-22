@@ -172,13 +172,12 @@ class ChatLog(DirectFrame):
         self.texts[tab].setText("\n".join(self.logs[tab]))
         self.realLogs[tab] = self.texts[tab].getWordwrappedText().split("\n")
         bubble, notifCount = self.notifications[tab]
-        if not opening:
-            if not forcePush:
-                self.notify.debug(f"forcepush: {forcePush}")
-                if tab != self.currentTab:
-                    notifCount = min(notifCount + 1, 99)
-                    self.notifications[tab] = (bubble, notifCount)
-                    bubble.setText(f"{notifCount if notifCount else ''}")
+        if not opening and not forcePush:
+            self.notify.debug(f"forcepush: {forcePush}")
+            if tab != self.currentTab:
+                notifCount = min(notifCount + 1, 99)
+                self.notifications[tab] = (bubble, notifCount)
+                bubble.setText(f"{notifCount if notifCount else ''}")
 
         if self.autoScroll:
             self.currents[tab] = len(self.realLogs[tab])

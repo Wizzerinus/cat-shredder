@@ -577,7 +577,7 @@ SpeedChatStaticText = {
     258: "Let's find other Toons.",
     259: "Meet here.",
     # Places Cog HQ
-    281: f"Let's go fight a boss!",
+    281: "Let's go fight a boss!",
     293: "Let's go to Cashbot HQ!",
     294: "Let's go fight the CFO!",
     # Places Wait

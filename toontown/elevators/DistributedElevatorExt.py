@@ -30,7 +30,7 @@ class DistributedElevatorExt(DistributedElevator.DistributedElevator):
         DistributedElevator.DistributedElevator.disable(self)
 
     def setupNametag(self):
-        if self.nametag == None:
+        if self.nametag is None:
             self.nametag = NametagGroup()
             self.nametag.setFont(getBuildingNametagFont())
             self.nametag.setContents(Nametag.CName)
@@ -48,7 +48,7 @@ class DistributedElevatorExt(DistributedElevator.DistributedElevator):
             self.nametag.manage(base.marginManager)
 
     def clearNametag(self):
-        if self.nametag != None:
+        if self.nametag is not None:
             self.nametag.unmanage(base.marginManager)
             self.nametag.setAvatar(NodePath())
             self.nametag = None
@@ -72,13 +72,11 @@ class DistributedElevatorExt(DistributedElevator.DistributedElevator):
         return
 
     def setFloor(self, floorNumber):
-        if self.currentFloor >= 0:
-            if self.bldg.floorIndicator[floorNumber]:
-                self.bldg.floorIndicator[self.currentFloor].setColor(LIGHT_OFF_COLOR)
+        if self.currentFloor >= 0 and self.bldg.floorIndicator[floorNumber]:
+            self.bldg.floorIndicator[self.currentFloor].setColor(LIGHT_OFF_COLOR)
 
-        if floorNumber >= 0:
-            if self.bldg.floorIndicator[floorNumber]:
-                self.bldg.floorIndicator[floorNumber].setColor(LIGHT_ON_COLOR)
+        if floorNumber >= 0 and self.bldg.floorIndicator[floorNumber]:
+            self.bldg.floorIndicator[floorNumber].setColor(LIGHT_ON_COLOR)
 
         self.currentFloor = floorNumber
 

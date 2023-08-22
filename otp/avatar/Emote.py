@@ -14,7 +14,7 @@ class Emote:
 
         if self.emoteFunc is None:
             return 0
-        elif self.emoteFunc[index][1] == 0:
+        if self.emoteFunc[index][1] == 0:
             return 1
         return 0
 

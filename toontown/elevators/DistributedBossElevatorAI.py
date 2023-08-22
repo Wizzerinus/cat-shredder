@@ -56,11 +56,10 @@ class DistributedBossElevatorAI(DistributedElevatorExtAI.DistributedElevatorExtA
         av = self.air.doId2do.get(avId)
         if av:
             boardResponse = self.checkBoard(av)
-            newArgs = (avId,) + args + (boardResponse,)
+            newArgs = (avId, *args, boardResponse)
             if boardResponse == 0:
                 self.acceptingBoardersHandler(*newArgs)
             else:
                 self.rejectingBoardersHandler(*newArgs)
         else:
             self.notify.warning("avid: %s does not exist, but tried to board an elevator" % avId)
-        return

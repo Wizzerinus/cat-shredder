@@ -160,12 +160,12 @@ class SCMenu(SCObject, NodePath):
                         subMenu = menuType()
                         subMenuChildren = child[2:]
                     if emote:
-                        print(f"warning: tried to link emote {emote} to a menu holder")
+                        self.notify.warning(f"tried to link emote {emote} to a menu holder")
                     holder = SCMenuHolder(holderTitle, menu=subMenu)
                     menu.append(holder)
                     addChildren(subMenu, subMenuChildren)
                 else:
-                    raise "error parsing speedchat structure. invalid child: %s "
+                    raise ValueError("error parsing speedchat structure. invalid child: %s ")
 
         addChildren(self, structure)
         addChildren = None
@@ -175,9 +175,8 @@ class SCMenu(SCObject, NodePath):
         self.privScheduleFinalize()
 
         for member in self:
-            if member.isViewable():
-                if not member.isVisible():
-                    member.enterVisible()
+            if member.isViewable() and not member.isVisible():
+                member.enterVisible()
 
     def exitVisible(self):
         SCObject.exitVisible(self)
@@ -278,9 +277,8 @@ class SCMenu(SCObject, NodePath):
             member to ensure that the user actually wants the switch
             to occur."""
             assert not member.isActive()
-        else:
-            if not member.hasStickyFocus():
-                self.__setActiveMember(None)
+        elif not member.hasStickyFocus():
+            self.__setActiveMember(None)
 
     def memberViewabilityChanged(self, member):
         """member elements will call this if their viewability state

@@ -56,10 +56,7 @@ class MagicWordArgPad:
         self.signature = signature
         for sig, arg in itertools.zip_longest(signature, args, fillvalue=FillValueSentinel):
             try:
-                if arg is FillValueSentinel:
-                    value = sig.default
-                else:
-                    value = sig.type.fromDatagram(arg)
+                value = sig.default if arg is FillValueSentinel else sig.type.fromDatagram(arg)
             except ValueError:
                 self.validationErrors.append(sig.name)
             else:

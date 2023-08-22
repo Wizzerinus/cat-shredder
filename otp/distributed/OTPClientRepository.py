@@ -415,7 +415,7 @@ class OTPClientRepository(ClientRepositoryBase):
         url = self.serverList[0]
         self.notify.warning(f"Failed to connect to {url} ({statusCode} {statusString}).  Notifying user.")
 
-        if statusCode == 1403 or statusCode == 1405 or statusCode == 1400:
+        if statusCode in (1400, 1403, 1405):
             message = TTLocalizer.CRNoConnectProxyNoPort % (url.getServer(), url.getPort(), url.getPort())
             style = OTPDialog.CancelOnly
         else:
@@ -524,11 +524,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.handler = None
 
     def _shardsAreReady(self):
-        for shard in list(self.activeDistrictMap.values()):
-            if shard.available:
-                return True
-        else:
-            return False
+        return any(shard.available for shard in list(self.activeDistrictMap.values()))
 
     def _wantShardListComplete(self):
         if self._shardsAreReady():
@@ -781,10 +777,9 @@ class OTPClientRepository(ClientRepositoryBase):
             if self.isShardInterestOpen():
                 self.notify.error("enterGameOff: shard interest is still open")
             assert self.cache.isEmpty()
-        else:
-            if self.isShardInterestOpen():
-                self.notify.warning("unclean exit, abandoning shard")
-                self._abandonShard()
+        elif self.isShardInterestOpen():
+            self.notify.warning("unclean exit, abandoning shard")
+            self._abandonShard()
 
         self.cleanupWaitAllInterestsComplete()
 
@@ -1155,15 +1150,9 @@ class OTPClientRepository(ClientRepositoryBase):
             self.gotObjectLocationMessage(di)
         else:
             currentLoginState = self.loginFSM.getCurrentState()
-            if currentLoginState:
-                currentLoginStateName = currentLoginState.getName()
-            else:
-                currentLoginStateName = "None"
+            currentLoginStateName = currentLoginState.getName() if currentLoginState else "None"
             currentGameState = self.gameFSM.getCurrentState()
-            if currentGameState:
-                currentGameStateName = currentGameState.getName()
-            else:
-                currentGameStateName = "None"
+            currentGameStateName = currentGameState.getName() if currentGameState else "None"
             ClientRepositoryBase.notify.warning(
                 "Ignoring unexpected message type: "
                 + str(msgType)
@@ -1229,20 +1218,12 @@ class OTPClientRepository(ClientRepositoryBase):
     def askAvatarKnown(self, avId):
         return 0
 
-    def identifyFriend(self, doId):
-        assert False, "Must override this in inheriting class"
-
     def identifyAvatar(self, doId):
         """
         Returns either an avatar, FriendInfo,
         whichever we can find, to reference the indicated avatar doId.
         """
-        info = self.doId2do.get(doId)
-        if info:
-            return info
-        else:
-            info = self.identifyFriend(doId)
-        return info
+        return self.doId2do.get(doId)
 
     def sendDisconnect(self):
         if self.isConnected():
@@ -1260,9 +1241,8 @@ class OTPClientRepository(ClientRepositoryBase):
         return True
 
     def _isInvalidPlayerAvatarGenerate(self, doId, dclass, parentId, zoneId):
-        if self._isPlayerDclass(dclass):
-            if not self.isValidPlayerLocation(parentId, zoneId):
-                return True
+        if self._isPlayerDclass(dclass) and not self.isValidPlayerLocation(parentId, zoneId):
+            return True
         return False
 
     def handleGenerateWithRequired(self, di):

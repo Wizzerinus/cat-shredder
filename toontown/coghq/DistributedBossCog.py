@@ -133,14 +133,12 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         self.toonRequest = None
 
     def delete(self):
-        try:
-            self.DistributedBossCog_deleted
-        except:
-            self.DistributedBossCog_deleted = 1
-            self.ignoreAll()
-            DistributedAvatar.DistributedAvatar.delete(self)
-            BossCog.BossCog.delete(self)
-        return
+        if hasattr(self, "DistributedBossCog_deleted"):
+            raise RuntimeError("bro")
+        self.DistributedBossCog_deleted = True
+        self.ignoreAll()
+        DistributedAvatar.DistributedAvatar.delete(self)
+        BossCog.BossCog.delete(self)
 
     def setDNAString(self, dnaString):
         BossCog.BossCog.setDNAString(self, dnaString)
@@ -296,20 +294,15 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         for toonId in self.involvedToons:
             toon = self.cr.doId2do.get(toonId)
             if toon:
-                if self.battleA and toon in self.battleA.toons:
-                    pass
-                elif self.battleB and toon in self.battleB.toons:
-                    pass
-                else:
-                    toon.startLookAround()
-                    toon.startSmooth()
-                    toon.wrtReparentTo(render)
+                toon.startLookAround()
+                toon.startSmooth()
+                toon.wrtReparentTo(render)
 
-                    if toon is base.localAvatar:
-                        if finalBattle:
-                            self.toFinalBattleMode()
-                        else:
-                            self.toWalkMode()
+                if toon is base.localAvatar:
+                    if finalBattle:
+                        self.toFinalBattleMode()
+                    else:
+                        self.toWalkMode()
 
     def stickToonsToFloor(self):
         self.unstickToons()
@@ -390,10 +383,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
 
         p2a = (p1 + p3) / 2
 
-        if p2a[2] > p2[2]:
-            center = p2a
-        else:
-            center = p2
+        center = p2a if p2a[2] > p2[2] else p2
         self.setZ(self, center[2])
 
         if p1[2] > p2[2] + 0.01 or p3[2] > p2[2] + 0.01:
@@ -427,7 +417,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         vector = Vec3(toPos - fromPos)
         distance = vector.length()
 
-        if toHpr == None:
+        if toHpr is None:
             mat = Mat3(0, 0, 0, 0, 0, 0, 0, 0, 0)
             headsUp(mat, vector, CSDefault)
             scale = VBase3(0, 0, 0)
@@ -443,14 +433,8 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
             fromHpr = toHpr
 
         turnTime = abs(toHpr[0] - fromHpr[0]) / BossCogTurnSpeed
-        if toHpr[0] < fromHpr[0]:
-            leftRate = BossCogTreadSpeed
-        else:
-            leftRate = -BossCogTreadSpeed
-        if reverse:
-            rollTreadRate = -BossCogTreadSpeed
-        else:
-            rollTreadRate = BossCogTreadSpeed
+        leftRate = BossCogTreadSpeed if toHpr[0] < fromHpr[0] else -BossCogTreadSpeed
+        rollTreadRate = -BossCogTreadSpeed if reverse else BossCogTreadSpeed
 
         rollTime = distance / BossCogRollSpeed
         deltaPos = toPos - fromPos
@@ -578,7 +562,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         currentState = None
         if place:
             currentState = place.fsm.getCurrentState().getName()
-        if currentState != "walk" and currentState != "finalBattle" and currentState != "crane":
+        if currentState not in ("walk", "finalBattle", "crane"):
             return
 
         toon = base.localAvatar
@@ -590,7 +574,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
             shake = 1
 
         if fling:
-            if origin == None:
+            if origin is None:
                 origin = self
 
             camera.wrtReparentTo(render)
@@ -649,7 +633,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         def getSlideToPos(toon=toon):
             return render.getRelativePoint(toon, Point3(0, -5, 0))
 
-        if pos != None and hpr != None:
+        if pos is not None and hpr is not None:
             zapTrack.append(Func(toon.setPosHpr, pos, hpr)),
 
         toonTrack = Parallel()
@@ -675,13 +659,10 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
         if toon == base.localAvatar:
             zapTrack.append(Func(self.disableLocalToonSimpleCollisions))
             currentState = self.state
-            if currentState == "BattleThree":
+            if currentState == "BattleThree" or hasattr(self, "chairs"):
                 zapTrack.append(Func(self.toFinalBattleMode))
             else:
-                if hasattr(self, "chairs"):
-                    zapTrack.append(Func(self.toFinalBattleMode))
-                else:
-                    zapTrack.append(Func(self.toWalkMode))
+                zapTrack.append(Func(self.toWalkMode))
         else:
             zapTrack.append(Func(toon.startSmooth))
 
@@ -724,15 +705,11 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
             self.setDizzy(0)
             self.doAnimate("areaAttack", now=1)
 
-        elif attackCode == BossCogFrontAttack:
+        elif attackCode in (BossCogFrontAttack, BossCogRecoverDizzyAttack):
             self.setDizzy(0)
             self.doAnimate("frontAttack", now=1)
 
-        elif attackCode == BossCogRecoverDizzyAttack:
-            self.setDizzy(0)
-            self.doAnimate("frontAttack", now=1)
-
-        elif attackCode == BossCogDirectedAttack or attackCode == BossCogSlowDirectedAttack:
+        elif attackCode in (BossCogDirectedAttack, BossCogSlowDirectedAttack):
             self.setDizzy(0)
             self.doDirectedAttack(avId, attackCode)
 
@@ -797,7 +774,7 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
                 node = gearRoot.attachNewNode(str(i))
                 node.hide()
                 node.setPos(0, 5.85, 4.0)
-                gear = gearModel.instanceTo(node)
+                gearModel.instanceTo(node)
                 x = random.uniform(-5, 5)
                 z = random.uniform(-3, 3)
                 h = random.uniform(-720, 720)

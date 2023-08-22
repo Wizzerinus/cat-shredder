@@ -33,12 +33,8 @@ class DustCloud(NodePath):
             sound = DustCloud.sound
             if self.wantSound and sound:
                 return sound.play
-            else:
 
-                def dummy():
-                    pass
-
-                return dummy
+            return lambda: None
 
         tflipDuration = self.seqNode.getNumChildren() / (float(rate))
         self.track = Sequence(

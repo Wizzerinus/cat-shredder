@@ -14,9 +14,10 @@ from otp.otpbase import OTPBase
 from toontown.toonbase.Hotkeys import HotkeyManager
 from toontown.toonbase.Settings import Settings
 from toontown.toonbase.ToonControlManager import ToonControlManager
-from toontown.toonbase.globals.TTGlobalsCore import DisconnectCloseWindow, DisconnectGraphicsError
+from toontown.toonbase.globals.TTGlobalsCore import DisconnectCloseWindow
 from toontown.toonbase.globals.TTGlobalsMovement import *
 from toontown.toonbase.globals.TTGlobalsRender import DefaultCameraFar, DefaultCameraFov, DefaultCameraNear
+import contextlib
 
 
 class ToonBase(OTPBase.OTPBase):
@@ -37,10 +38,6 @@ class ToonBase(OTPBase.OTPBase):
         OTPBase.OTPBase.__init__(self)
 
         if not self.isMainWindowOpen():
-            try:
-                launcher.setPandaErrorCode(7)
-            except:
-                pass
             sys.exit(1)
 
         self.disableShowbaseMouse()
@@ -85,8 +82,6 @@ class ToonBase(OTPBase.OTPBase):
         if self.config.GetBool("want-particles", 1) == 1:
             self.notify.debug("Enabling particles")
             self.enableParticles()
-
-        self.accept("panda3d-render-error", self.panda3dRenderError)
 
         self.slowQuietZone = self.config.GetBool("slow-quiet-zone", 0)
         self.slowQuietZoneDelay = self.config.GetFloat("slow-quiet-zone-delay", 5)
@@ -216,10 +211,10 @@ class ToonBase(OTPBase.OTPBase):
                 strTextLabel.destroy()
             coordTextLabel.destroy()
 
-    def addScreenshotString(self, str):
+    def addScreenshotString(self, data):
         if len(self.screenshotStr):
             self.screenshotStr += "\n"
-        self.screenshotStr += str
+        self.screenshotStr += data
 
     def initNametagGlobals(self):
         """
@@ -352,18 +347,12 @@ class ToonBase(OTPBase.OTPBase):
 
         cr.loginFSM.request("connect", [serverList])
 
-    def removeGlitchMessage(self):
-        self.ignore("InputState-forward")
-        print("ignoring InputState-forward")
-
     def exitShow(self, errorCode=None):
         sys.exit()
 
     def userExit(self):
-        try:
+        with contextlib.suppress(AttributeError, TypeError):
             self.localAvatar.d_setAnimState("TeleportOut", 1)
-        except:
-            pass
 
         if self.cr.timeManager:
             self.cr.timeManager.setDisconnectReason(DisconnectCloseWindow)
@@ -377,15 +366,6 @@ class ToonBase(OTPBase.OTPBase):
         self.notify.warning("Could not request shutdown; exiting anyway.")
         self.exitShow()
 
-    def panda3dRenderError(self):
-        launcher.setPandaErrorCode(14)
-
-        if self.cr.timeManager:
-            self.cr.timeManager.setDisconnectReason(DisconnectGraphicsError)
-
-        self.cr.sendDisconnect()
-        sys.exit()
-
     def playMusic(self, music, looping=0, interrupt=1, volume=1, time=0.0):
         OTPBase.OTPBase.playMusic(self, music, looping, interrupt, volume, time)
 
@@ -393,7 +373,7 @@ class ToonBase(OTPBase.OTPBase):
         return self.sfxPlayer.playSfx(sfx, looping, interrupt, volume, time, node, listener, cutoff)
 
     def isMainWindowOpen(self):
-        if self.win != None:
+        if self.win is not None:
             return self.win.isValid()
         return 0
 
@@ -408,9 +388,8 @@ class ToonBase(OTPBase.OTPBase):
                 ToonRotateSpeed,
             )
             self.isSprinting = 1
-        else:
-            if self.isSprinting == 1:
-                self.stopSprint()
+        elif self.isSprinting == 1:
+            self.stopSprint()
 
     def stopSprint(self):
         if base.localAvatar:
@@ -429,12 +408,12 @@ class ToonBase(OTPBase.OTPBase):
         try:
             if platf == "Windows":
                 return cdll.user32.GetSystemMetrics(0), cdll.user32.GetSystemMetrics(1)
-            elif platf == "Linux":
+            if platf == "Linux":
                 sp = subprocess.Popen(
                     r'xrandr | grep "\*" | cut -d" " -f4', shell=True, stdout=subprocess.PIPE
                 ).communicate()[0]
                 return [int(x) for x in sp.decode("UTF-8").split()[0].split("x")]
-            elif platf == "Darwin":
+            if platf == "Darwin":
                 sp = subprocess.Popen(
                     r"system_profiler SPDisplaysDataType | grep Resolution", shell=True, stdout=subprocess.PIPE
                 ).communicate()[0]
@@ -471,8 +450,8 @@ class ToonBase(OTPBase.OTPBase):
             loadPrcFileData("toonBase Settings Music Volume", "audio-master-music-volume %s" % musicVolume)
             loadPrcFileData("toonBase Settings Sfx Volume", "audio-master-sfx-volume %s" % sfxVolume)
             loadPrcFileData("toonBase Settings Toon Chat Sounds", "toon-chat-sounds %s" % toonChatSounds)
-            loadPrcFileData(f"toonBase Settings Custom Controls", "customControls {wantCustomControls}")
-            loadPrcFileData(f"toonBase Settings Controls", "controls {controls}")
+            loadPrcFileData("toonBase Settings Custom Controls", "customControls {wantCustomControls}")
+            loadPrcFileData("toonBase Settings Controls", "controls {controls}")
 
             self.settings.loadFromSettings()
 

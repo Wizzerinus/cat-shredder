@@ -75,7 +75,6 @@ class CogHQExterior(Place):
         Place.exit(self)
 
     def enterTeleportIn(self, requestStatus):
-        print(requestStatus, base.localAvatar.defaultZone)
         x, y, z, h, p, r = getPlaygroundCenterFromId(base.localAvatar.defaultZone)
         base.localAvatar.setPosHpr(render, x, y, z, h, p, r)
         Place.enterTeleportIn(self, requestStatus)
@@ -84,19 +83,18 @@ class CogHQExterior(Place):
         hoodId = requestStatus["hoodId"]
         zoneId = requestStatus["zoneId"]
         shardId = requestStatus["shardId"]
-        if hoodId == self.loader.hood.hoodId and zoneId == self.loader.hood.hoodId and shardId == None:
+        if hoodId == self.loader.hood.hoodId and zoneId == self.loader.hood.hoodId and shardId is None:
             self.fsm.request("teleportIn", [requestStatus])
         else:
             self.doneStatus = requestStatus
             messenger.send(self.doneEvent)
-        return
 
     def enterSquished(self):
         base.localAvatar.laffMeter.start()
         base.localAvatar.b_setAnimState("Squish")
         taskMgr.doMethodLater(2.0, self.handleSquishDone, base.localAvatar.uniqueName("finishSquishTask"))
 
-    def handleSquishDone(self, extraArgs=[]):
+    def handleSquishDone(self, extraArgs=None):
         base.cr.playGame.getPlace().setState("walk")
 
     def exitSquished(self):

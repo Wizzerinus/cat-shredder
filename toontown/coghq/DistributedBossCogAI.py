@@ -2,6 +2,7 @@ import random
 
 from otp.avatar import DistributedAvatarAI
 from toontown.toonbase.globals.TTGlobalsBosses import *
+import contextlib
 
 AllBossCogs = []
 
@@ -64,10 +65,8 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
         avId = self.air.getAvatarIdFromSender()
         assert self.notify.debug("%s.avatarNearExit(%s)" % (self.doId, avId))
 
-        try:
+        with contextlib.suppress(ValueError):
             self.nearToons.remove(avId)
-        except:
-            pass
 
     def __handleUnexpectedExit(self, avId):
         assert self.notify.debug("%s.handleUnexpectedExit(%s)" % (self.doId, avId))
@@ -83,36 +82,12 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
 
     def removeToon(self, avId):
         assert self.notify.debug("%s.removeToon(%s)" % (self.doId, avId))
-        resendIds = 0
-        try:
-            self.looseToons.remove(avId)
-        except:
-            pass
-        try:
-            self.involvedToons.remove(avId)
-            resendIds = 1
-        except:
-            pass
-        try:
-            self.toonsA.remove(avId)
-        except:
-            pass
-        try:
-            self.toonsB.remove(avId)
-        except:
-            pass
-        try:
-            self.nearToons.remove(avId)
-        except:
-            pass
+        for arr in (self.looseToons, self.involvedToons, self.nearToons):
+            with contextlib.suppress(ValueError):
+                arr.remove(avId)
 
         event = self.air.getAvatarExitEvent(avId)
         self.ignore(event)
-
-        assert self.notify.debug(
-            "%s. looseToons = %s, involvedToons = %s, toonsA = %s, toonsB = %s"
-            % (self.doId, self.looseToons, self.involvedToons, self.toonsA, self.toonsB)
-        )
 
         if not self.hasToons():
             taskMgr.doMethodLater(10, self.__bossDone, self.uniqueName("BossDone"))
@@ -136,7 +111,7 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
         return alive
 
     def sendToonIds(self):
-        self.sendUpdate("setToonIds", [self.involvedToons, self.toonsA, self.toonsB])
+        self.sendUpdate("setToonIds", [self.involvedToons])
 
     def damageToon(self, toon, deduction):
         toon.takeDamage(deduction)
@@ -181,7 +156,6 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
 
     def enterOff(self):
         assert self.notify.debug("enterOff()")
-        self.resetToons()
 
     def exitOff(self):
         pass
@@ -254,30 +228,6 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
     def exitEpilogue(self):
         pass
 
-    def resetToons(self):
-        if self.toonsA or self.toonsB:
-            self.looseToons = self.looseToons + self.involvedToons
-            self.involvedToons = []
-            self.toonsA = []
-            self.toonsB = []
-            self.sendToonIds()
-
-    def divideToons(self):
-        toons = self.involvedToons[:]
-        random.shuffle(toons)
-
-        numToons = min(len(toons), 8)
-
-        if numToons <= 4:
-            numToonsB = numToons
-        else:
-            numToonsB = (numToons + random.choice([0, 1])) // 2
-
-        self.toonsA = toons[numToonsB:numToons]
-        self.toonsB = toons[:numToonsB]
-        self.looseToons += toons[numToons:]
-        self.sendToonIds()
-
     def acceptNewToons(self):
         sourceToons = self.looseToons
         self.looseToons = []
@@ -294,8 +244,7 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
 
     def getBattleThreeTime(self):
         elapsed = globalClock.getFrameTime() - self.battleThreeStart
-        t1 = elapsed / float(self.battleThreeDuration)
-        return t1
+        return elapsed / float(self.battleThreeDuration)
 
     def progressValue(self, fromValue, toValue):
         t0 = float(self.bossDamage) / float(self.bossMaxDamage)
@@ -319,12 +268,12 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
 
     def reportToonHealth(self):
         if self.notify.getDebug():
-            str = ""
+            output = ""
             for toonId in self.involvedToons:
                 toon = self.air.doId2do.get(toonId)
                 if toon:
-                    str += ", %s (%s/%s)" % (toonId, toon.getHp(), toon.getMaxHp())
-            self.notify.debug("%s.toons = %s" % (self.doId, str[2:]))
+                    output += ", %s (%s/%s)" % (toonId, toon.getHp(), toon.getMaxHp())
+            self.notify.debug("%s.toons = %s" % (self.doId, output[2:]))
 
     def getDamageMultiplier(self):
         """Return a multiplier for our damaging attacks."""
@@ -345,7 +294,7 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
             self.d_showZapToon(avId, x, y, z, h, p, r, attackCode, timestamp)
 
             damage = BossCogDamageLevels.get(attackCode)
-            if damage == None:
+            if damage is None:
                 self.notify.warning("No damage listed for attack code %s" % (attackCode))
                 damage = 5
 
@@ -353,12 +302,11 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
             self.damageToon(toon, damage)
 
             currState = self.getCurrentOrNextState()
-            if attackCode == BossCogElectricFence and currState == "BattleThree":
-                if bpy < 0 and abs(bpx / bpy) > 0.5:
-                    if bpx < 0:
-                        self.b_setAttackCode(BossCogSwatRight)
-                    else:
-                        self.b_setAttackCode(BossCogSwatLeft)
+            if attackCode == BossCogElectricFence and currState == "BattleThree" and bpy < 0 and abs(bpx / bpy) > 0.5:
+                if bpx < 0:
+                    self.b_setAttackCode(BossCogSwatRight)
+                else:
+                    self.b_setAttackCode(BossCogSwatLeft)
 
     def d_showZapToon(self, avId, x, y, z, h, p, r, attackCode, timestamp):
         self.sendUpdate("showZapToon", [avId, x, y, z, h, p, r, attackCode, timestamp])
@@ -372,7 +320,7 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
         self.attackCode = attackCode
         self.attackAvId = avId
 
-        if attackCode == BossCogDizzy or attackCode == BossCogDizzyNow:
+        if attackCode in (BossCogDizzy, BossCogDizzyNow):
             delayTime = self.progressValue(20, 5)
 
             self.hitCount = 0
@@ -384,7 +332,7 @@ class DistributedBossCogAI(DistributedAvatarAI.DistributedAvatarAI):
 
         else:
             delayTime = BossCogAttackTimes.get(attackCode)
-            if delayTime == None:
+            if delayTime is None:
                 return
 
         self.waitForNextAttack(delayTime)

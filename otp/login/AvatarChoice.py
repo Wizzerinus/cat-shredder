@@ -201,7 +201,6 @@ class AvatarChoice(DirectButton):
         self.accept("verifyDone", self.__handleVerifyDelete)
 
     def __handleVerifyDelete(self):
-        status = self.verify.doneStatus
         self.ignore("verifyDone")
         self.verify.cleanup()
         del self.verify

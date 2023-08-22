@@ -57,8 +57,8 @@ class Place(StateData.StateData):
     def getState(self):
         assert self.notify.debug("getState")
         if hasattr(self, "fsm"):
-            curState = self.fsm.getCurrentState().getName()
-            return curState
+            return self.fsm.getCurrentState().getName()
+        return None
 
     def getZoneId(self):
         """
@@ -123,7 +123,7 @@ class Place(StateData.StateData):
         self.ignore(self.walkDoneEvent)
         base.localAvatar.setTeleportAvailable(0)
         self.ignore("teleportQuery")
-        if base.cr.playGame.hood != None:
+        if base.cr.playGame.hood is not None:
             base.cr.playGame.hood.hideTitleText()
 
     def handleWalkDone(self, doneStatus):
@@ -202,7 +202,7 @@ class Place(StateData.StateData):
 
     def enterDied(self, requestStatus, callback=None):
         assert self.notify.debug("enterDied()")
-        if callback == None:
+        if callback is None:
             callback = self.__diedDone
         base.localAvatar.laffMeter.start()
         camera.wrtReparentTo(render)
@@ -236,7 +236,7 @@ class Place(StateData.StateData):
                 base.localAvatar.b_teleportGreeting(avId)
             else:
                 friend = base.cr.identifyAvatar(avId)
-                if friend != None:
+                if friend is not None:
                     teleportDebug(requestStatus, "friend not here, giving up")
                     base.localAvatar.setSystemMessage(avId, TTLocalizer.WhisperTargetLeftVisit % (friend.getName(),))
                     friend.d_teleportGiveup(base.localAvatar.doId)
@@ -248,8 +248,6 @@ class Place(StateData.StateData):
         base.localAvatar.b_setAnimState("TeleportIn", 1, callback=self.teleportInDone)
         base.localAvatar.d_broadcastPositionNow()
         base.localAvatar.b_setParent(SPRender)
-
-        return
 
     def teleportInDone(self):
         """
@@ -337,13 +335,13 @@ class Place(StateData.StateData):
         qzsd = self._getQZState()
         if qzsd:
             return qzsd.addSetZoneCompleteCallback(callback, priority)
-        else:
-            token = self._setZoneCompleteLocalCallbacks.add(callback, priority=priority)
-            if not self._setZoneCompleteSubframeCall:
-                self._setZoneCompleteSubframeCall = SubframeCall(
-                    self._doSetZoneCompleteLocalCallbacks, taskMgr.getCurrentTask().getPriority() - 1
-                )
-            return token
+
+        token = self._setZoneCompleteLocalCallbacks.add(callback, priority=priority)
+        if not self._setZoneCompleteSubframeCall:
+            self._setZoneCompleteSubframeCall = SubframeCall(
+                self._doSetZoneCompleteLocalCallbacks, taskMgr.getCurrentTask().getPriority() - 1
+            )
+        return token
 
     def removeSetZoneCompleteCallback(self, token):
         if token is not None:
@@ -352,32 +350,34 @@ class Place(StateData.StateData):
             qzsd = self._getQZState()
             if qzsd:
                 qzsd.removeSetZoneCompleteCallback(token)
-        return
 
     def _doSetZoneCompleteLocalCallbacks(self):
         self._setZoneCompleteSubframeCall = None
         localCallbacks = self._setZoneCompleteLocalCallbacks
         self._setZoneCompleteLocalCallbacks()
         localCallbacks.clear()
-        return
 
     def _getQZState(self):
-        if hasattr(base, "cr") and hasattr(base.cr, "playGame"):
-            if hasattr(base.cr.playGame, "quietZoneStateData") and base.cr.playGame.quietZoneStateData:
-                return base.cr.playGame.quietZoneStateData
+        if (
+            hasattr(base, "cr")
+            and hasattr(base.cr, "playGame")
+            and hasattr(base.cr.playGame, "quietZoneStateData")
+            and base.cr.playGame.quietZoneStateData
+        ):
+            return base.cr.playGame.quietZoneStateData
         return None
 
     def addLeftQuietZoneCallback(self, callback, priority=None):
         qzsd = self._getQZState()
         if qzsd:
             return qzsd.addLeftQuietZoneCallback(callback, priority)
-        else:
-            token = self._leftQuietZoneLocalCallbacks.add(callback, priority=priority)
-            if not self._leftQuietZoneSubframeCall:
-                self._leftQuietZoneSubframeCall = SubframeCall(
-                    self._doLeftQuietZoneCallbacks, taskMgr.getCurrentTask().getPriority() - 1
-                )
-            return token
+
+        token = self._leftQuietZoneLocalCallbacks.add(callback, priority=priority)
+        if not self._leftQuietZoneSubframeCall:
+            self._leftQuietZoneSubframeCall = SubframeCall(
+                self._doLeftQuietZoneCallbacks, taskMgr.getCurrentTask().getPriority() - 1
+            )
+        return token
 
     def removeLeftQuietZoneCallback(self, token):
         if token is not None:
@@ -386,10 +386,8 @@ class Place(StateData.StateData):
             qzsd = self._getQZState()
             if qzsd:
                 qzsd.removeLeftQuietZoneCallback(token)
-        return
 
     def _doLeftQuietZoneCallbacks(self):
         self._leftQuietZoneLocalCallbacks()
         self._leftQuietZoneLocalCallbacks.clear()
         self._leftQuietZoneSubframeCall = None
-        return

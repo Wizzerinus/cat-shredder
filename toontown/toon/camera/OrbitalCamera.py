@@ -227,10 +227,8 @@ class OrbitalCamera(FSM, NodePath, ParamObj):
 
     def isSubjectMoving(self):
         return any(
-            [
-                inputState.isSet(movement)
-                for movement in ("forward", "reverse", "turnRight", "turnLeft", "slideRight", "slideLeft")
-            ]
+            inputState.isSet(movement)
+            for movement in ("forward", "reverse", "turnRight", "turnLeft", "slideRight", "slideLeft")
         )
 
     def _avatarFacingTask(self, task):
@@ -252,10 +250,7 @@ class OrbitalCamera(FSM, NodePath, ParamObj):
         subjectMoving = self.isSubjectMoving()
         subjectTurning = subjectMoving
 
-        if subjectMoving:
-            hNode = self.subject
-        else:
-            hNode = self
+        hNode = self.subject if subjectMoving else self
 
         camSensitivityX = base.settings.getFloat("camSensitivityX", 0.25)
         camSensitivityY = base.settings.getFloat("camSensitivityY", 0.1)

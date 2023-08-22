@@ -16,15 +16,16 @@ class ColorShop(StateData.StateData):
         StateData.StateData.__init__(self, doneEvent)
         self.toon = None
         self.colorAll = 1
-        return
 
     def getGenderColorList(self, dna):
         if self.dna.getGender() == "m":
             return ToonDNA.defaultBoyColorList
-        else:
-            return ToonDNA.defaultGirlColorList
 
-    def enter(self, toon, shopsVisited=[]):
+        return ToonDNA.defaultGirlColorList
+
+    def enter(self, toon, shopsVisited=None):
+        if shopsVisited is None:
+            shopsVisited = []
         base.disableMouse()
         self.toon = toon
         self.dna = toon.getStyle()
@@ -33,7 +34,7 @@ class ColorShop(StateData.StateData):
             self.headChoice = colorList.index(self.dna.headColor)
             self.armChoice = colorList.index(self.dna.armColor)
             self.legChoice = colorList.index(self.dna.legColor)
-        except:
+        except ValueError:
             self.headChoice = random.choice(colorList)
             self.armChoice = self.headChoice
             self.legChoice = self.headChoice
@@ -66,17 +67,17 @@ class ColorShop(StateData.StateData):
         self.ignore(self.shuffleFetchMsg)
         try:
             del self.toon
-        except:
-            print("ColorShop: toon not found")
+        except AttributeError:
+            self.notify.warning("ColorShop: toon not found")
 
         self.hideButtons()
 
     def load(self):
         self.gui = loader.loadModel("phase_3/models/gui/tt_m_gui_mat_mainGui")
-        guiRArrowUp = self.gui.find("**/tt_t_gui_mat_arrowUp")
-        guiRArrowRollover = self.gui.find("**/tt_t_gui_mat_arrowUp")
-        guiRArrowDown = self.gui.find("**/tt_t_gui_mat_arrowDown")
-        guiRArrowDisabled = self.gui.find("**/tt_t_gui_mat_arrowDisabled")
+        self.gui.find("**/tt_t_gui_mat_arrowUp")
+        self.gui.find("**/tt_t_gui_mat_arrowUp")
+        self.gui.find("**/tt_t_gui_mat_arrowDown")
+        self.gui.find("**/tt_t_gui_mat_arrowDisabled")
         shuffleFrame = self.gui.find("**/tt_t_gui_mat_shuffleFrame")
         shuffleArrowUp = self.gui.find("**/tt_t_gui_mat_shuffleArrowUp")
         shuffleArrowDown = self.gui.find("**/tt_t_gui_mat_shuffleArrowDown")
@@ -230,7 +231,6 @@ class ColorShop(StateData.StateData):
         self.parentFrame.hide()
         self.shuffleFetchMsg = "ColorShopShuffle"
         self.shuffleButton = ShuffleButton.ShuffleButton(self, self.shuffleFetchMsg)
-        return
 
     def unload(self):
         self.gui.removeNode()

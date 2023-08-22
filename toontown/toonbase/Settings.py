@@ -42,8 +42,8 @@ class Settings(object):
         value = self.getOption(attribute, default)
         if isinstance(value, list) and (len(value) == expectedLength or expectedLength is None):
             return value
-        else:
-            return default
+
+        return default
 
     def doSavedSettingsExist(self):
         return os.path.exists(self.fileName)

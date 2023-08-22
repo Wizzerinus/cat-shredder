@@ -9,7 +9,6 @@ class TTSCResistanceMenu(SCMenu):
         SCMenu.__init__(self)
         self.accept("resistanceMessagesChanged", self.__resistanceMessagesChanged)
         self.__resistanceMessagesChanged()
-        submenus = []
 
     def destroy(self):
         SCMenu.destroy(self)

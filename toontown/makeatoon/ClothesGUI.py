@@ -14,22 +14,21 @@ CLOTHES_CLOSET = 2
 class ClothesGUI(StateData.StateData):
     notify = directNotify.newCategory("ClothesGUI")
 
-    def __init__(self, type, doneEvent, swapEvent=None):
+    def __init__(self, guiType, doneEvent, swapEvent=None):
         StateData.StateData.__init__(self, doneEvent)
-        self.type = type
+        self.type = guiType
         self.toon = None
         self.swapEvent = swapEvent
         self.gender = "?"
         self.girlInShorts = 0
         self.swappedTorso = 0
-        return
 
     def load(self):
         self.gui = loader.loadModel("phase_3/models/gui/tt_m_gui_mat_mainGui")
-        guiRArrowUp = self.gui.find("**/tt_t_gui_mat_arrowUp")
-        guiRArrowRollover = self.gui.find("**/tt_t_gui_mat_arrowUp")
-        guiRArrowDown = self.gui.find("**/tt_t_gui_mat_arrowDown")
-        guiRArrowDisabled = self.gui.find("**/tt_t_gui_mat_arrowDisabled")
+        self.gui.find("**/tt_t_gui_mat_arrowUp")
+        self.gui.find("**/tt_t_gui_mat_arrowUp")
+        self.gui.find("**/tt_t_gui_mat_arrowDown")
+        self.gui.find("**/tt_t_gui_mat_arrowDisabled")
         shuffleFrame = self.gui.find("**/tt_t_gui_mat_shuffleFrame")
         shuffleArrowUp = self.gui.find("**/tt_t_gui_mat_shuffleArrowUp")
         shuffleArrowDown = self.gui.find("**/tt_t_gui_mat_shuffleArrowDown")
@@ -111,7 +110,6 @@ class ClothesGUI(StateData.StateData):
         self.parentFrame.hide()
         self.shuffleFetchMsg = "ClothesShopShuffle"
         self.shuffleButton = ShuffleButton.ShuffleButton(self, self.shuffleFetchMsg)
-        return
 
     def unload(self):
         self.gui.removeNode()
@@ -144,7 +142,7 @@ class ClothesGUI(StateData.StateData):
         base.disableMouse()
         self.toon = toon
         self.setupScrollInterface()
-        if not self.type == CLOTHES_TAILOR:
+        if self.type != CLOTHES_TAILOR:
             currTop = (
                 self.toon.style.topTex,
                 self.toon.style.topTexColor,
@@ -164,7 +162,7 @@ class ClothesGUI(StateData.StateData):
     def exit(self):
         try:
             del self.toon
-        except:
+        except AttributeError:
             self.notify.warning("ClothesGUI: toon not found")
 
         self.hideButtons()
@@ -176,10 +174,7 @@ class ClothesGUI(StateData.StateData):
     def setupButtons(self):
         self.girlInShorts = 0
         if self.gender == "f":
-            if self.bottomChoice == -1:
-                botTex = self.bottoms[0][0]
-            else:
-                botTex = self.bottoms[self.bottomChoice][0]
+            botTex = self.bottoms[0][0] if self.bottomChoice == -1 else self.bottoms[self.bottomChoice][0]
             if ToonDNA.GirlBottoms[botTex][1] == ToonDNA.SHORTS:
                 self.girlInShorts = 1
         if self.toon.style.getGender() == "m":
@@ -188,7 +183,6 @@ class ClothesGUI(StateData.StateData):
             self.bottomFrame["text"] = TTLocalizer.ClothesShopBottoms
         self.acceptOnce("last", self.__handleBackward)
         self.acceptOnce("next", self.__handleForward)
-        return None
 
     def swapTop(self, offset):
         length = len(self.tops)
@@ -198,13 +192,13 @@ class ClothesGUI(StateData.StateData):
         self.updateScrollButtons(self.topChoice, length, 0, self.topLButton, self.topRButton)
         if self.topChoice < 0 or self.topChoice >= len(self.tops) or len(self.tops[self.topChoice]) != 4:
             self.notify.warning("topChoice index is out of range!")
-            return None
+            return
         self.toon.style.topTex = self.tops[self.topChoice][0]
         self.toon.style.topTexColor = self.tops[self.topChoice][1]
         self.toon.style.sleeveTex = self.tops[self.topChoice][2]
         self.toon.style.sleeveTexColor = self.tops[self.topChoice][3]
         self.toon.generateToonClothes()
-        if self.swapEvent != None:
+        if self.swapEvent is not None:
             messenger.send(self.swapEvent)
         messenger.send("wakeup")
 
@@ -216,13 +210,13 @@ class ClothesGUI(StateData.StateData):
         self.updateScrollButtons(self.bottomChoice, length, 0, self.bottomLButton, self.bottomRButton)
         if self.bottomChoice < 0 or self.bottomChoice >= len(self.bottoms) or len(self.bottoms[self.bottomChoice]) != 2:
             self.notify.warning("bottomChoice index is out of range!")
-            return None
+            return
         self.toon.style.botTex = self.bottoms[self.bottomChoice][0]
         self.toon.style.botTexColor = self.bottoms[self.bottomChoice][1]
         if self.toon.generateToonClothes() == 1:
             self.toon.loop("neutral", 0)
             self.swappedTorso = 1
-        if self.swapEvent != None:
+        if self.swapEvent is not None:
             messenger.send(self.swapEvent)
         messenger.send("wakeup")
 
@@ -247,23 +241,16 @@ class ClothesGUI(StateData.StateData):
     def resetClothes(self, style):
         if self.toon:
             self.toon.style.makeFromNetString(style.makeNetString())
-            if self.swapEvent != None and self.swappedTorso == 1:
+            if self.swapEvent is not None and self.swappedTorso == 1:
                 self.toon.swapToonTorso(self.toon.style.torso, genClothes=0)
                 self.toon.generateToonClothes()
                 self.toon.loop("neutral", 0)
-        return
 
     def changeClothes(self):
         self.notify.debug("Entering changeClothes")
         newChoice = self.shuffleButton.getCurrChoice()
-        if newChoice[0] in self.tops:
-            newTopIndex = self.tops.index(newChoice[0])
-        else:
-            newTopIndex = self.topChoice
-        if newChoice[1] in self.bottoms:
-            newBottomIndex = self.bottoms.index(newChoice[1])
-        else:
-            newBottomIndex = self.bottomChoice
+        newTopIndex = self.tops.index(newChoice[0]) if newChoice[0] in self.tops else self.topChoice
+        newBottomIndex = self.bottoms.index(newChoice[1]) if newChoice[1] in self.bottoms else self.bottomChoice
         oldTopIndex = self.topChoice
         oldBottomIndex = self.bottomChoice
         self.swapTop(newTopIndex - oldTopIndex)

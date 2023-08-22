@@ -2,7 +2,6 @@ from direct.fsm import ClassicFSM, State
 from direct.fsm import StateData
 from direct.gui import OnscreenText
 from direct.gui.DirectGui import *
-from direct.showbase import PythonUtil
 from panda3d.core import *
 from panda3d.core import TextEncoder
 
@@ -75,7 +74,6 @@ class NameShop(StateData.StateData):
         self.parentFSM.getStateNamed("NameShop").addChild(self.fsm)
         self.nameGen = NameGenerator.NameGenerator()
         self.fsm.enterInitialState()
-        return
 
     def makeLabel(self, te, index, others):
         alig = others[0]
@@ -119,16 +117,17 @@ class NameShop(StateData.StateData):
                 if g.position == self.index:
                     self.avId = g.id
 
-        if toon == None:
+        if toon is None:
+            self.notify.warning("Entering NameShop without a Toon!")
             return
+
+        self.toon = toon
+        if self.toon.style.gender == "m":
+            self.boy = 1
+            self.girl = 0
         else:
-            self.toon = toon
-            if self.toon.style.gender == "m":
-                self.boy = 1
-                self.girl = 0
-            else:
-                self.boy = 0
-                self.girl = 1
+            self.boy = 0
+            self.girl = 1
         self.usedNames = usedNames
         if not self.addedGenderSpecific or self.oldBoy != self.boy:
             self.oldBoy = self.boy
@@ -141,7 +140,7 @@ class NameShop(StateData.StateData):
                 + self.nameGen.neutralTitles
             )
             self.allTitles.sort()
-            self.allTitles += [" "] + [" "]
+            self.allTitles += [" ", " "]
             self.allFirsts = (
                 [" "]
                 + [" "]
@@ -150,12 +149,12 @@ class NameShop(StateData.StateData):
                 + self.nameGen.neutralFirsts
             )
             self.allFirsts.sort()
-            self.allFirsts += [" "] + [" "]
+            self.allFirsts += [" ", " "]
             try:
                 k = self.allFirsts.index("Von")
                 self.allFirsts[k] = "von"
-            except:
-                print("NameShop: Couldn't find von")
+            except ValueError:
+                self.notify.warning("NameShop: Couldn't find von")
 
             if not self.addedGenderSpecific:
                 nameShopGui = loader.loadModel("phase_3/models/gui/tt_m_gui_mat_nameShop")
@@ -247,11 +246,11 @@ class NameShop(StateData.StateData):
     def exit(self):
         self.notify.debug("exit")
         if self.isLoaded == 0:
-            return None
+            return
         self.ignore("next")
         self.ignore("last")
         self.hideAll()
-        return None
+        return
 
     def __listsChanged(self):
         newname = ""
@@ -270,10 +269,7 @@ class NameShop(StateData.StateData):
                 self.showList(self.firstnameScrollList)
                 self.firstHigh.show()
                 newfirst = self.firstnameScrollList["items"][self.firstnameScrollList.index + 2]["text"]
-                if newfirst == "von":
-                    nt = "Von"
-                else:
-                    nt = newfirst
+                nt = "Von" if newfirst == "von" else newfirst
                 self.nameIndices[1] = self.nameGen.returnUniqueID(nt, 1)
                 if not self.titleActive and newfirst == "von":
                     newfirst = "Von"
@@ -323,7 +319,7 @@ class NameShop(StateData.StateData):
     def makeScrollList(self, gui, ipos, mcolor, nitems, nitemMakeFunction, nitemMakeExtraArgs):
         self.notify.debug("makeScrollList")
         it = nitems[:]
-        ds = DirectScrolledList(
+        return DirectScrolledList(
             items=it,
             itemMakeFunction=nitemMakeFunction,
             itemMakeExtraArgs=nitemMakeExtraArgs,
@@ -357,7 +353,6 @@ class NameShop(StateData.StateData):
             numItemsVisible=5,
             forceHeight=0.1,
         )
-        return ds
 
     def makeCheckBox(self, npos, ntex, ntexcolor, comm):
         return DirectCheckButton(
@@ -427,7 +422,7 @@ class NameShop(StateData.StateData):
     def load(self):
         self.notify.debug("load")
         if self.isLoaded == 1:
-            return None
+            return
         nameBalloon = loader.loadModel("phase_3/models/props/chatbox_input")
         guiButton = loader.loadModel("phase_3/models/gui/quit_button")
         gui = loader.loadModel("phase_3/models/gui/tt_m_gui_mat_nameShop")
@@ -552,8 +547,8 @@ class NameShop(StateData.StateData):
         self.allSuffixes = self.nameGen.lastSuffixes[:]
         self.allPrefixes.sort()
         self.allSuffixes.sort()
-        self.allPrefixes = [" "] + [" "] + self.allPrefixes + [" "] + [" "]
-        self.allSuffixes = [" "] + [" "] + self.allSuffixes + [" "] + [" "]
+        self.allPrefixes = [" ", " ", *self.allPrefixes, " ", " "]
+        self.allSuffixes = [" ", " ", *self.allSuffixes, " ", " "]
         self.titleScrollList = self.makeScrollList(
             gui, (-0.6, 0, 0.202), (1, 0.8, 0.8, 1), self.allTitles, self.makeLabel, [TextNode.ACenter, "title"]
         )
@@ -580,13 +575,11 @@ class NameShop(StateData.StateData):
         self.pickANameGUIElements.append(self.prefixHigh)
         self.pickANameGUIElements.append(self.suffixHigh)
         nameBalloon.removeNode()
-        imageList = (
+        (
             guiButton.find("**/QuitBtn_UP"),
             guiButton.find("**/QuitBtn_DN"),
             guiButton.find("**/QuitBtn_RLVR"),
         )
-        buttonImage = [imageList, imageList]
-        buttonText = [TTLocalizer.NameShopContinueSubmission, TTLocalizer.NameShopChooseAnother]
         guiButton.removeNode()
         self.uberhide(self.typeANameGUIElements)
         self.uberhide(self.pickANameGUIElements)
@@ -595,10 +588,8 @@ class NameShop(StateData.StateData):
     def ubershow(self, guiObjectsToShow):
         self.notify.debug("ubershow %s" % str(guiObjectsToShow))
         for x in guiObjectsToShow:
-            try:
+            if x:
                 x.show()
-            except:
-                print("NameShop: Tried to show already removed object")
 
     def hideAll(self):
         self.uberhide(self.pickANameGUIElements)
@@ -607,19 +598,14 @@ class NameShop(StateData.StateData):
     def uberhide(self, guiObjectsToHide):
         self.notify.debug("uberhide %s" % str(guiObjectsToHide))
         for x in guiObjectsToHide:
-            try:
+            if x:
                 x.hide()
-            except:
-                print("NameShop: Tried to hide already removed object")
 
     def uberdestroy(self, guiObjectsToDestroy):
         self.notify.debug("uberdestroy %s" % str(guiObjectsToDestroy))
         for x in guiObjectsToDestroy:
-            try:
+            if x:
                 x.destroy()
-                del x
-            except:
-                print("NameShop: Tried to destroy already removed object")
 
     def getNameIndices(self):
         return self.nameIndices
@@ -633,7 +619,7 @@ class NameShop(StateData.StateData):
     def unload(self):
         self.notify.debug("unload")
         if self.isLoaded == 0:
-            return None
+            return
         self.exit()
         cleanupDialog("globalDialog")
         self.uberdestroy(self.pickANameGUIElements)
@@ -662,10 +648,10 @@ class NameShop(StateData.StateData):
         self.doneStatus = "done"
         messenger.send(self.doneEvent)
 
-    def rejectName(self, str):
+    def rejectName(self, desc):
         self.notify.debug("rejectName")
         self.names[0] = ""
-        self.rejectDialog = TTDialog.TTGlobalDialog(doneEvent="rejectDone", message=str, style=TTDialog.Acknowledge)
+        self.rejectDialog = TTDialog.TTGlobalDialog(doneEvent="rejectDone", message=desc, style=TTDialog.Acknowledge)
         self.rejectDialog.show()
         self.acceptOnce("rejectDone", self.__handleReject)
 
@@ -728,17 +714,17 @@ class NameShop(StateData.StateData):
             self.titleIndex = self.allTitles.index(uberReturn[3])
             self.nameIndices[0] = self.nameGen.returnUniqueID(uberReturn[3], 0)
             self.nameFlags[0] = 1
-        except:
-            print("NameShop : Should have found title, uh oh!")
-            print(uberReturn)
+        except ValueError:
+            self.notify.warning("NameShop : Should have found title, uh oh!")
+            self.notify.warning(uberReturn)
 
         try:
             self.firstIndex = self.allFirsts.index(uberReturn[4])
             self.nameIndices[1] = self.nameGen.returnUniqueID(uberReturn[4], 1)
             self.nameFlags[1] = 1
-        except:
-            print("NameShop : Should have found first name, uh oh!")
-            print(uberReturn)
+        except ValueError:
+            self.notify.warning("NameShop : Should have found first name, uh oh!")
+            self.notify.warning(uberReturn)
 
         try:
             self.prefixIndex = self.allPrefixes.index(uberReturn[5])
@@ -749,9 +735,9 @@ class NameShop(StateData.StateData):
                 self.nameFlags[3] = 1
             else:
                 self.nameFlags[3] = 0
-        except:
-            print("NameShop : Some part of last name not found, uh oh!")
-            print(uberReturn)
+        except ValueError:
+            self.notify.warning("NameShop : Some part of last name not found, uh oh!")
+            self.notify.warning(uberReturn)
 
         self.updateCheckBoxes()
         self.updateLists()
@@ -810,7 +796,6 @@ class NameShop(StateData.StateData):
 
     def enterDone(self):
         self.notify.debug("enterDone")
-        return None
 
     def exitDone(self):
         return None
@@ -838,28 +823,3 @@ class NameShop(StateData.StateData):
         self.avList.append(newPotAv)
         self.doneStatus = "done"
         messenger.send(self.doneEvent)
-
-    def waitForServer(self):
-        self.waitForServerDialog = TTDialog.TTDialog(
-            text=TTLocalizer.WaitingForNameSubmission, style=TTDialog.NoButtons
-        )
-        self.waitForServerDialog.show()
-
-    def cleanupWaitForServer(self):
-        if self.waitForServerDialog != None:
-            self.waitForServerDialog.cleanup()
-            self.waitForServerDialog = None
-        return
-
-    def printTypeANameInfo(self, str):
-        sourceFilename, lineNumber, functionName = PythonUtil.stackEntryInfo(1)
-        self.notify.debug(
-            "========================================\n%s : %s :  %s" % (sourceFilename, lineNumber, functionName)
-        )
-        self.notify.debug(str)
-        curPos = self.typeANameButton.getPos()
-        self.notify.debug("Pos = %.2f %.2f %.2f" % (curPos[0], curPos[1], curPos[2]))
-        parent = self.typeANameButton.getParent()
-        parentPos = parent.getPos()
-        self.notify.debug("Parent = %s" % parent)
-        self.notify.debug("ParentPos = %.2f %.2f %.2f" % (parentPos[0], parentPos[1], parentPos[2]))

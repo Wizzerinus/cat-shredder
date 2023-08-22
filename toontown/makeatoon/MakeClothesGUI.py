@@ -22,15 +22,9 @@ class MakeClothesGUI(ClothesGUI.ClothesGUI):
     def setupButtons(self):
         ClothesGUI.ClothesGUI.setupButtons(self)
         if len(self.dna.torso) == 1:
-            if self.gender == "m":
-                torsoStyle = "s"
-            elif self.girlInShorts == 1:
-                torsoStyle = "s"
-            else:
-                torsoStyle = "d"
+            torsoStyle = "s" if self.gender == "m" or self.girlInShorts == 1 else "d"
             self.toon.swapToonTorso(self.dna.torso[0] + torsoStyle)
             self.toon.loop("neutral", 0)
             self.toon.swapToonColor(self.dna)
             self.swapTop(0)
             self.swapBottom(0)
-        return None

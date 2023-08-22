@@ -62,7 +62,6 @@ class CogHQBossBattle(Place):
             "start",
             "final",
         )
-        return
 
     def load(self):
         Place.load(self)
@@ -104,7 +103,6 @@ class CogHQBossBattle(Place):
             self.bossCog.d_avatarExit()
         self.bossCog = None
         Place.exit(self)
-        return
 
     def enterFinalBattle(self):
         self.walkStateData.enter()
@@ -158,7 +156,7 @@ class CogHQBossBattle(Place):
         Place.enterTeleportOut(self, requestStatus, self.__teleportOutDone)
 
     def __teleportOutDone(self, requestStatus):
-        hoodId = requestStatus["hoodId"]
+        requestStatus["hoodId"]
         self.doneStatus = requestStatus
         messenger.send(self.doneEvent)
 
@@ -166,7 +164,7 @@ class CogHQBossBattle(Place):
         base.localAvatar.laffMeter.start()
         base.localAvatar.b_setAnimState("Flattened")
 
-    def handleSquishDone(self, extraArgs=[]):
+    def handleSquishDone(self, extraArgs=None):
         base.cr.playGame.getPlace().setState("walk")
 
     def exitSquished(self):

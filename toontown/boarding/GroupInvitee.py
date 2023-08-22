@@ -67,7 +67,7 @@ class GroupInvitee(ToonHeadDialog.ToonHeadDialog):
 
     def __handleButton(self, value):
         place = base.cr.playGame.getPlace()
-        if (value == DGG.DIALOG_OK) and place and not (place.getState() == "elevator"):
+        if (value == DGG.DIALOG_OK) and place and place.getState() != "elevator":
             self.party.requestAcceptInvite(self.leaderId, self.avId)
         else:
             self.party.requestRejectInvite(self.leaderId, self.avId)

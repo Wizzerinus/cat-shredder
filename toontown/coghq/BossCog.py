@@ -234,7 +234,7 @@ class BossCog(Avatar.Avatar):
         self.healthCondition = 0
 
     def updateHealthBar(self):
-        if self.healthBar == None:
+        if self.healthBar is None:
             return
 
         health = 1.0 - (float(self.bossDamage) / float(self.bossMaxDamage))
@@ -283,7 +283,7 @@ class BossCog(Avatar.Avatar):
         if self.healthBar:
             self.healthBar.removeNode()
             self.healthBar = None
-        if self.healthCondition == 4 or self.healthCondition == 5:
+        if self.healthCondition in (4, 5):
             taskMgr.remove(self.uniqueName("blink-task"))
         self.healthCondition = 0
 
@@ -317,9 +317,9 @@ class BossCog(Avatar.Avatar):
     def doorBCallback(self, isOpen):
         pass
 
-    def __rollTreadsInterval(self, object, start=0, duration=0, rate=1):
-        def rollTexMatrix(t, object=object):
-            object.setTexOffset(TextureStage.getDefault(), t, 0)
+    def __rollTreadsInterval(self, obj, start=0, duration=0, rate=1):
+        def rollTexMatrix(t):
+            obj.setTexOffset(TextureStage.getDefault(), t, 0)
 
         return LerpFunctionInterval(rollTexMatrix, fromData=start, toData=start + rate * duration, duration=duration)
 
@@ -421,9 +421,7 @@ class BossCog(Avatar.Avatar):
         cnode.addSolid(cPoly)
         animate.attachNewNode(cnode)
 
-        fsm = self.DoorFSM(name, animate, callback, openedHpr, closedHpr, self.uniqueName)
-
-        return fsm
+        return self.DoorFSM(name, animate, callback, openedHpr, closedHpr, self.uniqueName)
 
     def doAnimate(self, anim=None, now=0, queueNeutral=1, raised=None, forward=None, happy=None):
         if now:
@@ -432,18 +430,18 @@ class BossCog(Avatar.Avatar):
         if not self.twoFaced:
             happy = 1
 
-        if raised == None:
+        if raised is None:
             raised = self.raised
-        if forward == None:
+        if forward is None:
             forward = self.forward
-        if happy == None:
+        if happy is None:
             happy = self.happy
         if now:
             self.raised = raised
             self.forward = forward
             self.happy = happy
 
-        if self.currentAnimIval == None:
+        if self.currentAnimIval is None:
             self.accept(self.animDoneEvent, self.__getNextAnim)
 
         else:
@@ -453,7 +451,7 @@ class BossCog(Avatar.Avatar):
 
         if changed or queueNeutral:
             self.queuedAnimIvals.append((ival, self.raised, self.forward, self.happy))
-            if self.currentAnimIval == None:
+            if self.currentAnimIval is None:
                 self.__getNextAnim()
 
     def stopAnimate(self):
@@ -494,7 +492,7 @@ class BossCog(Avatar.Avatar):
 
     def __doGetAnimIval(self, anim, raised, forward, happy):
         if raised == self.raised and forward == self.forward and happy == self.happy:
-            return self.getAnim(anim), (anim != None)
+            return self.getAnim(anim), (anim is not None)
 
         startsHappy = self.happy
         endsHappy = self.happy
@@ -503,17 +501,11 @@ class BossCog(Avatar.Avatar):
         if raised and not self.raised:
             upIval = self.getAngryActorInterval("Fb_down2Up")
 
-            if self.forward:
-                ival = upIval
-            else:
-                ival = Sequence(Func(self.reverseBody), upIval, Func(self.forwardBody))
+            ival = upIval if self.forward else Sequence(Func(self.reverseBody), upIval, Func(self.forwardBody))
             ival = Parallel(SoundInterval(self.upSfx, node=self), ival)
 
         if forward != self.forward:
-            if forward:
-                animName = "Bb2Ff_spin"
-            else:
-                animName = "Ff2Bb_spin"
+            animName = "Bb2Ff_spin" if forward else "Ff2Bb_spin"
             ival = Sequence(ival, ActorInterval(self, animName))
             startsHappy = 1
             endsHappy = 1
@@ -554,7 +546,7 @@ class BossCog(Avatar.Avatar):
         self.forward = forward
         self.happy = happy
 
-        if anim != None:
+        if anim is not None:
             ival = Sequence(ival, self.getAnim(anim))
 
         return ival, 1
@@ -581,13 +573,8 @@ class BossCog(Avatar.Avatar):
 
     def getAnim(self, anim):
         ival = None
-        if anim == None:
-            partName = None
-
-            if self.happy:
-                animName = "Ff_neutral"
-            else:
-                animName = "Fb_neutral"
+        if anim is None:
+            animName = "Ff_neutral" if self.happy else "Fb_neutral"
 
             if self.raised:
                 ival = ActorInterval(self, animName)
@@ -628,7 +615,7 @@ class BossCog(Avatar.Avatar):
 
             ival = Parallel(SoundInterval(self.reelSfx, node=self), ival)
 
-        elif anim == "ltSwing" or anim == "rtSwing":
+        elif anim in ("ltSwing", "rtSwing"):
             self.doAnimate(None, raised=0, happy=0, queueNeutral=0)
 
             if anim == "ltSwing":

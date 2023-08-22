@@ -297,9 +297,6 @@ class TTFriendsManagerUD(DistributedObjectGlobalUD):
         requester = self.air.getAvatarIdFromSender()
         self.sendUpdateToAvatarId(avId, "setSleepAutoReply", [requester])
 
-    def getFriendAccess(self, friendId):
-        return self.toonToData.get(friendId, {}).get("access", 0)
-
     def getFriendName(self, friendId):
         return self.toonToData.get(friendId, {}).get("name", "???")
 

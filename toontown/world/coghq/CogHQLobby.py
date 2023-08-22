@@ -90,7 +90,7 @@ class CogHQLobby(Place.Place):
         self.fsm.requestFinalState()
         self.ignoreAll()
         self.loader.music.stop()
-        if self.loader.geom != None:
+        if self.loader.geom is not None:
             self.loader.geom.reparentTo(hidden)
         Place.Place.exit(self)
 

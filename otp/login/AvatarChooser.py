@@ -74,7 +74,7 @@ class AvatarChooser(StateData.StateData):
         """
         assert chooser_notify.debug("enter()")
         if self.isLoaded == 0:
-            return None
+            return
 
         for panel in self.panelList:
             panel.hide()
@@ -90,7 +90,7 @@ class AvatarChooser(StateData.StateData):
     def load(self):
         assert chooser_notify.debug("load()")
         if self.isLoaded == 1:
-            return None
+            return
 
         gui = loader.loadModel("phase_3/models/gui/pick_a_toon_gui")
         gui2 = loader.loadModel("phase_3/models/gui/quit_button")
@@ -160,57 +160,50 @@ class AvatarChooser(StateData.StateData):
         else:
             lookFwdPercent = 0.20
 
-            if len(self.used_panel_indexs) == 2:
-                lookAtOthersPercent = 0.4
-            else:
-                lookAtOthersPercent = 0.65
+            lookAtOthersPercent = 0.4 if len(self.used_panel_indexs) == 2 else 0.65
 
         lookRandomPercent = 1.0 - lookFwdPercent - lookAtOthersPercent
 
         if lookAtChoice < lookFwdPercent:
             self.IsLookingAt[toonidx] = "f"
             return Vec3(0, 1.5, 0)
-        elif lookAtChoice < (lookRandomPercent + lookFwdPercent) or (len(self.used_panel_indexs) == 1):
+        if lookAtChoice < (lookRandomPercent + lookFwdPercent) or (len(self.used_panel_indexs) == 1):
             self.IsLookingAt[toonidx] = "r"
             return toonHead.getRandomForwardLookAtPoint()
-        else:
+
+        other_toon_idxs = []
+        for i in range(len(self.IsLookingAt)):
+            if self.IsLookingAt[i] == toonidx:
+                other_toon_idxs.append(i)
+
+        IgnoreStarersPercent = 0.4 if len(other_toon_idxs) == 1 else 0.2
+
+        NoticeStarersPercent = 0.5
+        bStareTargetTurnsToMe = 0
+
+        if (len(other_toon_idxs) == 0) or (random.random() < IgnoreStarersPercent):
             other_toon_idxs = []
-            for i in range(len(self.IsLookingAt)):
-                if self.IsLookingAt[i] == toonidx:
+            for i in self.used_panel_indexs:
+                if i != toonidx:
                     other_toon_idxs.append(i)
 
-            if len(other_toon_idxs) == 1:
-                IgnoreStarersPercent = 0.4
-            else:
-                IgnoreStarersPercent = 0.2
+            if random.random() < NoticeStarersPercent:
+                bStareTargetTurnsToMe = 1
 
-            NoticeStarersPercent = 0.5
-            bStareTargetTurnsToMe = 0
+        if len(other_toon_idxs) == 0:
+            return toonHead.getRandomForwardLookAtPoint()
 
-            if (len(other_toon_idxs) == 0) or (random.random() < IgnoreStarersPercent):
-                other_toon_idxs = []
-                for i in self.used_panel_indexs:
-                    if i != toonidx:
-                        other_toon_idxs.append(i)
+        lookingAtIdx = random.choice(other_toon_idxs)
+        if bStareTargetTurnsToMe:
+            self.IsLookingAt[lookingAtIdx] = toonidx
+            otherToonHead = None
+            for panel in self.panelList:
+                if panel.position == lookingAtIdx:
+                    otherToonHead = panel.headModel
+            otherToonHead.doLookAroundToStareAt(otherToonHead, self.getLookAtToPosVec(lookingAtIdx, toonidx))
 
-                if random.random() < NoticeStarersPercent:
-                    bStareTargetTurnsToMe = 1
-
-            if len(other_toon_idxs) == 0:
-                return toonHead.getRandomForwardLookAtPoint()
-            else:
-                lookingAtIdx = random.choice(other_toon_idxs)
-
-            if bStareTargetTurnsToMe:
-                self.IsLookingAt[lookingAtIdx] = toonidx
-                otherToonHead = None
-                for panel in self.panelList:
-                    if panel.position == lookingAtIdx:
-                        otherToonHead = panel.headModel
-                otherToonHead.doLookAroundToStareAt(otherToonHead, self.getLookAtToPosVec(lookingAtIdx, toonidx))
-
-            self.IsLookingAt[toonidx] = lookingAtIdx
-            return self.getLookAtToPosVec(toonidx, lookingAtIdx)
+        self.IsLookingAt[toonidx] = lookingAtIdx
+        return self.getLookAtToPosVec(toonidx, lookingAtIdx)
 
     def getLookAtToPosVec(self, fromIdx, toIdx):
         x = -(POSITIONS[toIdx][0] - POSITIONS[fromIdx][0])
@@ -222,24 +215,24 @@ class AvatarChooser(StateData.StateData):
         self.used_panel_indexs = []
 
         for panel in self.panelList:
-            if panel.dna != None:
+            if panel.dna is not None:
                 self.used_panel_indexs.append(panel.position)
 
         if len(self.used_panel_indexs) == 0:
             return
 
         self.IsLookingAt = []
-        for i in range(MAX_AVATARS):
+        for _i in range(MAX_AVATARS):
             self.IsLookingAt.append("f")
 
         for panel in self.panelList:
-            if panel.dna != None:
+            if panel.dna is not None:
                 panel.headModel.setLookAtPositionCallbackArgs((self, panel.headModel, panel.position))
 
     def unload(self):
         assert chooser_notify.debug("unload()")
         if self.isLoaded == 0:
-            return None
+            return
 
         cleanupDialog("globalDialog")
 

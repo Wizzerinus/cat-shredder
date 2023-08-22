@@ -44,7 +44,6 @@ class SCObject(DirectObject):
         """subclasses should override this function and perform whatever
         processing is necessary to 'finalize' the appearance of this
         object so that it's ready to be displayed"""
-        pass
 
     def getEventName(self, name):
         """the names of all events that pertain to a specific SpeedChat
@@ -63,8 +62,8 @@ class SCObject(DirectObject):
     def getTopLevelOverlap(self):
         if self.settingsRef.topLevelOverlap is None:
             return self.getSubmenuOverlap()
-        else:
-            return self.settingsRef.topLevelOverlap
+
+        return self.settingsRef.topLevelOverlap
 
     def privSetSettingsRef(self, settingsRef):
         """Subclasses that contain nested SCObjects are responsible for

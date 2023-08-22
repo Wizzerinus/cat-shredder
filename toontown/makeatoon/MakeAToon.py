@@ -80,7 +80,6 @@ class MakeAToon(StateData.StateData):
         self.focusOutIval = None
         self.focusInIval = None
         self.toon = None
-        return
 
     def getToon(self):
         return self.toon
@@ -125,8 +124,8 @@ class MakeAToon(StateData.StateData):
         guiNextUp = gui.find("**/tt_t_gui_mat_nextUp")
         guiNextDown = gui.find("**/tt_t_gui_mat_nextDown")
         guiNextDisabled = gui.find("**/tt_t_gui_mat_nextDisabled")
-        skipTutorialUp = gui.find("**/tt_t_gui_mat_skipUp")
-        skipTutorialDown = gui.find("**/tt_t_gui_mat_skipDown")
+        gui.find("**/tt_t_gui_mat_skipUp")
+        gui.find("**/tt_t_gui_mat_skipDown")
         rotateUp = gui.find("**/tt_t_gui_mat_arrowRotateUp")
         rotateDown = gui.find("**/tt_t_gui_mat_arrowRotateDown")
         self.guiTopBar = DirectFrame(
@@ -318,7 +317,6 @@ class MakeAToon(StateData.StateData):
         self.crashSounds.append(base.loader.loadSfx("phase_3/audio/sfx/tt_s_ara_mat_crash_wood.ogg"))
         self.crashSounds.append(base.loader.loadSfx("phase_3/audio/sfx/tt_s_ara_mat_crash_woodBoing.ogg"))
         self.crashSounds.append(base.loader.loadSfx("phase_3/audio/sfx/tt_s_ara_mat_crash_woodGlass.ogg"))
-        return
 
     def unload(self):
         self.exit()

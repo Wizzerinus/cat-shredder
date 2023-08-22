@@ -446,14 +446,13 @@ class TTEmote(Emote.Emote):
         self.track = None
         self.stateChangeMsgLocks = 0
         self.stateHasChanged = 0
-        return
 
     def lockStateChangeMsg(self):
         self.stateChangeMsgLocks += 1
 
     def unlockStateChangeMsg(self):
         if self.stateChangeMsgLocks <= 0:
-            print(PythonUtil.lineTag() + ": someone unlocked too many times")
+            self.notify.warning(f"{PythonUtil.lineTag()}: someone unlocked too many times")
             return
         self.stateChangeMsgLocks -= 1
         if self.stateChangeMsgLocks == 0 and self.stateHasChanged:
@@ -517,47 +516,44 @@ class TTEmote(Emote.Emote):
         if isinstance(index, str):
             index = EmoteName2Id[index]
         self.emoteFunc[index][1] = self.emoteFunc[index][1] + 1
-        if toon is base.localAvatar:
-            if self.emoteFunc[index][1] == 1:
-                self.emoteEnableStateChanged()
+        if toon is base.localAvatar and self.emoteFunc[index][1] == 1:
+            self.emoteEnableStateChanged()
 
     def enable(self, index, toon):
         if isinstance(index, str):
             index = EmoteName2Id[index]
         self.emoteFunc[index][1] = self.emoteFunc[index][1] - 1
-        if toon is base.localAvatar:
-            if self.emoteFunc[index][1] == 0:
-                self.emoteEnableStateChanged()
+        if toon is base.localAvatar and self.emoteFunc[index][1] == 0:
+            self.emoteEnableStateChanged()
 
     def doEmote(self, toon, emoteIndex, ts=0, volume=1):
         try:
             func = self.emoteFunc[emoteIndex][0]
-        except:
-            print("Error in finding emote func %s" % emoteIndex)
+        except ValueError:
+            self.notify.warning("Error in finding emote func %s" % emoteIndex)
             return (None, None)
 
         def clearEmoteTrack():
             base.localAvatar.emoteTrack = None
             base.localAvatar.d_setEmoteState(self.EmoteClear, 1.0)
-            return
 
         if volume == 1:
             track, duration, exitTrack = func(toon)
         else:
             track, duration, exitTrack = func(toon, volume)
-        if track != None:
+        if track is not None:
             track = Sequence(Func(self.disableAll, toon, "doEmote"), track)
             if duration > 0:
                 track = Sequence(track, Wait(duration))
-            if exitTrack != None:
+            if exitTrack is not None:
                 track = Sequence(track, exitTrack)
             if duration > 0:
                 track = Sequence(track, Func(returnToLastAnim, toon))
             track = Sequence(track, Func(self.releaseAll, toon, "doEmote"), autoFinish=1)
             if toon.isLocal():
                 track = Sequence(track, Func(clearEmoteTrack))
-        if track != None:
-            if toon.emote != None:
+        if track is not None:
+            if toon.emote is not None:
                 toon.emote.finish()
                 toon.emote = None
             toon.emote = track

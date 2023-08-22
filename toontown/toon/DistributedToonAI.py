@@ -34,7 +34,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         self._sendExitServerEvent()
         DistributedSmoothNodeAI.DistributedSmoothNodeAI.delete(self)
         DistributedPlayerAI.DistributedPlayerAI.delete(self)
-        return
 
     def b_setHat(self, idx, textureIdx):
         self.d_setHat(idx, textureIdx)
@@ -120,7 +119,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
         if not success:
             return
 
-        print("go to zone id:", zoneId)
         zoneId %= 100
         if zoneId in ValidStartingLocations:
             self.b_setDefaultZone(zoneId)
@@ -167,7 +165,6 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def d_setAnimState(self, animName, animMultiplier):
         timestamp = globalClockDelta.getRealNetworkTime()
         self.sendUpdate("setAnimState", [animName, animMultiplier, timestamp])
-        return None
 
     def setAnimState(self, animName, animMultiplier, timestamp=0):
         self.animName = animName
@@ -190,8 +187,8 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
     def getEmoteAccess(self):
         return self.emoteAccess
 
-    def setEmoteAccessId(self, id, bit):
-        self.emoteAccess[id] = bit
+    def setEmoteAccessId(self, emoteId, bit):
+        self.emoteAccess[emoteId] = bit
         self.d_setEmoteAccess(self.emoteAccess)
 
     def b_setCustomMessages(self, customMessages):
@@ -333,10 +330,10 @@ class DistributedToonAI(DistributedPlayerAI.DistributedPlayerAI, DistributedSmoo
                 "%s said resistance %s for %s toons: %s" % (self.doId, msgIndex, len(affectedPlayers), affectedPlayers)
             )
         self.sendUpdate("setSCResistance", [msgIndex, affectedPlayers])
-        type = ResistanceChat.getMenuName(msgIndex)
+        uniteType = ResistanceChat.getMenuName(msgIndex)
         value = ResistanceChat.getItemValue(msgIndex)
         self.air.writeServerEvent(
-            "resistanceChat", self.zoneId, "%s|%s|%s|%s" % (self.doId, type, value, affectedPlayers)
+            "resistanceChat", self.zoneId, "%s|%s|%s|%s" % (self.doId, uniteType, value, affectedPlayers)
         )
 
     def doResistanceEffect(self, msgIndex):

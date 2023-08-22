@@ -71,12 +71,12 @@ class PropPool:
             outProp = Actor.Actor(other=self.props[name])
             outProp.setBlend(frameBlend=base.wantSmoothAnimations)
             return outProp
-        else:
-            if name not in self.props:
-                prop = loader.loadModel(self.propStrings[name][0])
-                prop.setName(name)
-                self.storeProp(name, prop)
-            return self.props[name].copyTo(hidden)
+
+        if name not in self.props:
+            prop = loader.loadModel(self.propStrings[name][0])
+            prop.setName(name)
+            self.storeProp(name, prop)
+        return self.props[name].copyTo(hidden)
 
     def storeProp(self, name, prop):
         """storeProp(self, string, nodePath)

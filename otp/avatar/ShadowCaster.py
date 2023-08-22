@@ -58,7 +58,6 @@ class ShadowCaster(NodePath):
 
     def update(self):
         """This method is meant to be overriden."""
-        pass
 
     def deleteDropShadow(self):
         """
@@ -80,13 +79,12 @@ class ShadowCaster(NodePath):
         assert self.notify.debugStateCall(self)
 
         isActive = isActive and self.wantsActive
-        if self.shadowPlacer is not None:
-            if self.activeShadow != isActive:
-                self.activeShadow = isActive
-                if isActive:
-                    self.shadowPlacer.on()
-                else:
-                    self.shadowPlacer.off()
+        if self.shadowPlacer is not None and self.activeShadow != isActive:
+            self.activeShadow = isActive
+            if isActive:
+                self.shadowPlacer.on()
+            else:
+                self.shadowPlacer.off()
 
     def setShadowHeight(self, shadowHeight):
         """

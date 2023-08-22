@@ -28,17 +28,13 @@ class BoardingPartyBase:
 
     def getGroupLeader(self, avatarId):
         if avatarId in self.avIdDict:
-            leaderId = self.avIdDict[avatarId]
-            return leaderId
-        else:
-            return None
+            return self.avIdDict[avatarId]
+
+        return None
 
     def isGroupLeader(self, avatarId):
         leaderId = self.getGroupLeader(avatarId)
-        if avatarId == leaderId:
-            return True
-        else:
-            return False
+        return avatarId == leaderId
 
     def getGroupMemberList(self, avatarId):
         """
@@ -81,9 +77,8 @@ class BoardingPartyBase:
         Returns True if the avatar has an active boarding group.
         """
         memberList = self.getGroupMemberList(avatarId)
-        if avatarId in memberList:
-            if len(memberList) > 1:
-                return True
+        if avatarId in memberList and len(memberList) > 1:
+            return True
         return False
 
     def hasPendingInvite(self, avatarId):
@@ -96,27 +91,12 @@ class BoardingPartyBase:
         if avatarId in self.avIdDict:
             leaderId = self.avIdDict[avatarId]
             leaderInviteList = self.getGroupInviteList(leaderId)
-            if leaderId == avatarId:
-                if len(leaderInviteList):
-                    pendingInvite = True
-                else:
-                    pendingInvite = False
-            else:
-                if avatarId in leaderInviteList:
-                    pendingInvite = True
-                else:
-                    pendingInvite = False
-        if pendingInvite:
-            return True
-        else:
-            return False
+            pendingInvite = bool(len(leaderInviteList)) if leaderId == avatarId else avatarId in leaderInviteList
+        return pendingInvite
 
     def isInGroup(self, memberId, leaderId):
         """
         Returns True if the member is in the leader's member list or invite list.
         Else returns False.
         """
-        if (memberId in self.getGroupMemberList(leaderId)) or (memberId in self.getGroupInviteList(leaderId)):
-            return True
-        else:
-            return False
+        return (memberId in self.getGroupMemberList(leaderId)) or (memberId in self.getGroupInviteList(leaderId))

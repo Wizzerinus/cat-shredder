@@ -16,11 +16,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
     orbitalMode = False
 
     def __init__(self, cr):
-        try:
-            self.LocalToon_initialized
-            return
-        except:
-            self.LocalToon_initialized = 1
+        if hasattr(self, "LocalToon_initialized"):
+            raise RuntimeError("bro")
+        self.LocalToon_initialized = True
 
         DistributedToon.DistributedToon.__init__(self, cr)
         chatMgr = ToontownChatManager.ToontownChatManager(cr, self)
@@ -55,11 +53,9 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         pass
 
     def delete(self):
-        try:
-            self.LocalToon_deleted
-            return
-        except:
-            self.LocalToon_deleted = 1
+        if hasattr(self, "LocalToon_deleted"):
+            raise RuntimeError("bro")
+        self.LocalToon_deleted = True
 
         Toon.unloadDialog()
         DistributedToon.DistributedToon.delete(self)
@@ -123,7 +119,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         sfx = self.soundWhisper
         sender = base.cr.identifyAvatar(fromId)
 
-        if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
+        if whisperType in (WhisperPopup.WTNormal, WhisperPopup.WTQuickTalker):
             if sender is None:
                 return
             chatString = sender.getName() + ": " + chatString
@@ -131,25 +127,6 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         whisper = WhisperPopup(chatString, getInterfaceFont(), whisperType)
         if sender is not None:
             whisper.setClickable(sender.getName(), fromId)
-
-        whisper.manage(base.marginManager)
-        base.playSfx(sfx)
-
-    def displaySystemClickableWhisper(self, fromId, chatString, whisperType):
-        """displayPartyCanStartWhisper (self, int fromId, string chatString, int whisperType)
-
-        Displays the party can start whisper message.
-        """
-        sfx = self.soundWhisper
-        sender = base.cr.identifyAvatar(fromId)
-
-        if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
-            if sender is None:
-                return
-            chatString = sender.getName() + ": " + chatString
-
-        whisper = WhisperPopup(chatString, getInterfaceFont(), whisperType)
-        whisper.setClickable("", fromId)
 
         whisper.manage(base.marginManager)
         base.playSfx(sfx)
@@ -162,7 +139,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         if (
             hasattr(base.cr.playGame.hood, "loader")
             and hasattr(base.cr.playGame.hood.loader, "place")
-            and base.cr.playGame.getPlace() != None
+            and base.cr.playGame.getPlace() is not None
         ):
             zoneId = base.cr.playGame.getPlace().getZoneId()
         else:
@@ -176,9 +153,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             + ",\nVer: %s, " % serverVersion
             + "\nDistrict: %s" % districtName
         )
-        print("Current position=", strPos.replace("\n", ", "))
         self.setChatAbsolute(strPos, CFThought | CFTimeout)
-        return
 
     def setGhostMode(self, flag):
         if flag == 2:
@@ -186,10 +161,7 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
         DistributedToon.DistributedToon.setGhostMode(self, flag)
 
     def hasActiveBoardingGroup(self):
-        if hasattr(self, "boardingParty") and self.boardingParty:
-            return self.boardingParty.hasActiveGroup(self.doId)
-        else:
-            return False
+        return hasattr(self, "boardingParty") and self.boardingParty and self.boardingParty.hasActiveGroup(self.doId)
 
     def getZoneId(self):
         return self._zoneId
@@ -209,4 +181,3 @@ class LocalToon(DistributedToon.DistributedToon, LocalAvatar.LocalAvatar):
             )
         elif av is not None:
             self.notify.warning("setSleepAutoReply from non-toon %s" % fromId)
-        return

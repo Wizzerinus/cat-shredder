@@ -55,9 +55,8 @@ class SpeedChat(SCMenu):
 
     def _detectTransformChange(self):
         newTransform = self.getTransform(aspect2d)
-        if self._lastTransform is not None:
-            if newTransform != self._lastTransform:
-                self.invalidateAll()
+        if self._lastTransform is not None and newTransform != self._lastTransform:
+            self.invalidateAll()
         self._lastTransform = newTransform
 
     def setWhisperMode(self, whisperMode):

@@ -26,8 +26,7 @@ class TTChatInputUnites(TTChatInputDropdown):
         del self.chatMgr
 
     def getChatMenuStructure(self):
-        structure = [[TTSCResistanceMenu, TTLocalizer.SCMenuResistance]]
-        return structure
+        return [[TTSCResistanceMenu, TTLocalizer.SCMenuResistance]]
 
     def show(self, pos=None):
         if pos is not None:

@@ -209,7 +209,7 @@ class GroupPanel(DirectObject.DirectObject):
         """
         messenger.send("wakeup")
 
-        if not (base.cr.playGame.getPlace().getState() == "elevator"):
+        if base.cr.playGame.getPlace().getState() != "elevator":
             self.confirmQuitDialog = TTDialog.TTDialog(
                 style=TTDialog.YesNo,
                 text=TTLocalizer.QuitBoardingPartyConfirm,
@@ -221,9 +221,8 @@ class GroupPanel(DirectObject.DirectObject):
         if self.confirmQuitDialog:
             self.confirmQuitDialog.destroy()
         self.confirmQuitDialog = None
-        if value > 0:
-            if self.boardingParty:
-                self.boardingParty.requestLeave()
+        if value > 0 and self.boardingParty:
+            self.boardingParty.requestLeave()
 
     def __handleGoButton(self):
         offset = self.destScrollList.getSelectedIndex()
@@ -305,10 +304,7 @@ class GroupPanel(DirectObject.DirectObject):
             arrowGui.find("**/tt_t_gui_brd_arrowL_gotoHover"),
             arrowGui.find("**/tt_t_gui_brd_arrowL_gotoUp"),
         )
-        if self.boardingParty.maxSize == 4:
-            zPos = -0.177083
-        else:
-            zPos = -0.463843
+        zPos = -0.177083 if self.boardingParty.maxSize == 4 else -0.463843
 
         bottomImage = self.guiBg.find("**/tt_t_gui_brd_memberListBtm_leader")
 
@@ -364,10 +360,7 @@ class GroupPanel(DirectObject.DirectObject):
         """
         destName = self.__getDestName(self.destIndexSelected)
 
-        if self.boardingParty.maxSize == 4:
-            zPos = -0.12
-        else:
-            zPos = -0.404267
+        zPos = -0.12 if self.boardingParty.maxSize == 4 else -0.404267
 
         bottomImage = self.guiBg.find("**/tt_t_gui_brd_memberListBtm_nonLeader")
 
@@ -425,11 +418,9 @@ class GroupPanel(DirectObject.DirectObject):
             return None
 
         toonName = toon.getName()
-        inBattle = 0
         buttonImage = self.availableButtonImage
 
         if toon.battleId:
-            inBattle = 1
             buttonImage = self.battleButtonImage
             if avId == base.localAvatar.doId:
                 self.__forceHide()
@@ -462,7 +453,7 @@ class GroupPanel(DirectObject.DirectObject):
             messenger.send("clickedNametag", [avatar])
 
     def __addTestNames(self, num):
-        for i in range(num):
+        for _i in range(num):
             avatarButton = self.__getAvatarButton(base.localAvatar.doId)
             self.scrollList.addItem(avatarButton, refresh=0)
         self.scrollList.refresh()
@@ -471,10 +462,7 @@ class GroupPanel(DirectObject.DirectObject):
         """
         Returns True if the groupPanel is hidden forcefully.
         """
-        if self.forcedHidden and self.frame.isHidden():
-            return True
-        else:
-            return False
+        return self.forcedHidden and self.frame.isHidden()
 
     def hide(self):
         self.frame.hide()
@@ -524,16 +512,12 @@ class GroupPanel(DirectObject.DirectObject):
         This method makes the destination scroll list point to the offset value.
         This is only for the leader.
         """
-        if base.localAvatar.doId == self.leaderId:
-            if self.destScrollList:
-                self.destIndexSelected = offset
-                self.destScrollList.scrollTo(offset)
+        if base.localAvatar.doId == self.leaderId and self.destScrollList:
+            self.destIndexSelected = offset
+            self.destScrollList.scrollTo(offset)
 
     def __makeGoingToLabel(self):
-        if self.boardingParty.maxSize == 4:
-            zPos = -0.0466546
-        else:
-            zPos = -0.331731
+        zPos = -0.0466546 if self.boardingParty.maxSize == 4 else -0.331731
         self.goingToLabel = DirectLabel(
             parent=self.frame,
             relief=None,

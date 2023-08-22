@@ -117,7 +117,7 @@ class DistributedDoor(DelayDeletable):
         if not self.wantsNametag():
             return
 
-        if self.nametag == None:
+        if self.nametag is None:
             self.nametag = NametagGroup()
             self.nametag.setFont(getBuildingNametagFont())
 
@@ -131,7 +131,7 @@ class DistributedDoor(DelayDeletable):
             self.nametag.manage(base.marginManager)
 
     def clearNametag(self):
-        if self.nametag != None:
+        if self.nametag is not None:
             self.nametag.unmanage(base.marginManager)
             self.nametag.setAvatar(NodePath())
             self.nametag = None
@@ -139,12 +139,8 @@ class DistributedDoor(DelayDeletable):
     def getTriggerName(self):
         if self.doorType == DoorTypes.INT_HQ or self.doorType in self.specialDoorTypes:
             return "door_trigger_" + str(self.block) + "_" + str(self.doorIndex)
-        else:
-            return "door_trigger_" + str(self.block)
 
-    def getTriggerName_wip(self):
-        name = "door_trigger_%d" % (self.doId,)
-        return name
+        return "door_trigger_" + str(self.block)
 
     def getEnterTriggerEvent(self):
         return "enter" + self.getTriggerName()
@@ -164,20 +160,6 @@ class DistributedDoor(DelayDeletable):
             building = self.getBuilding()
             doorTrigger = building.find("**/door_" + str(self.doorIndex) + "/**/door_trigger*")
             doorTrigger.node().setName(self.getTriggerName())
-
-    def setTriggerName_wip(self):
-        building = self.getBuilding()
-        doorTrigger = building.find("**/door_%d/**/door_trigger_%d" % (self.doorIndex, self.block))
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find("**/door_trigger_%d" % (self.block,))
-
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find("**/door_%d/**/door_trigger_*" % (self.doorIndex,))
-
-        if doorTrigger.isEmpty():
-            doorTrigger = building.find("**/door_trigger_*")
-
-        doorTrigger.node().setName(self.getTriggerName())
 
     def setZoneIdAndBlock(self, zoneId, block):
         self.zoneId = zoneId
@@ -230,11 +212,7 @@ class DistributedDoor(DelayDeletable):
                 self.building = door.getParent()
             elif self.doorType == DoorTypes.INT_KS:
                 self.building = base.render.find("**/KartShop_Interior*")
-            elif (
-                self.doorType == DoorTypes.EXT_STANDARD
-                or self.doorType == DoorTypes.EXT_HQ
-                or self.doorType == DoorTypes.EXT_KS
-            ):
+            elif self.doorType in (DoorTypes.EXT_STANDARD, DoorTypes.EXT_HQ, DoorTypes.EXT_KS):
                 self.building = self.cr.playGame.hood.loader.geom.find(
                     "**/??" + str(self.block) + ":*_landmark_*_DNARoot;+s"
                 )
@@ -242,22 +220,10 @@ class DistributedDoor(DelayDeletable):
                     self.building = self.cr.playGame.hood.loader.geom.find(
                         "**/??" + str(self.block) + ":animated_building_*_DNARoot;+s"
                     )
-            elif self.doorType == DoorTypes.EXT_COGHQ or self.doorType == DoorTypes.INT_COGHQ:
+            elif self.doorType in (DoorTypes.EXT_COGHQ, DoorTypes.INT_COGHQ):
                 self.building = self.cr.playGame.hood.loader.geom
             else:
                 self.notify.error("No such door type as " + str(self.doorType))
-
-        return self.building
-
-    def getBuilding_wip(self):
-        if "building" not in self.__dict__:
-            if "block" in self.__dict__:
-                self.building = self.cr.playGame.hood.loader.geom.find(
-                    "**/??" + str(self.block) + ":*_landmark_*_DNARoot;+s"
-                )
-            else:
-                self.building = self.cr.playGame.hood.loader.geom
-                print("---------------- door is interior -------")
 
         return self.building
 
@@ -343,14 +309,6 @@ class DistributedDoor(DelayDeletable):
         messenger.send("DistributedDoor_doorTrigger")
         self.sendUpdate("requestEnter")
 
-    def handleOkTeaser(self):
-        self.accept(self.getEnterTriggerEvent(), self.doorTrigger)
-        self.dialog.destroy()
-        del self.dialog
-        place = base.cr.playGame.getPlace()
-        if place:
-            place.fsm.request("walk")
-
     def checkIsDoorHitTaskName(self):
         return "checkIsDoorHit" + self.getTriggerName()
 
@@ -372,7 +330,7 @@ class DistributedDoor(DelayDeletable):
 
     def doorTrigger(self, args=None):
         self.ignore(self.getEnterTriggerEvent())
-        if args == None:
+        if args is None:
             self.enterDoor()
         else:
             self.currentDoorNp = NodePath(args.getIntoNodePath())
@@ -445,19 +403,19 @@ class DistributedDoor(DelayDeletable):
         elif self.doorType == DoorTypes.EXT_STANDARD:
             if hasattr(self, "tempDoorNodePath"):
                 return self.tempDoorNodePath
-            else:
-                posHpr = self.cr.playGame.dnaStore.getDoorPosHprFromBlockNumber(self.block)
-                otherNP = NodePath("doorOrigin")
-                otherNP.setPos(posHpr.getPos())
-                otherNP.setHpr(posHpr.getHpr())
-                self.tempDoorNodePath = otherNP
+
+            posHpr = self.cr.playGame.dnaStore.getDoorPosHprFromBlockNumber(self.block)
+            otherNP = NodePath("doorOrigin")
+            otherNP.setPos(posHpr.getPos())
+            otherNP.setHpr(posHpr.getHpr())
+            self.tempDoorNodePath = otherNP
         elif self.doorType in self.specialDoorTypes:
             building = self.getBuilding()
             otherNP = building.find("**/door_origin_" + str(self.doorIndex))
         elif self.doorType == DoorTypes.INT_HQ:
             otherNP = base.render.find("**/door_origin_" + str(self.doorIndex))
         else:
-            self.notify.error("No such door type as " + str(self.doorType))
+            raise RuntimeError("No such door type as " + str(self.doorType))
 
         return otherNP
 
@@ -544,7 +502,7 @@ class DistributedDoor(DelayDeletable):
 
     def getRequestStatus(self):
         zoneId = self.otherZoneId
-        request = {
+        return {
             "loader": ZoneUtil.getBranchLoaderName(zoneId),
             "where": ZoneUtil.getToonWhereName(zoneId),
             "how": "doorIn",
@@ -555,7 +513,6 @@ class DistributedDoor(DelayDeletable):
             "allowRedirect": 0,
             "doorDoId": self.otherDoId,
         }
-        return request
 
     def enterClosing(self, ts):
         doorFrameHoleRight = self.findDoorNode("doorFrameHoleRight")
@@ -570,10 +527,7 @@ class DistributedDoor(DelayDeletable):
 
         otherNP = self.getDoorNodePath()
         trackName = "doorClose-%d" % self.doId
-        if self.rightSwing:
-            h = 100
-        else:
-            h = -100
+        h = 100 if self.rightSwing else -100
 
         self.finishDoorTrack()
         self.doorTrack = Sequence(
@@ -617,10 +571,7 @@ class DistributedDoor(DelayDeletable):
 
         otherNP = self.getDoorNodePath()
         trackName = "doorOpen-%d" % self.doId
-        if self.rightSwing:
-            h = 100
-        else:
-            h = -100
+        h = 100 if self.rightSwing else -100
 
         self.finishDoorTrack()
         self.doorTrack = Parallel(
@@ -678,10 +629,7 @@ class DistributedDoor(DelayDeletable):
             self.notify.warning("enterOpening(): did not find flatDoors")
             return
 
-        if self.leftSwing:
-            h = -100
-        else:
-            h = 100
+        h = -100 if self.leftSwing else 100
 
         leftDoor = self.findDoorNode("leftDoor")
         if not leftDoor.isEmpty():
@@ -720,10 +668,7 @@ class DistributedDoor(DelayDeletable):
             return
 
         leftDoor = self.findDoorNode("leftDoor")
-        if self.leftSwing:
-            h = -100
-        else:
-            h = 100
+        h = -100 if self.leftSwing else 100
 
         if not leftDoor.isEmpty():
             otherNP = self.getDoorNodePath()

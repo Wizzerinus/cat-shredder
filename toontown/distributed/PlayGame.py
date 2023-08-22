@@ -89,11 +89,9 @@ class PlayGame(StateData.StateData):
 
     def exit(self):
         """exit(self)"""
-        pass
 
     def load(self):
         """load(self)"""
-        pass
 
     def loadDnaStoreTutorial(self):
         self.dnaStore = DNAStorage()
@@ -131,16 +129,14 @@ class PlayGame(StateData.StateData):
 
     def enterStart(self):
         """enterStart(self)"""
-        pass
 
     def exitStart(self):
         """exitStart(self)"""
-        pass
 
     def handleHoodDone(self):
         doneStatus = self.hood.getDoneStatus()
         shardId = doneStatus["shardId"]
-        if shardId != None:
+        if shardId is not None:
             self.doneStatus = doneStatus
             messenger.send(self.doneEvent)
             base.transitions.fadeOut(0)
@@ -246,5 +242,5 @@ class PlayGame(StateData.StateData):
     def getPlaceId(self):
         if self.hood:
             return self.hood.hoodId
-        else:
-            return None
+
+        return None

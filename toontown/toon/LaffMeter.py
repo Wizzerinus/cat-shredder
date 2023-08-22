@@ -22,7 +22,6 @@ class LaffMeter(DirectFrame):
         else:
             self.isToon = 0
         self.load()
-        return
 
     def obscure(self, obscured):
         self.__obscured = obscured
@@ -90,7 +89,6 @@ class LaffMeter(DirectFrame):
             self.teeth = [self.tooth6, self.tooth5, self.tooth4, self.tooth3, self.tooth2, self.tooth1]
             self.fractions = [0.0, 0.166666, 0.333333, 0.5, 0.666666, 0.833333]
         gui.removeNode()
-        return
 
     def destroy(self):
         if self.av:
@@ -126,13 +124,12 @@ class LaffMeter(DirectFrame):
                     self.teeth[i].hide()
 
     def adjustText(self):
-        if self.isToon:
-            if self.maxLabel["text"] != str(self.maxHp) or self.hpLabel["text"] != str(self.hp):
-                self.maxLabel["text"] = str(self.maxHp)
-                self.hpLabel["text"] = str(self.hp)
+        if self.isToon and (self.maxLabel["text"] != str(self.maxHp) or self.hpLabel["text"] != str(self.hp)):
+            self.maxLabel["text"] = str(self.maxHp)
+            self.hpLabel["text"] = str(self.hp)
 
     def animatedEffect(self, delta):
-        if delta == 0 or self.av == None:
+        if delta == 0 or self.av is None:
             return
         name = self.av.uniqueName("laffMeterBoing") + "-" + str(self.this)
         ToontownIntervals.cleanup(name)
@@ -143,7 +140,7 @@ class LaffMeter(DirectFrame):
         return
 
     def adjustFace(self, hp, maxHp, quietly=0):
-        if self.isToon and self.hp != None:
+        if self.isToon and self.hp is not None:
             self.frown.hide()
             self.smile.hide()
             self.openSmile.hide()
@@ -171,7 +168,6 @@ class LaffMeter(DirectFrame):
             self.adjustText()
             if not quietly:
                 self.animatedEffect(delta)
-        return
 
     def start(self):
         if self.av:

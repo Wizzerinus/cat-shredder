@@ -13,6 +13,7 @@ from toontown.toonbase.globals.TTGlobalsAvatars import AvatarDefaultRadius, Shad
 from toontown.toonbase.globals.TTGlobalsChat import *
 from toontown.toonbase.globals.TTGlobalsGUI import getInterfaceFont
 from toontown.toonbase.globals.TTGlobalsRender import *
+import contextlib
 
 teleportNotify = directNotify.newCategory("Teleport")
 teleportNotify.showTime = True
@@ -134,10 +135,9 @@ class Avatar(Actor, ShadowCaster):
         Actor.delete(self)
 
     def deleteShadow(self):
-        if hasattr(self, "shadow"):
-            if self.shadow:
-                self.shadow.removeNode()
-                self.shadow = None
+        if hasattr(self, "shadow") and self.shadow:
+            self.shadow.removeNode()
+            self.shadow = None
 
     def acceptNametagAmbientLightChange(self):
         self.accept("nametagAmbientLightChanged", self.nametagAmbientLightChanged)
@@ -289,16 +289,15 @@ class Avatar(Actor, ShadowCaster):
         return self.style
 
     def getShadow(self):
-        if hasattr(self, "shadow"):
-            if self.shadow:
-                return self.shadow
+        if hasattr(self, "shadow") and self.shadow:
+            return self.shadow
         return None
 
     def setStyle(self, style):
         self.style = style
 
     def getDialogueArray(self):
-        return None and []
+        return None
 
     def playCurrentDialogue(self, dialogue, chatFlags, interrupt=1):
         if interrupt and self.currentDialogue is not None:
@@ -527,10 +526,7 @@ class Avatar(Actor, ShadowCaster):
         elif quitButton:
             self.__chatFlags |= CFQuitButton
 
-        if len(dialogueList) > 0:
-            dialogue = dialogueList[0]
-        else:
-            dialogue = None
+        dialogue = dialogueList[0] if len(dialogueList) > 0 else None
         self.clearChat()
         self.setChatAbsolute(message, self.__chatFlags, dialogue)
         self.setPageNumber(None, 0)
@@ -543,10 +539,7 @@ class Avatar(Actor, ShadowCaster):
         button is clicked.  All clients also receive this message.
         When the pageNumber is -1, the last page has been cleared.
         """
-        if timestamp is None:
-            elapsed = 0.0
-        else:
-            elapsed = ClockDelta.globalClockDelta.localElapsedTime(timestamp)
+        elapsed = 0.0 if timestamp is None else ClockDelta.globalClockDelta.localElapsedTime(timestamp)
 
         self.__chatPageNumber = [paragraph, pageNumber]
         self.__updatePageChat()
@@ -556,11 +549,10 @@ class Avatar(Actor, ShadowCaster):
                 messenger.send(self.uniqueName("nextChatPage"), [pageNumber, elapsed])
             else:
                 messenger.send(self.uniqueName("doneChatPage"), [elapsed])
+        elif pageNumber >= 0:
+            messenger.send("nextChatPage", [pageNumber, elapsed])
         else:
-            if pageNumber >= 0:
-                messenger.send("nextChatPage", [pageNumber, elapsed])
-            else:
-                messenger.send("doneChatPage", [elapsed])
+            messenger.send("doneChatPage", [elapsed])
 
     def advancePageNumber(self):
         """
@@ -594,10 +586,7 @@ class Avatar(Actor, ShadowCaster):
             pageNumber = self.__chatPageNumber[1]
             if pageNumber >= 0:
                 if not self.__chatSet:
-                    if len(self.__chatDialogueList) > 0:
-                        dialogue = self.__chatDialogueList[0]
-                    else:
-                        dialogue = None
+                    dialogue = self.__chatDialogueList[0] if len(self.__chatDialogueList) > 0 else None
                     if hasattr(base.cr, "chatLog"):
                         base.cr.chatLog.addToLog(f"{self.name}: {self.__chatMessage}")
 
@@ -683,10 +672,8 @@ class Avatar(Actor, ShadowCaster):
         if base.wantNametags:
             assert self.notify.debug(f"Adding avatar {self.getName()}")
 
-            try:
+            with contextlib.suppress(ValueError):
                 Avatar.ActiveAvatars.remove(self)
-            except ValueError:
-                pass
 
             Avatar.ActiveAvatars.append(self)
             self.nametag.manage(base.marginManager)
@@ -716,7 +703,7 @@ class Avatar(Actor, ShadowCaster):
             return None
 
         sfxIndex = None
-        if sfxType == "statementA" or sfxType == "statementB":
+        if sfxType in ("statementA", "statementB"):
             sfxIndex = min(2, max(0, length - 1))
         elif sfxType == "question":
             sfxIndex = 3

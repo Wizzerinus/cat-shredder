@@ -55,7 +55,7 @@ class Hood(StateData.StateData):
         enter this hood and start the state machine
         """
         assert self.notify.debug("enter(requestStatus=" + str(requestStatus) + ")")
-        hoodId = requestStatus["hoodId"]
+        requestStatus["hoodId"]
         zoneId = requestStatus["zoneId"]
 
         hoodText = self.getHoodText(zoneId)
@@ -74,7 +74,7 @@ class Hood(StateData.StateData):
 
     def getHoodText(self, zoneId):
         hoodText = getFullnameFromId(self.hoodId)
-        streetName = PlaceNames.get(ZoneUtil.getCanonicalBranchZone(zoneId))
+        streetName = PlaceNames.get(ZoneUtil.getBranchZone(zoneId))
         if streetName:
             hoodText = hoodText + "\n" + streetName[-1]
 
@@ -167,7 +167,7 @@ class Hood(StateData.StateData):
 
     def isSameHood(self, status):
         """return true if the request status is in the same hood"""
-        return status["hoodId"] == self.hoodId and status["shardId"] == None
+        return status["hoodId"] == self.hoodId and status["shardId"] is None
 
     def enterFinal(self):
         """enterFinal(self)"""

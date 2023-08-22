@@ -76,8 +76,8 @@ class SCMenuHolder(SCElement):
         of our width that submenus should cover"""
         if self.parentMenu.isTopLevel():
             return self.getTopLevelOverlap()
-        else:
-            return self.getSubmenuOverlap()
+
+        return self.getSubmenuOverlap()
 
     def getMenuOffset(self):
         """should return a Point3 offset at which the menu should be
@@ -140,8 +140,10 @@ class SCMenuHolder(SCElement):
         if self.menu is not None:
             self.menu.invalidate()
 
-    def finalize(self, dbArgs={}):
+    def finalize(self, dbArgs=None):
         """catch this call and influence the appearance of our button"""
+        if dbArgs is None:
+            dbArgs = {}
         if not self.isDirty():
             return
 

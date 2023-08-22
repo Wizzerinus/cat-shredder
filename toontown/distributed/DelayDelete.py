@@ -55,17 +55,17 @@ def cleanupDelayDeletes(interval):
         if isinstance(delayDelete, list):
             for i in delayDelete:
                 i.destroy()
-        else:
+        elif delayDelete:
             delayDelete.destroy()
-        del interval.delayDelete
+        interval.delayDelete = None
     if hasattr(interval, "delayDeletes"):
         delayDeletes = interval.delayDeletes
         if isinstance(delayDeletes, type([])):
             for i in delayDeletes:
                 i.destroy()
-        else:
+        elif delayDeletes:
             delayDeletes.destroy()
-        del interval.delayDeletes
+        interval.delayDeletes = None
 
 
 def addDelayDeletes(interval, *avatars):

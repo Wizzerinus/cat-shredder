@@ -17,12 +17,10 @@ class GenderShop(StateData.StateData):
         self.toon = None
         self.gender = "m"
         self.makeAToon = makeAToon
-        return
 
     def enter(self):
         base.disableMouse()
         self.accept("next", self.__handleForward)
-        return None
 
     def exit(self):
         self.ignore("next")
@@ -68,7 +66,6 @@ class GenderShop(StateData.StateData):
         gui.removeNode()
         del gui
         self.toon = None
-        return
 
     def unload(self):
         self.boyButton.destroy()
@@ -78,7 +75,6 @@ class GenderShop(StateData.StateData):
         if self.toon:
             self.toon.delete()
         self.makeAToon = None
-        return
 
     def setGender(self, choice):
         self.__setGender(choice)

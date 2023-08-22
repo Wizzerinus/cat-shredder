@@ -33,11 +33,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         """
         cr is a ClientRepository
         """
-        try:
-            self.LocalAvatar_initialized
-            return
-        except:
-            pass
+        if hasattr(self, "LocalAvatar_initialized"):
+            raise RuntimeError("bro")
+        self.LocalAvatar_initialized = True
 
         self.debugSteps = 0
         self.nudgeInProgress = False
@@ -141,11 +139,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         messenger.send("openFriendsList")
 
     def delete(self):
-        try:
-            self.LocalAvatar_deleted
-            return
-        except:
-            self.LocalAvatar_deleted = 1
+        if hasattr(self, "LocalAvatar_deleted"):
+            raise RuntimeError("bro")
+        self.LocalAvatar_deleted = True
         self.ignoreAll()
         self.stopJumpLandTask()
         taskMgr.remove("shadowReach")
@@ -263,8 +259,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         return Task.done
 
     def jumpLandAnimFix(self, jumpTime):
-        if self.playingAnim != "run" and self.playingAnim != "walk":
+        if self.playingAnim not in ("run", "walk"):
             return taskMgr.doMethodLater(jumpTime, self.returnToWalk, self.uniqueName("walkReturnTask"))
+        return None
 
     def jumpHardLand(self):
         if self.allowHardLand():
@@ -408,13 +405,13 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         sender = None
         sfx = self.soundWhisper
 
-        if whisperType == WhisperPopup.WTNormal or whisperType == WhisperPopup.WTQuickTalker:
-            if sender == None:
+        if whisperType in (WhisperPopup.WTNormal, WhisperPopup.WTQuickTalker):
+            if sender is None:
                 return
             chatString = sender.getName() + ": " + chatString
 
         whisper = WhisperPopup(chatString, getInterfaceFont(), whisperType)
-        if sender != None:
+        if sender is not None:
             whisper.setClickable(sender.getName(), fromId)
 
         whisper.manage(base.marginManager)
@@ -480,7 +477,7 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.soundWalk.stop()
 
     def wakeUp(self):
-        if self.sleepCallback != None:
+        if self.sleepCallback is not None:
             taskMgr.remove(self.uniqueName("sleepwatch"))
             self.startSleepWatch(self.sleepCallback)
         self.lastMoved = globalClock.getFrameTime()
@@ -529,22 +526,19 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.stopSound()
 
     def sleepSwimTest(self, task):
-        now = globalClock.getFrameTime()
         speed, rotSpeed, slideSpeed = self.controlManager.getSpeeds()
         if speed != 0.0 or rotSpeed != 0.0 or inputState.isSet("jump"):
             if not self.swimmingFlag:
                 self.swimmingFlag = 1
-        else:
-            if self.swimmingFlag:
-                self.swimmingFlag = 0
+        elif self.swimmingFlag:
+            self.swimmingFlag = 0
         if self.swimmingFlag or self.hp <= 0:
             self.wakeUp()
-        else:
-            if not self.sleepFlag:
-                now = globalClock.getFrameTime()
-                if now - self.lastMoved > self.swimTimeout:
-                    self.swimTimeoutAction()
-                    return Task.done
+        elif not self.sleepFlag:
+            now = globalClock.getFrameTime()
+            if now - self.lastMoved > self.swimTimeout:
+                self.swimTimeoutAction()
+                return Task.done
 
         return Task.cont
 
@@ -554,26 +548,20 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
     def trackAnimToSpeed(self, task):
         speed, rotSpeed, slideSpeed = self.controlManager.getSpeeds()
 
-        if speed != 0.0 or rotSpeed != 0.0 or slideSpeed != 0.0 or inputState.isSet("jump"):
-            if not self.movingFlag:
-                self.movingFlag = 1
-
-                self.stopLookAround()
-        else:
-            if self.movingFlag:
-                self.movingFlag = 0
-
-                self.startLookAround()
+        if (speed != 0.0 or rotSpeed != 0.0 or slideSpeed != 0.0 or inputState.isSet("jump")) and not self.movingFlag:
+            self.movingFlag = 1
+            self.stopLookAround()
+        elif self.movingFlag:
+            self.movingFlag = 0
+            self.startLookAround()
 
         if self.movingFlag or self.hp <= 0:
             self.wakeUp()
-        else:
-            if not self.sleepFlag:
-                now = globalClock.getFrameTime()
-                if now - self.lastMoved > self.sleepTimeout:
-                    self.gotoSleep()
+        elif not self.sleepFlag:
+            now = globalClock.getFrameTime()
+            if now - self.lastMoved > self.sleepTimeout:
+                self.gotoSleep()
 
-        state = None
         if self.sleepFlag:
             state = "Sleep"
         elif self.hp > 0:
@@ -595,9 +583,9 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
             if self.emoteTrack:
                 self.emoteTrack.finish()
                 self.emoteTrack = None
-            if action == WALK_INDEX or action == REVERSE_INDEX:
+            if action in (WALK_INDEX, REVERSE_INDEX):
                 self.walkSound()
-            elif action == RUN_INDEX or action == STRAFE_LEFT_INDEX or action == STRAFE_RIGHT_INDEX:
+            elif action in (RUN_INDEX, STRAFE_LEFT_INDEX, STRAFE_RIGHT_INDEX):
                 self.runSound()
             else:
                 self.stopSound()
@@ -662,4 +650,4 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         """
         Overrided by derived class
         """
-        assert False
+        raise AssertionError

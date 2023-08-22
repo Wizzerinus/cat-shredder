@@ -61,33 +61,29 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
 
     def setLocation(self, parentId, zoneId, teleport=0):
         DistributedAvatar.DistributedAvatar.setLocation(self, parentId, zoneId, teleport)
-        if not (parentId in (0, None) and zoneId in (0, None)):
-            if not self.cr.isValidPlayerLocation(parentId, zoneId):
-                self.cr.disableDoId(self.doId)
-                self.cr.deleteObject(self.doId)
+        if not (parentId in (0, None) and zoneId in (0, None)) and not self.cr.isValidPlayerLocation(parentId, zoneId):
+            self.cr.disableDoId(self.doId)
+            self.cr.deleteObject(self.doId)
 
     def isGeneratedOnDistrict(self, districtId=None):
         if districtId is None:
             return self._districtWeAreGeneratedOn is not None
-        else:
-            return self._districtWeAreGeneratedOn == districtId
+        return self._districtWeAreGeneratedOn == districtId
 
     @staticmethod
     def getArrivedOnDistrictEvent(districtId=None):
         if districtId is None:
             return "arrivedOnDistrict"
-        else:
-            return f"arrivedOnDistrict-{districtId}"
+        return f"arrivedOnDistrict-{districtId}"
 
     def arrivedOnDistrict(self, districtId):
         curFrameTime = globalClock.getFrameTime()
-        if curFrameTime == self.frameTimeWeArrivedOnDistrict:
-            if districtId == 0 and self._districtWeAreGeneratedOn:
-                self.notify.warning(
-                    f"ignoring arrivedOnDistrict 0, since arrivedOnDistrict "
-                    f"{self._districtWeAreGeneratedOn} occured on the same frame"
-                )
-                return
+        if curFrameTime == self.frameTimeWeArrivedOnDistrict and districtId == 0 and self._districtWeAreGeneratedOn:
+            self.notify.warning(
+                f"ignoring arrivedOnDistrict 0, since arrivedOnDistrict "
+                f"{self._districtWeAreGeneratedOn} occured on the same frame"
+            )
+            return
         self._districtWeAreGeneratedOn = districtId
         self.frameTimeWeArrivedOnDistrict = globalClock.getFrameTime()
         messenger.send(self.getArrivedOnDistrictEvent(districtId))
@@ -99,6 +95,7 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
     def hasParentingRules(self):
         if self is base.localAvatar:
             return True
+        return None
 
     def setAccountName(self, accountName):
         self.accountName = accountName
@@ -291,10 +288,9 @@ class DistributedPlayer(DistributedAvatar.DistributedAvatar, PlayerBase.PlayerBa
             return
 
         if hasattr(base, "distributedParty"):
-            if base.distributedParty.partyInfo.isPrivate:
-                if requesterId not in base.distributedParty.inviteeIds:
-                    self.d_teleportResponse(self.doId, 0, 0, 0)
-                    return
+            if base.distributedParty.partyInfo.isPrivate and requesterId not in base.distributedParty.inviteeIds:
+                self.d_teleportResponse(self.doId, 0, 0, 0)
+                return
 
             if base.distributedParty.isPartyEnding:
                 self.d_teleportResponse(self.doId, 0, 0, 0)

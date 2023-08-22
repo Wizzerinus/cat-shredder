@@ -191,7 +191,7 @@ class DistributedAvatar(DistributedActor, Avatar):
 
     def getHpSequence(self, hpChange, color, text, icon=None, hpChanges=True):
         if not self.HpTextEnabled or self.ghostMode:
-            return
+            return None
 
         textParent = self.attachNewNode("textParent")
         textParent.setBillboardPointEye()
@@ -206,7 +206,7 @@ class DistributedAvatar(DistributedActor, Avatar):
             xPosition = 0
 
         textParent.hide()
-        seq = Sequence(
+        return Sequence(
             Func(self.modifyHpFromBattle, hpChange) if hpChanges else Wait(0),
             Func(self.appendHpAndMoveRest, textParent),
             Parallel(
@@ -217,7 +217,6 @@ class DistributedAvatar(DistributedActor, Avatar):
             textPath.colorInterval(0.1, color),
             Func(self.removeFirstHp),
         )
-        return seq
 
     def addIconSpot(self, textParent, text):
         textPath = textParent.getChild(0)
@@ -234,7 +233,7 @@ class DistributedAvatar(DistributedActor, Avatar):
 
     def getTextParent(self, text, color, icon=True):
         if not self.HpTextEnabled or self.ghostMode:
-            return
+            return None
 
         textParent = self.attachNewNode("textParent")
 

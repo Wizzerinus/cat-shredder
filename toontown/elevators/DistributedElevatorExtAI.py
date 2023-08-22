@@ -33,7 +33,7 @@ class DistributedElevatorExtAI(DistributedElevatorAI.DistributedElevatorAI):
     def __handleUnexpectedExit(self, avId):
         self.notify.warning("Avatar: " + str(avId) + " has exited unexpectedly")
         seatIndex = self.findAvatar(avId)
-        if seatIndex == None:
+        if seatIndex is None:
             pass
         else:
             self.clearFullNow(seatIndex)
@@ -43,7 +43,7 @@ class DistributedElevatorExtAI(DistributedElevatorAI.DistributedElevatorAI):
 
     def acceptExiter(self, avId):
         seatIndex = self.findAvatar(avId)
-        if seatIndex == None:
+        if seatIndex is None:
             pass
         else:
             self.clearFullNow(seatIndex)
@@ -179,7 +179,7 @@ class DistributedElevatorExtAI(DistributedElevatorAI.DistributedElevatorAI):
                 self.rejectingExitersHandler(avId)
         else:
             if av:
-                newArgs = (avId,) + args
+                newArgs = (avId, *args)
                 if self.accepting:
                     self.acceptingExitersHandler(*newArgs)
                 else:

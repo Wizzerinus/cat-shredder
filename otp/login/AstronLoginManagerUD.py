@@ -1,6 +1,6 @@
 import json
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 from direct.distributed.DistributedObjectGlobalUD import DistributedObjectGlobalUD
 from direct.distributed.MsgTypes import MsgName2Id
@@ -165,8 +165,6 @@ class LoginOperation(GameOperation):
             "returnCode": 0,
             "respString": "",
             "accountNumber": self.sender,
-            "createFriendsWithChat": "YES",
-            "access": "FULL",
             "accountDays": self.getAccountDays(),
             "serverTime": int(time.time()),
             "userName": str(self.databaseId),
@@ -178,7 +176,7 @@ class LoginOperation(GameOperation):
     def getAccountCreationDate(self):
         accountCreationDate = self.account.get("CREATED", "")
         try:
-            accountCreationDate = datetime.fromtimestamp(time.mktime(time.strptime(accountCreationDate)))
+            accountCreationDate = datetime.fromtimestamp(time.mktime(time.strptime(accountCreationDate)), tz=UTC)
         except ValueError:
             accountCreationDate = ""
 
@@ -188,7 +186,7 @@ class LoginOperation(GameOperation):
         accountCreationDate = self.getAccountCreationDate()
         accountDays = -1
         if accountCreationDate:
-            now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())))
+            now = datetime.fromtimestamp(time.mktime(time.strptime(time.ctime())), tz=UTC)
             accountDays = abs((now - accountCreationDate).days)
 
         return accountDays
@@ -564,7 +562,7 @@ class AstronLoginManagerUD(DistributedObjectGlobalUD):
         if currentAvId and avId:
             self.killAccount(accId, "A Toon is already chosen!")
             return
-        elif not currentAvId and not avId:
+        if not currentAvId and not avId:
             return
 
         if avId:

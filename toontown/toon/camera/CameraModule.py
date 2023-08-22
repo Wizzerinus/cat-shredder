@@ -111,7 +111,7 @@ class CameraModule(DirectObject):
         base.cmod = self
 
     def debugCameraPosition(self, task):
-        print(camera, camera.getPosHpr(), self.currentCamera.getPosHpr())
+        print(camera, camera.getPosHpr(), self.currentCamera.getPosHpr())  # noqa
         return task.again
 
     def enable(self, inputAllowed=True):

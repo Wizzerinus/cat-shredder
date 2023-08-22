@@ -17,9 +17,10 @@ class BodyShop(StateData.StateData):
         self.legChoice = 0
         self.headChoice = 0
         self.speciesChoice = 0
-        return
 
-    def enter(self, toon, shopsVisited=[]):
+    def enter(self, toon, shopsVisited=None):
+        if shopsVisited is None:
+            shopsVisited = []
         base.disableMouse()
         self.toon = toon
         self.dna = self.toon.getStyle()
@@ -38,10 +39,8 @@ class BodyShop(StateData.StateData):
             self.clothesPicked = 0
         self.clothesPicked = 1
         if gender == "m" or ToonDNA.GirlBottoms[self.dna.botTex][1] == ToonDNA.SHORTS:
-            torsoStyle = "s"
             torsoPool = ToonDNA.toonTorsoTypes[:3]
         else:
-            torsoStyle = "d"
             torsoPool = ToonDNA.toonTorsoTypes[3:6]
         self.__swapSpecies(0)
         self.__swapHead(0)
@@ -59,6 +58,7 @@ class BodyShop(StateData.StateData):
             if species == self.dna.head[0]:
                 self.species = species
                 return ToonDNA.toonSpeciesTypes.index(species)
+        return None
 
     def showButtons(self):
         self.parentFrame.show()
@@ -69,7 +69,7 @@ class BodyShop(StateData.StateData):
     def exit(self):
         try:
             del self.toon
-        except:
+        except AttributeError:
             self.notify.warning("BodyShop: toon not found")
 
         self.hideButtons()
@@ -80,17 +80,17 @@ class BodyShop(StateData.StateData):
 
     def load(self):
         self.gui = loader.loadModel("phase_3/models/gui/tt_m_gui_mat_mainGui")
-        guiRArrowUp = self.gui.find("**/tt_t_gui_mat_arrowUp")
-        guiRArrowDown = self.gui.find("**/tt_t_gui_mat_arrowDown")
-        guiRArrowRollover = self.gui.find("**/tt_t_gui_mat_arrowUp")
-        guiRArrowDisabled = self.gui.find("**/tt_t_gui_mat_arrowDisabled")
+        self.gui.find("**/tt_t_gui_mat_arrowUp")
+        self.gui.find("**/tt_t_gui_mat_arrowDown")
+        self.gui.find("**/tt_t_gui_mat_arrowUp")
+        self.gui.find("**/tt_t_gui_mat_arrowDisabled")
         shuffleFrame = self.gui.find("**/tt_t_gui_mat_shuffleFrame")
         shuffleArrowUp = self.gui.find("**/tt_t_gui_mat_shuffleArrowUp")
         shuffleArrowDown = self.gui.find("**/tt_t_gui_mat_shuffleArrowDown")
         shuffleArrowRollover = self.gui.find("**/tt_t_gui_mat_shuffleArrowUp")
         shuffleArrowDisabled = self.gui.find("**/tt_t_gui_mat_shuffleArrowDisabled")
         self.upsellModel = loader.loadModel("phase_3/models/gui/tt_m_gui_ups_mainGui")
-        upsellTex = self.upsellModel.find("**/tt_t_gui_ups_banner")
+        self.upsellModel.find("**/tt_t_gui_ups_banner")
         self.parentFrame = DirectFrame(relief=DGG.RAISED, pos=(0.98, 0, 0.416), frameColor=(1, 0, 0, 0))
         self.speciesFrame = DirectFrame(
             parent=self.parentFrame,
@@ -239,7 +239,6 @@ class BodyShop(StateData.StateData):
         self.parentFrame.hide()
         self.shuffleFetchMsg = "BodyShopShuffle"
         self.shuffleButton = ShuffleButton.ShuffleButton(self, self.shuffleFetchMsg)
-        return
 
     def unload(self):
         self.gui.removeNode()
@@ -302,10 +301,7 @@ class BodyShop(StateData.StateData):
                 self.toon.style.botTexColor = botTexColor
         else:
             length = len(ToonDNA.toonTorsoTypes[3:6])
-            if self.toon.style.torso[1] == "d":
-                torsoOffset = 3
-            else:
-                torsoOffset = 0
+            torsoOffset = 3 if self.toon.style.torso[1] == "d" else 0
             if self.dna.armColor not in ToonDNA.defaultGirlColorList:
                 self.dna.armColor = ToonDNA.defaultGirlColorList[0]
             if self.dna.legColor not in ToonDNA.defaultGirlColorList:

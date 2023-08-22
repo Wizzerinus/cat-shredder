@@ -29,11 +29,9 @@ class DistributedToon(
     gmNameTag = None
 
     def __init__(self, cr, bFake=False):
-        try:
-            self.DistributedToon_initialized
-            return
-        except:
-            self.DistributedToon_initialized = 1
+        if hasattr(self, "DistributedToon_initialized"):
+            raise RuntimeError("bro")
+        self.DistributedToon_initialized = True
 
         DistributedPlayer.DistributedPlayer.__init__(self, cr)
         Toon.Toon.__init__(self)
@@ -56,30 +54,28 @@ class DistributedToon(
         self.stopSmooth()
         self.stopLookAroundNow()
         self.setGhostMode(0)
-        if self.track != None:
+        if self.track is not None:
             self.track.finish()
             DelayDelete.cleanupDelayDeletes(self.track)
             self.track = None
-        if self.effect != None:
+        if self.effect is not None:
             self.effect.destroy()
             self.effect = None
-        if self.splash != None:
+        if self.splash is not None:
             self.splash.destroy()
             self.splash = None
-        if self.emote != None:
+        if self.emote is not None:
             self.emote.finish()
             self.emote = None
         DistributedPlayer.DistributedPlayer.disable(self)
-        return
 
     def delete(self):
-        try:
-            self.DistributedToon_deleted
-        except:
-            self.DistributedToon_deleted = 1
-            DistributedPlayer.DistributedPlayer.delete(self)
-            Toon.Toon.delete(self)
-            DistributedSmoothNode.DistributedSmoothNode.delete(self)
+        if hasattr(self, "DistributedToon_deleted"):
+            raise RuntimeError("bro")
+        self.DistributedToon_deleted = True
+        DistributedPlayer.DistributedPlayer.delete(self)
+        Toon.Toon.delete(self)
+        DistributedSmoothNode.DistributedSmoothNode.delete(self)
 
     def generate(self):
         DistributedPlayer.DistributedPlayer.generate(self)
@@ -87,7 +83,6 @@ class DistributedToon(
         self.startBlink()
         self.startSmooth()
         self.accept("clientCleanup", self._handleClientCleanup)
-        return
 
     def announceGenerate(self):
         DistributedPlayer.DistributedPlayer.announceGenerate(self)
@@ -95,9 +90,8 @@ class DistributedToon(
             self.setAnimState("neutral")
 
     def _handleClientCleanup(self):
-        if self.track != None:
+        if self.track is not None:
             DelayDelete.cleanupDelayDeletes(self.track)
-        return
 
     def setDNAString(self, dnaString):
         Toon.Toon.setDNAString(self, dnaString)
@@ -130,7 +124,9 @@ class DistributedToon(
             nearbyToons.append(self.doId)
         return nearbyToons
 
-    def setSCResistance(self, msgIndex, nearbyToons=[]):
+    def setSCResistance(self, msgIndex, nearbyToons=None):
+        if nearbyToons is None:
+            nearbyToons = []
         chatString = TTSCResistanceTerminal.decodeTTSCResistanceMsg(msgIndex)
         if chatString:
             self.setChatAbsolute(chatString, CFSpeech | CFTimeout)
@@ -162,13 +158,11 @@ class DistributedToon(
         self.displayTalkWhisper(avId, avatarName, chat, mods)
         base.talkAssistant.receiveMessage(avId, newText, avatarName)
 
-        if base.localAvatar.sleepFlag == 1:
-            if base.cr.identifyAvatar(avId) != base.localAvatar:
-                base.cr.ttFriendsManager.d_sleepAutoReply(avId)
+        if base.localAvatar.sleepFlag == 1 and base.cr.identifyAvatar(avId) != base.localAvatar:
+            base.cr.ttFriendsManager.d_sleepAutoReply(avId)
 
     def setSleepAutoReply(self, fromId):
         """To be overrided by subclass"""
-        pass
 
     def setWhisperSCEmoteFrom(self, fromId, emoteId):
         """
@@ -236,7 +230,6 @@ class DistributedToon(
                         }
                     ],
                 )
-        return
 
     def wrtReparentTo(self, parent):
         DistributedSmoothNode.DistributedSmoothNode.wrtReparentTo(self, parent)
@@ -247,27 +240,26 @@ class DistributedToon(
             self.track.delayDelete = DelayDelete.DelayDelete(self, "enterTeleportOut")
 
     def exitTeleportOut(self):
-        if self.track != None:
+        if self.track is not None:
             DelayDelete.cleanupDelayDeletes(self.track)
         Toon.Toon.exitTeleportOut(self)
-        return
 
-    def b_setAnimState(self, animName, animMultiplier=1.0, callback=None, extraArgs=[]):
+    def b_setAnimState(self, animName, animMultiplier=1.0, callback=None, extraArgs=None):
+        if extraArgs is None:
+            extraArgs = []
         self.d_setAnimState(animName, animMultiplier, None, extraArgs)
         self.setAnimState(animName, animMultiplier, None, None, callback, extraArgs)
-        return
 
-    def d_setAnimState(self, animName, animMultiplier=1.0, timestamp=None, extraArgs=[]):
+    def d_setAnimState(self, animName, animMultiplier=1.0, timestamp=None, extraArgs=None):
         timestamp = globalClockDelta.getFrameNetworkTime()
         self.sendUpdate("setAnimState", [animName, animMultiplier, timestamp])
 
-    def setAnimState(self, animName, animMultiplier=1.0, timestamp=None, animType=None, callback=None, extraArgs=[]):
+    def setAnimState(self, animName, animMultiplier=1.0, timestamp=None, animType=None, callback=None, extraArgs=None):
+        if extraArgs is None:
+            extraArgs = []
         if not animName or animName == "None":
             return
-        if timestamp == None:
-            ts = 0.0
-        else:
-            ts = globalClockDelta.localElapsedTime(timestamp)
+        ts = 0.0 if timestamp is None else globalClockDelta.localElapsedTime(timestamp)
         if animMultiplier > 1.0 and animName in ["neutral"]:
             animMultiplier = 1.0
         if self.animFSM.getStateNamed(animName):
@@ -285,10 +277,7 @@ class DistributedToon(
     def setEmoteState(self, animIndex, animMultiplier, timestamp=None):
         if animIndex == Emote.EmoteClear:
             return
-        if timestamp == None:
-            ts = 0.0
-        else:
-            ts = globalClockDelta.localElapsedTime(timestamp)
+        ts = 0.0 if timestamp is None else globalClockDelta.localElapsedTime(timestamp)
         callback = None
         extraArgs = []
         extraArgs.insert(0, animIndex)
@@ -298,7 +287,6 @@ class DistributedToon(
     def reconsiderCheesyEffect(self, lerpTime=0.0):
         effect = CheesyEffects.GHOST if self.ghostMode else CheesyEffects.NORMAL
         self.applyCheesyEffect(effect, lerpTime=lerpTime)
-        return
 
     def setGhostMode(self, flag):
         if self.ghostMode != flag:
@@ -382,11 +370,10 @@ class DistributedToon(
         elif chatFlags & CFSpeech != 0:
             if self.nametag.getNumChatPages() > 0:
                 self.playDialogueForString(self.nametag.getChat())
-                if self.soundChatBubble != None:
+                if self.soundChatBubble is not None:
                     base.playSfx(self.soundChatBubble, node=self)
             elif self.nametag.getChatStomp() > 0:
                 self.playDialogueForString(self.nametag.getStompText(), self.nametag.getStompDelay())
-        return
 
     def setChatAbsolute(self, chatString, chatFlags, dialogue=None, interrupt=1, quiet=0):
         DistributedAvatar.DistributedAvatar.setChatAbsolute(self, chatString, chatFlags, dialogue, interrupt)
@@ -405,7 +392,7 @@ class DistributedToon(
         return message, 0
 
     def toonUp(self, hpGained):
-        if self.hp == None or hpGained < 0:
+        if self.hp is None or hpGained < 0:
             return
         oldHp = self.hp
         if self.hp + hpGained <= 0:
@@ -419,52 +406,51 @@ class DistributedToon(
         return
 
     def showHpText(self, number, bonus=0, scale=1):
-        if self.HpTextEnabled and not self.ghostMode:
-            if number != 0:
-                if self.hpText:
-                    self.hideHpText()
-                self.HpTextGenerator.setFont(getSignFont())
-                if number < 0:
-                    self.HpTextGenerator.setText(str(number))
-                else:
-                    hpGainedStr = "+" + str(number)
-                    self.HpTextGenerator.setText(hpGainedStr)
-                self.HpTextGenerator.clearShadow()
-                self.HpTextGenerator.setAlign(TextNode.ACenter)
-                if bonus == 1:
-                    r = 1.0
-                    g = 1.0
-                    b = 0
-                    a = 1
-                elif bonus == 2:
-                    r = 1.0
-                    g = 0.5
-                    b = 0
-                    a = 1
-                elif number < 0:
-                    r = 0.9
-                    g = 0
-                    b = 0
-                    a = 1
-                else:
-                    r = 0
-                    g = 0.9
-                    b = 0
-                    a = 1
-                self.HpTextGenerator.setTextColor(r, g, b, a)
-                self.hpTextNode = self.HpTextGenerator.generate()
-                self.hpText = self.attachNewNode(self.hpTextNode)
-                self.hpText.setScale(scale)
-                self.hpText.setBillboardPointEye()
-                self.hpText.setBin("fixed", 100)
-                self.hpText.setPos(0, 0, self.height / 2)
-                self.hpTextSeq = Sequence(
-                    self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType="easeOut"),
-                    Wait(0.85),
-                    self.hpText.colorInterval(0.1, Vec4(r, g, b, 0)),
-                    Func(self.hideHpText),
-                )
-                self.hpTextSeq.start()
+        if self.HpTextEnabled and not self.ghostMode and number != 0:
+            if self.hpText:
+                self.hideHpText()
+            self.HpTextGenerator.setFont(getSignFont())
+            if number < 0:
+                self.HpTextGenerator.setText(str(number))
+            else:
+                hpGainedStr = "+" + str(number)
+                self.HpTextGenerator.setText(hpGainedStr)
+            self.HpTextGenerator.clearShadow()
+            self.HpTextGenerator.setAlign(TextNode.ACenter)
+            if bonus == 1:
+                r = 1.0
+                g = 1.0
+                b = 0
+                a = 1
+            elif bonus == 2:
+                r = 1.0
+                g = 0.5
+                b = 0
+                a = 1
+            elif number < 0:
+                r = 0.9
+                g = 0
+                b = 0
+                a = 1
+            else:
+                r = 0
+                g = 0.9
+                b = 0
+                a = 1
+            self.HpTextGenerator.setTextColor(r, g, b, a)
+            self.hpTextNode = self.HpTextGenerator.generate()
+            self.hpText = self.attachNewNode(self.hpTextNode)
+            self.hpText.setScale(scale)
+            self.hpText.setBillboardPointEye()
+            self.hpText.setBin("fixed", 100)
+            self.hpText.setPos(0, 0, self.height / 2)
+            self.hpTextSeq = Sequence(
+                self.hpText.posInterval(1.0, Point3(0, 0, self.height + 1.5), blendType="easeOut"),
+                Wait(0.85),
+                self.hpText.colorInterval(0.1, Vec4(r, g, b, 0)),
+                Func(self.hideHpText),
+            )
+            self.hpTextSeq.start()
 
     def getDialogueArray(self):
         # So we don't get the undefined DistributedAvatar version

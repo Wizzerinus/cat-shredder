@@ -20,8 +20,6 @@ class HoodDataAI:
         self.suitPlanners = []
         self.doId2do = {}
 
-        self.replacementHood = None
-        self.redirectingToMe = []
         self.hoodPopulation = 0
         self.pgPopulation = 0
 
@@ -29,8 +27,6 @@ class HoodDataAI:
         pass
 
     def shutdown(self):
-        self.setRedirect(None)
-
         if self.treasurePlanner:
             self.treasurePlanner.stop()
             self.treasurePlanner.deleteAllTreasuresNow()
@@ -58,35 +54,13 @@ class HoodDataAI:
     def removeDistObj(self, distObj):
         del self.doId2do[distObj.doId]
 
-    def setRedirect(self, replacementHood):
-        if self.replacementHood:
-            self.replacementHood[0].redirectingToMe.remove(self)
-        self.replacementHood = replacementHood
-        if self.replacementHood:
-            self.replacementHood[0].redirectingToMe.append(self)
-
-    def hasRedirect(self):
-        return self.replacementHood != None
-
-    def getRedirect(self):
-        if self.replacementHood == None:
-            return self
-        else:
-            return self.replacementHood[0].getRedirect()
-
     def incrementPopulation(self, zoneId, increment):
         self.hoodPopulation += increment
         if ZoneUtil.isPlayground(zoneId):
             self.pgPopulation += increment
 
     def getHoodPopulation(self):
-        population = self.hoodPopulation
-        for hood in self.redirectingToMe:
-            population += hood.getHoodPopulation()
-        return population
+        return self.hoodPopulation
 
     def getPgPopulation(self):
-        population = self.pgPopulation
-        for pg in self.redirectingToMe:
-            population += pg.getPgPopulation()
-        return population
+        return self.pgPopulation

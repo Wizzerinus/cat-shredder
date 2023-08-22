@@ -68,8 +68,8 @@ class BoardingGroupShow:
             if task.callback:
                 task.callback()
             return Task.done
-        else:
-            return Task.cont
+
+        return Task.cont
 
     def __boardingElevatorTimerExpired(self):
         """
@@ -90,8 +90,7 @@ class BoardingGroupShow:
         """
         Here we're making our own uniqueName method, each avId's sequence should be unique.
         """
-        uniqueName = "boardingElevatorTimerTask-" + str(avId)
-        return uniqueName
+        return "boardingElevatorTimerTask-" + str(avId)
 
     def getBoardingTrack(self, elevatorModel, offset, offsetWrtRender, wantToonRotation):
         """
@@ -236,10 +235,7 @@ class BoardingGroupShow:
         """
         diff = Point3(offset) - self.toon.getPos()
 
-        if diff.length() > thresholdDist:
-            return False
-        else:
-            return True
+        return diff.length() <= thresholdDist
 
     def __isRunPathClear(self, elevatorModel, offsetWrtRender):
         pathClear = True
@@ -300,9 +296,8 @@ class BoardingGroupShow:
         self.timeWarningText = TTLocalizer.BoardingGoPreShow
         self.countdownDuration = 4
         goButtonPreShow = Sequence()
-        if self.toon:
-            if self.avId == base.localAvatar.doId:
-                goButtonPreShow.append(Func(self.startTimer))
-                goButtonPreShow.append(Wait(3))
+        if self.toon and self.avId == base.localAvatar.doId:
+            goButtonPreShow.append(Func(self.startTimer))
+            goButtonPreShow.append(Wait(3))
         goButtonPreShow.append(Func(self.cleanup))
         return goButtonPreShow

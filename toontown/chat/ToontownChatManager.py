@@ -289,7 +289,6 @@ class ToontownChatManager(DirectObject):
         """
         Send singing speedchat whisper message update.
         """
-        pass
 
     @staticmethod
     def sendSCToontaskChatMessage(taskId, toonProgress, msgIndex):
