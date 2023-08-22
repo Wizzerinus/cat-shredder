@@ -666,36 +666,6 @@ class MakeAToon(StateData.StateData):
     def exitDone(self):
         pass
 
-    def create3DGui(self):
-        self.proto = loader.loadModel("phase_3/models/makeatoon/tt_m_ara_mat_protoMachine")
-        self.proto.setScale(0.2)
-        self.proto.reparentTo(render)
-
-    def setup3DPicker(self):
-        self.accept("mouse1", self.mouseDown)
-        self.accept("mouse1-up", self.mouseUp)
-        self.pickerQueue = CollisionHandlerQueue()
-        self.pickerTrav = CollisionTraverser("MousePickerTraverser")
-        self.pickerTrav.setRespectPrevTransform(True)
-        self.pickerNode = CollisionNode("mouseRay")
-        self.pickerNP = camera.attachNewNode(self.pickerNode)
-        self.pickerNode.setFromCollideMask(GeomNode.getDefaultCollideMask())
-        self.pickerRay = CollisionRay()
-        self.pickerNode.addSolid(self.pickerRay)
-        self.pickerTrav.addCollider(self.pickerNP, self.pickerQueue)
-
-    def mouseDown(self):
-        self.notify.debug("Mouse 1 Down")
-        mpos = base.mouseWatcherNode.getMouse()
-        self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())
-        self.pickerTrav.traverse(render)
-        if self.pickerQueue.getNumEntries() > 0:
-            self.pickerQueue.sortEntries()
-            self.pickedObj = self.pickerQueue.getEntry(0).getIntoNodePath()
-
-    def mouseUp(self):
-        self.notify.debug("Mouse 1 Up")
-
     def squishRoom(self, room):
         if self.roomSquishIval and self.roomSquishIval.isPlaying():
             self.roomSquishIval.finish()

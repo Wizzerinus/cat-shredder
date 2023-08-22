@@ -18,8 +18,8 @@ def createGoonExplosion(parent, explosionPoint, scale):
     deathNode.setPos(explosionPoint)
 
     explosion = createExplosionTrack(parent, deathNode, scale)
-    smallGearExplosion = createParticleEffect("misc/gear-explosion", numParticles=10)
-    bigGearExplosion = createParticleEffect("misc/gear-explosion-wide", numParticles=30)
+    smallGearExplosion = createParticleEffect("gearExplosion", numParticles=10)
+    bigGearExplosion = createParticleEffect("gearExplosionBig", numParticles=30)
     deathSound = base.loader.loadSfx("phase_3.5/audio/sfx/ENC_cogfall_apart.ogg")
     return Parallel(
         explosion,

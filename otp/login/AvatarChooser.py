@@ -60,8 +60,6 @@ class AvatarChooser(StateData.StateData):
 
         self.title.reparentTo(aspect2d)
         self.quitButton.show()
-
-        self.pickAToonBG.setBin("background", 1)
         base.setBackgroundColor(Vec4(0.145, 0.368, 0.78, 1))
 
         for panel in self.panelList:
@@ -85,8 +83,6 @@ class AvatarChooser(StateData.StateData):
         self.quitButton.hide()
         base.setBackgroundColor((0, 0, 0, 1))
 
-        self.pickAToonBG.reparentTo(hidden)
-
     def load(self):
         assert chooser_notify.debug("load()")
         if self.isLoaded == 1:
@@ -95,9 +91,6 @@ class AvatarChooser(StateData.StateData):
         gui = loader.loadModel("phase_3/models/gui/pick_a_toon_gui")
         gui2 = loader.loadModel("phase_3/models/gui/quit_button")
         newGui = loader.loadModel("phase_3/models/gui/tt_m_gui_pat_mainGui")
-        self.pickAToonBG = OnscreenImage("phase_3/maps/tt_t_gui_pat_background.png")
-        self.pickAToonBG.reparentTo(hidden)
-        self.pickAToonBG.setScale(1, 1, 1)
 
         self.title = OnscreenText(
             TTLocalizer.AvatarChooserPickAToon,
@@ -244,9 +237,6 @@ class AvatarChooser(StateData.StateData):
         del self.title
         self.quitButton.destroy()
         del self.quitButton
-
-        self.pickAToonBG.removeNode()
-        del self.pickAToonBG
 
         del self.avatarList
 

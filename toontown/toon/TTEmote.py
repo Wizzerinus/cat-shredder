@@ -367,36 +367,6 @@ def doLaugh(toon, volume=1):
     return (track, 2, exitTrack)
 
 
-def getSingingNote(toon, note, volume=1):
-    sfx = None
-    filePath = "phase_3.5/audio/dial/"
-    filePrefix = "tt_s_dlg_sng_"
-    fileSuffix = ".ogg"
-    speciesName = ToonDNA.getSpeciesName(toon.style.head)
-    sfx = base.loader.loadSfx(filePath + filePrefix + speciesName + "_" + note + fileSuffix)
-
-    def playSfx(volume=1):
-        base.playSfx(sfx, volume=volume, node=toon)
-
-    def playAnim():
-        toon.loop("neutral")
-
-    def stopAnim():
-        toon.setPlayRate(1, "neutral")
-
-    track = Sequence(Func(toon.showSurpriseMuzzle), Parallel(Func(playAnim), Func(playSfx, volume)))
-    exitTrack = Sequence(Func(toon.hideSurpriseMuzzle), Func(stopAnim))
-    return (track, 0.1, exitTrack)
-
-
-def playSingingAnim(toon):
-    pass
-
-
-def stopSinginAnim(toon):
-    pass
-
-
 def returnToLastAnim(toon):
     if hasattr(toon, "playingAnim") and toon.playingAnim:
         toon.loop(toon.playingAnim)

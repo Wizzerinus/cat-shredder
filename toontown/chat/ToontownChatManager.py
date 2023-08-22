@@ -278,19 +278,6 @@ class ToontownChatManager(DirectObject):
         messenger.send("chatUpdateSCResistance", [textId, prime])
 
     @staticmethod
-    def sendSCSingingChatMessage(textId):
-        """
-        Send singing speedchat message update.
-        """
-
-        messenger.send("chatUpdateSCSinging", [textId])
-
-    def sendSCSingingWhisperMessage(self, textId):
-        """
-        Send singing speedchat whisper message update.
-        """
-
-    @staticmethod
     def sendSCToontaskChatMessage(taskId, toonProgress, msgIndex):
         """
         Send speedchat message update

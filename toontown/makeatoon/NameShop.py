@@ -1,15 +1,20 @@
 from direct.fsm import ClassicFSM, State
 from direct.fsm import StateData
-from direct.gui import OnscreenText
-from direct.gui.DirectGui import *
-from panda3d.core import *
-from panda3d.core import TextEncoder
+from direct.gui import DirectGuiGlobals, OnscreenText
+from direct.gui.DirectButton import DirectButton
+from direct.gui.DirectCheckButton import DirectCheckButton
+from direct.gui.DirectDialog import cleanupDialog
+from direct.gui.DirectEntry import DirectEntry
+from direct.gui.DirectFrame import DirectFrame
+from direct.gui.DirectLabel import DirectLabel
+from direct.gui.DirectScrolledList import DirectScrolledList
+from panda3d.core import TextEncoder, TextNode, VBase4, Vec4
 
 from otp.distributed import PotentialAvatar
 from toontown.toonbase import TTLocalizer
 from toontown.toontowngui import TTDialog
 from . import NameGenerator
-from ..toonbase.globals.TTGlobalsGUI import getToonFont
+from toontown.toonbase.globals.TTGlobalsGUI import getToonFont
 
 MAX_NAME_WIDTH = 8.0
 ServerDialogTimeout = 3.0
@@ -93,7 +98,7 @@ class NameShop(StateData.StateData):
             text_align=alig,
             textMayChange=0,
         )
-        df.bind(DGG.B1PRESS, lambda x, df=df: self.nameClickedOn(listName, index))
+        df.bind(DirectGuiGlobals.B1PRESS, lambda x, df=df: self.nameClickedOn(listName, index))
         return df
 
     def nameClickedOn(self, listType, index):
@@ -346,7 +351,7 @@ class NameShop(StateData.StateData):
             decButton_image3_color=Vec4(1, 1, 1, 0),
             itemFrame_pos=(-0.2, 0, 0.028),
             itemFrame_scale=1.0,
-            itemFrame_relief=DGG.RAISED,
+            itemFrame_relief=DirectGuiGlobals.RAISED,
             itemFrame_frameSize=(-0.07, 0.5, -0.52, 0.12),
             itemFrame_frameColor=mcolor,
             itemFrame_borderWidth=(0.01, 0.01),

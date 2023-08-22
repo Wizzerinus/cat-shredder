@@ -93,21 +93,17 @@ class PlayGame(StateData.StateData):
     def load(self):
         """load(self)"""
 
-    def loadDnaStoreTutorial(self):
-        self.dnaStore = DNAStorage()
-        loadDNAFile(self.dnaStore, "phase_3.5/dna/storage_tutorial.dna")
-        loadDNAFile(self.dnaStore, "phase_3.5/dna/storage_interior.dna")
-
     def loadDnaStore(self):
         if not hasattr(self, "dnaStore"):
             self.dnaStore = DNAStorage()
-            loadDNAFile(self.dnaStore, "phase_4/dna/storage.dna")
+            # No storage DNA needed for Cashbot HQ
+            # loadDNAFile(self.dnaStore, "phase_4/dna/storage.dna")
 
             self.dnaStore.storeFont("humanist", getInterfaceFont())
             self.dnaStore.storeFont("mickey", getSignFont())
             self.dnaStore.storeFont("suit", getSuitFont())
 
-            loadDNAFile(self.dnaStore, "phase_3.5/dna/storage_interior.dna")
+            # loadDNAFile(self.dnaStore, "phase_3.5/dna/storage_interior.dna")
 
     def unloadDnaStore(self):
         if hasattr(self, "dnaStore"):

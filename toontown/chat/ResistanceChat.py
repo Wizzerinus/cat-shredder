@@ -84,7 +84,7 @@ def getRandomId():
 def doEffect(textId, speakingToon, nearbyToons):
     menuIndex, itemIndex = decodeId(textId)
     if menuIndex == RESISTANCE_TOONUP:
-        effect = createParticleEffect("resistanceEffectSparkle.ptf")
+        effect = createParticleEffect("resistanceEffectSparkle")
         fadeColor = VBase4(1, 0.5, 1, 1)
     else:
         return
