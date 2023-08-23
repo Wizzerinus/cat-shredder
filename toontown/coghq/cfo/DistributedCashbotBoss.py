@@ -154,7 +154,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
         # at this point all our attribs have been filled in.
         self.setName(TTLocalizer.CashbotBossName)
         nameInfo = TTLocalizer.BossCogNameWithDept % {
-            "name": self._name,
+            "name": TTLocalizer.CashbotBossName,
             "dept": "Cashbot",
         }
         self.setDisplayName(nameInfo)
