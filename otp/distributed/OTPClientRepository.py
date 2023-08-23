@@ -833,7 +833,7 @@ class OTPClientRepository(ClientRepositoryBase):
         self.cleanupWaitingForDatabase()
 
         if self.timeManager is None:
-            self.notify.info("TimeManager is not present.")
+            self.notify.warning("TimeManager is not present.")
             DistributedSmoothNode.globalActivateSmoothing(0, 0)
             self.gotTimeSync()
         else:
@@ -841,7 +841,6 @@ class OTPClientRepository(ClientRepositoryBase):
 
             h = HashVal()
             hashPrcVariables(h)
-            self.timeManager.sendCpuInfo()
             self.timeManager.d_setSignature(h.asBin())
 
             if self.timeManager.synchronize("startup"):

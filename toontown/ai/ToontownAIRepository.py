@@ -3,6 +3,7 @@ from panda3d.core import *
 from panda3d.toontown import *
 
 from otp.ai.AIZoneData import AIZoneDataStore
+from otp.ai.TimeManagerAI import TimeManagerAI
 from otp.distributed.DistributedDistrictAI import DistributedDistrictAI
 from toontown.chat.magic.DistributedMagicWordManagerAI import DistributedMagicWordManagerAI
 from toontown.distributed.ToontownInternalRepository import ToontownInternalRepository
@@ -41,9 +42,7 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.district.setAI(self.ourChannel)
 
         self.createLocals()
-
-        self.magicWordManager = DistributedMagicWordManagerAI(self)
-        self.magicWordManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
+        self.createGlobals()
 
         self.createZones()
 
@@ -51,6 +50,13 @@ class ToontownAIRepository(ToontownInternalRepository):
         self.notify.info("Done.")
         self.__leaderboardFlush(None)
         taskMgr.doMethodLater(30, self.__leaderboardFlush, "leaderboardFlush", appendTask=True)
+
+    def createGlobals(self):
+        self.timeManager = TimeManagerAI(self)
+        self.timeManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
+
+        self.magicWordManager = DistributedMagicWordManagerAI(self)
+        self.magicWordManager.generateWithRequired(OTP_ZONE_ID_MANAGEMENT)
 
     def __leaderboardFlush(self, task):
         messenger.send("leaderboardFlush")

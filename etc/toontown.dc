@@ -192,7 +192,7 @@ dclass DistributedPlayer: DistributedAvatar {
 
 dclass TimeManager: DistributedObject {
     requestServerTime(uint8 context) airecv clsend;
-    serverTime(uint8 context, int32 timestamp, uint32 timeOfDay);
+    serverTime(uint8 context, int32 timestamp);
     setDisconnectReason(uint8 disconnectCode) airecv clsend;
     setSignature(blob) airecv clsend;
 };
