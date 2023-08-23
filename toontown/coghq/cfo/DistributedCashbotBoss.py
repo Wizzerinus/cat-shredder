@@ -283,6 +283,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             OneBossCog = None
 
         del base.boss
+        self.bossHealthBar.cleanup()
 
     def disableBackWall(self):
         if self.endVault is None:
