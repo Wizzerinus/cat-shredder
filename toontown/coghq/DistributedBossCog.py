@@ -567,6 +567,8 @@ class DistributedBossCog(DistributedAvatar.DistributedAvatar, BossCog.BossCog):
             "zapToon", [pos[0], pos[1], pos[2], hpr[0], hpr[1], hpr[2], bp2d[0], bp2d[1], attackCode, timestamp]
         )
 
+        if attackCode == BossCogSlowDirectedAttack:
+            toon.stunToon()
         self.doZapToon(toon, fling=fling, shake=shake)
 
     def showZapToon(self, toonId, x, y, z, h, p, r, attackCode, timestamp):
