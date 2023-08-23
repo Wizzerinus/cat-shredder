@@ -1,6 +1,8 @@
 import builtins
 import os
 
+from panda3d.core import loadPrcFileData
+
 
 class Game:
     name = "toontown"
@@ -9,17 +11,9 @@ class Game:
 
 builtins.game = Game()
 
-from panda3d.core import loadPrcFile, loadPrcFileData
-
-loadPrcFile("etc/Configrc.prc")
-
 if override := os.getenv("DIRECTNOTIFY_LEVEL_OVERRIDE", ""):
     loadPrcFileData("", f"notify-level {override}")
     loadPrcFileData("", f"default-directnotify-level {override}")
-
-localPrc = "etc/local.prc"
-if os.path.exists(localPrc):
-    loadPrcFile(localPrc)
 
 import otp.uberdog.UberDogGlobal  # noqa: F401
 from toontown.uberdog.ToontownUDRepository import ToontownUDRepository
