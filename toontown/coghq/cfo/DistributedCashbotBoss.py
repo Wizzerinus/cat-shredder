@@ -3,7 +3,6 @@ import functools
 from direct.gui.OnscreenText import OnscreenText
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import *
-from direct.directnotify import DirectNotifyGlobal
 from panda3d.core import (
     CollisionNode,
     CollisionPlane,
@@ -42,7 +41,8 @@ OneBossCog = None
 
 
 class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBoss")
+    notify = directNotify.newCategory("DistributedCashbotBoss")
+    notify.debug("Debug mode is active")
     numFakeGoons = 3
     bossHealthBar = None
 
@@ -105,6 +105,7 @@ class DistributedCashbotBoss(DistributedBossCog.DistributedBossCog, FSM.FSM):
             self.addToActivityLog(doId, content)
 
     def craneStatesDebug(self, doId="system", content="null"):
+        self.notify.debug(f"{doId}: {content}")
         if self.ruleset.CRANE_STATES_DEBUG:
             self.addToActivityLog(doId, content)
 

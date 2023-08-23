@@ -2,7 +2,6 @@ from panda3d.core import *
 from direct.interval.IntervalGlobal import *
 from direct.task.TaskManagerGlobal import *
 from direct.distributed.ClockDelta import *
-from direct.directnotify import DirectNotifyGlobal
 from direct.task.Task import Task
 from direct.showbase import PythonUtil
 
@@ -19,7 +18,7 @@ class DistributedCashbotBossGoon(
     battle scene, tormenting Toons, and also providing ammo for
     defeating the boss."""
 
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossGoon")
+    notify = directNotify.newCategory("DistributedCashbotBossGoon")
 
     walkGrabZ = -3.6
     stunGrabZ = -2.2

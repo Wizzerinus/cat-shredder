@@ -2,13 +2,12 @@ from panda3d.core import *
 from panda3d.direct import *
 from direct.interval.IntervalGlobal import *
 from direct.distributed import DistributedObject
-from direct.directnotify import DirectNotifyGlobal
 
 from toontown.toonbase.globals.TTGlobalsRender import WallBitmask
 
 
 class DistributedTreasure(DistributedObject.DistributedObject):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedTreasure")
+    notify = directNotify.newCategory("DistributedTreasure")
 
     def __init__(self, cr):
         DistributedObject.DistributedObject.__init__(self, cr)

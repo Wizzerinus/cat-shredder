@@ -1,10 +1,8 @@
-from direct.directnotify import DirectNotifyGlobal
-
 from toontown.coghq.cfo import DistributedCashbotBossAI
 
 
 class DistributedCashbotBossCLAI(DistributedCashbotBossAI.DistributedCashbotBossAI):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossCLAI")
+    notify = directNotify.newCategory("DistributedCashbotBossCLAI")
 
     def __init__(self, air):
         DistributedCashbotBossAI.DistributedCashbotBossAI.__init__(self, air)

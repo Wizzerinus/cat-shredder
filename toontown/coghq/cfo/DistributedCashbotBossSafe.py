@@ -1,7 +1,6 @@
 from panda3d.core import *
 from panda3d.physics import *
 from direct.interval.IntervalGlobal import *
-from direct.directnotify import DirectNotifyGlobal
 from . import CraneLeagueGlobals, DistributedCashbotBossObject, GeneralCFOGlobals
 from toontown.toonbase.globals.TTGlobalsRender import *
 
@@ -14,7 +13,7 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
     represents the safe that the CFO uses to put on his own head as a
     safety helmet from time to time."""
 
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossSafe")
+    notify = directNotify.newCategory("DistributedCashbotBossSafe")
 
     grabPos = (0, 0, -8.2)
 

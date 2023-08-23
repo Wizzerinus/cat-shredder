@@ -41,7 +41,7 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
     The DistributedCashbotBoss creates four of these for the CFO
     battle scene."""
 
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossCrane")
+    notify = directNotify.newCategory("DistributedCashbotBossCrane")
 
     firstMagnetBit = 21
 
@@ -963,11 +963,12 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
     def dropObject(self, obj):
         # This is only called by DistributedCashbotBossObject.exitGrabbed().
 
-        self.boss.craneStatesDebug(
-            doId=self.doId,
-            content="pre-Dropping object %s, currently holding: %s"
-            % (obj.getName(), self.heldObject.getName() if self.heldObject else "Nothing"),
-        )
+        if self.boss:
+            self.boss.craneStatesDebug(
+                doId=self.doId,
+                content="pre-Dropping object %s, currently holding: %s"
+                % (obj.getName(), self.heldObject.getName() if self.heldObject else "Nothing"),
+            )
         if obj.lerpInterval:
             obj.lerpInterval.finish()
 
@@ -991,11 +992,13 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
             self.handler.setDynamicFrictionCoef(self.emptyFrictionCoef)
             self.slideSpeed = self.emptySlideSpeed
             self.rotateSpeed = self.emptyRotateSpeed
-        self.boss.craneStatesDebug(
-            doId=self.doId,
-            content="post-Dropping object %s, currently holding: %s"
-            % (obj.getName(), self.heldObject.getName() if self.heldObject else "Nothing"),
-        )
+
+        if self.boss:
+            self.boss.craneStatesDebug(
+                doId=self.doId,
+                content="post-Dropping object %s, currently holding: %s"
+                % (obj.getName(), self.heldObject.getName() if self.heldObject else "Nothing"),
+            )
 
     def releaseObject(self):
         # Don't confuse this method with dropObject.  That method

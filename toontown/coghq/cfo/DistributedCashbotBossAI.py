@@ -1,5 +1,4 @@
 from panda3d.core import *
-from direct.directnotify import DirectNotifyGlobal
 from direct.showbase.PythonUtil import clamp
 from direct.fsm import FSM
 import random
@@ -21,7 +20,7 @@ from toontown.toonbase.globals import TTGlobalsBosses
 
 
 class DistributedCashbotBossAI(DistributedBossCogAI.DistributedBossCogAI, FSM.FSM):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossAI")
+    notify = directNotify.newCategory("DistributedCashbotBossAI")
 
     def __init__(self, air):
         DistributedBossCogAI.DistributedBossCogAI.__init__(self, air, "m")

@@ -1,7 +1,6 @@
 from panda3d.core import *
 from panda3d.physics import *
 from direct.interval.IntervalGlobal import *
-from direct.directnotify import DirectNotifyGlobal
 from direct.distributed import DistributedSmoothNode
 from direct.fsm import FSM
 from direct.task import Task
@@ -17,7 +16,7 @@ class DistributedCashbotBossObject(DistributedSmoothNode.DistributedSmoothNode, 
     final battle scene with the Cashbot CFO.  In particular, it's a
     safe or a goon."""
 
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossObject")
+    notify = directNotify.newCategory("DistributedCashbotBossObject")
 
     # This should be true for objects that will eventually transition
     # from SlidingFloor to Free when they stop moving.

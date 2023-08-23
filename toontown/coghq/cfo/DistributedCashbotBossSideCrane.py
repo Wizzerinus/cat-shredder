@@ -6,7 +6,7 @@ from toontown.coghq.cfo import DistributedCashbotBossCrane, DistributedCashbotBo
 
 
 class DistributedCashbotBossSideCrane(DistributedCashbotBossCrane.DistributedCashbotBossCrane, FSM.FSM):
-    notify = DirectNotifyGlobal.directNotify.newCategory("DistributedCashbotBossCrane")
+    notify = directNotify.newCategory("DistributedCashbotBossCrane")
     firstMagnetBit = 21
     craneMinY = 8
     craneMaxY = 30
