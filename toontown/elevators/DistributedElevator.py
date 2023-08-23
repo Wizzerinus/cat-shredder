@@ -261,8 +261,7 @@ class DistributedElevator(DistributedObject.DistributedObject):
             animInFunc = Sequence(Func(toon.setAnimState, "run", 1.0))
             animFunc = Func(toon.setAnimState, "neutral", 1.0)
             toon.headsUp(self.getElevatorModel(), Point3(*self.elevatorPoints[index]))
-            if toon is base.localAvatar:
-                base.cmod.setPreset()
+            toon.getGeomNode().setH(0)
             track = Sequence(
                 animInFunc,
                 LerpPosInterval(
