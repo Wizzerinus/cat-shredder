@@ -60,7 +60,7 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
         self.shadow = self.find("**/shadow")
 
         self.collisionNode.setName("safe")
-        cs = CollisionCapsule(0, 0, 4, 0, 0, 4, 4)  # TTCC Collisions
+        cs = CollisionCapsule(0, 0, 4, 0, 0, 4.05, 4)  # TTCC Collisions
         self.collisionNode.addSolid(cs)
 
         if self.index == 0:
