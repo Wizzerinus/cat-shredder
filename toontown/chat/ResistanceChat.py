@@ -94,7 +94,7 @@ def doEffect(textId, speakingToon, nearbyToons):
         if toon and not toon.ghostMode:
             i = Sequence(
                 toon.doToonColorScale(fadeColor, 0.3),
-                toon.doToonColorScale(toon.defaultColorScale, 0.3),
+                toon.doToonColorScale(None, 0.3),
                 Func(toon.restoreDefaultColorScale),
             )
             recolorToons.append(i)

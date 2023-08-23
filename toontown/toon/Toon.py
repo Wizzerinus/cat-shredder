@@ -1,6 +1,4 @@
-from direct.interval.IntervalGlobal import *
 from direct.task.Task import Task
-from panda3d.core import *
 from panda3d.direct import HideInterval, ShowInterval
 from panda3d.otp import *
 
@@ -1597,7 +1595,7 @@ class Toon(Avatar.Avatar, ToonHead):
             lerpTime = 0.5
             down = self.doToonColorScale(VBase4(1, 1, 1, 0.6), lerpTime)
             up = self.doToonColorScale(VBase4(1, 1, 1, 0.9), lerpTime)
-            clear = self.doToonColorScale(self.defaultColorScale, lerpTime)
+            clear = self.doToonColorScale(None, lerpTime)
             track = Sequence(
                 Func(setStunned, 1),
                 down,
@@ -1655,9 +1653,7 @@ class Toon(Avatar.Avatar, ToonHead):
             self.effectTrack.finish()
             self.effectTrack = None
 
-    def doToonColorScale(self, scale, lerpTime, keepDefault=0):
-        if keepDefault:
-            self.defaultColorScale = scale
+    def doToonColorScale(self, scale, lerpTime):
         if scale is None:
             scale = VBase4(1, 1, 1, 1)
         node = self.getGeomNode()
@@ -1681,15 +1677,8 @@ class Toon(Avatar.Avatar, ToonHead):
     def restoreDefaultColorScale(self):
         node = self.getGeomNode()
         if node:
-            if self.defaultColorScale:
-                node.setColorScale(self.defaultColorScale)
-                if self.defaultColorScale[3] != 1:
-                    node.setTransparency(1)
-                else:
-                    node.clearTransparency()
-            else:
-                node.clearColorScale()
-                node.clearTransparency()
+            node.clearColorScale()
+            node.clearTransparency()
 
     def __doCheesyEffect(self, effect, lerpTime):
         if effect == CheesyEffects.GHOST:
