@@ -53,8 +53,8 @@ class ToonBase(OTPBase.OTPBase):
         self.camLens.setMinFov(DefaultCameraFov / (4.0 / 3.0))
         self.camLens.setNearFar(DefaultCameraNear, DefaultCameraFar)
 
-        musicVolume = self.settings.getFloat("musicVolume", 1.0)
-        sfxVolume = self.settings.getFloat("sfxVolume", 1.0)
+        musicVolume = self.settings.getFloat("musicVolume", 0.4)
+        sfxVolume = self.settings.getFloat("sfxVolume", 0.6)
         self.musicManager.setVolume(musicVolume)
         for sfm in self.sfxManagerList:
             sfm.setVolume(sfxVolume)
@@ -417,8 +417,6 @@ class ToonBase(OTPBase.OTPBase):
     def loadFromSettings(self):
         if not config.GetInt("ignore-user-options", 0):
             fullscreen = self.settings.getBool("fullscreen", False)
-            music = self.settings.getBool("music", True)
-            sfx = self.settings.getBool("sfx", True)
             toonChatSounds = self.settings.getBool("toonChatSounds", True)
             musicVolume = self.settings.getFloat("musicVolume", 1.0)
             sfxVolume = self.settings.getFloat("sfxVolume", 1.0)
@@ -432,8 +430,6 @@ class ToonBase(OTPBase.OTPBase):
                 loadPrcFileData("toonBase Settings Framebuffer MSAA", "framebuffer-multisample 0")
             loadPrcFileData("toonBase Settings Window Res", "win-size %s %s" % (res[0], res[1]))
             loadPrcFileData("toonBase Settings Window FullScreen", "fullscreen %s" % fullscreen)
-            loadPrcFileData("toonBase Settings Music Active", "audio-music-active %s" % music)
-            loadPrcFileData("toonBase Settings Sound Active", "audio-sfx-active %s" % sfx)
             loadPrcFileData("toonBase Settings Music Volume", "audio-master-music-volume %s" % musicVolume)
             loadPrcFileData("toonBase Settings Sfx Volume", "audio-master-sfx-volume %s" % sfxVolume)
             loadPrcFileData("toonBase Settings Toon Chat Sounds", "toon-chat-sounds %s" % toonChatSounds)
