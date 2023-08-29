@@ -53,3 +53,11 @@ class GodStub(MagicWordStub):
 
     location = MagicWordLocation.SERVER
     permissionLevel = AccessLevels.DEVELOPER
+
+
+@MagicWordRegistry.stub("rcr")
+class RestartCraneRoundStub(MagicWordStub):
+    description = "Restarts a crane round in CFO"
+
+    location = MagicWordLocation.SERVER
+    permissionLevel = AccessLevels.DEVELOPER

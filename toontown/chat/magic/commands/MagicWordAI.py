@@ -3,6 +3,7 @@ from typing import Tuple
 from toontown.chat.magic.MagicBase import MagicWord, formatBool
 from toontown.chat.magic.commands.MagicWordAIStubs import *
 from toontown.chat.magic.commands.MagicWordClientStubs import LimeadeStub
+from toontown.coghq.cfo.DistributedCashbotBossAI import DistributedCashbotBossAI
 
 
 @MagicWordRegistry.command
@@ -57,3 +58,17 @@ class God(MagicWord, GodStub):
         self.toon.setImmortalMode(not self.toon.getImmortalMode())
         self.addClientsideCommand("run", [bytes(self.toon.getImmortalMode())])
         return True, formatBool("God mode", self.toon.getImmortalMode())
+
+
+@MagicWordRegistry.command
+class RestartCraneRound(MagicWord, RestartCraneRoundStub):
+    def invoke(self) -> Tuple[bool, str]:
+        for boss in simbase.air.doFindAllInstances(DistributedCashbotBossAI):
+            if self.toon.doId in boss.involvedToons:
+                break
+        else:
+            return False, "You aren't in a CFO!"
+
+        boss.b_setState("Off")
+        boss.b_setState("BattleThree")
+        return True, "Successfully restarted the crane round"
