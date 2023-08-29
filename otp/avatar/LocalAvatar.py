@@ -330,12 +330,6 @@ class LocalAvatar(DistributedAvatar.DistributedAvatar, DistributedSmoothNode.Dis
         self.fov = fov
         base.camLens.setFov(self.fov)
 
-    def resetCameraFov(self):
-        self.cmod.lerpFov(self.fov, 0.4)
-
-    def lerpCameraFov(self, *args):
-        self.cmod.lerpFov(*args)
-
     def gotoNode(self, node, eyeHeight=3):
         """gotoNode(self, NodePath node)
 

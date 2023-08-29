@@ -1261,15 +1261,13 @@ class DistributedCashbotBossCrane(DistributedObject.DistributedObject, FSM.FSM):
         if avId == base.localAvatar.doId:
             # The local toon is beginning to control the crane.
 
-            # No fov effects on cranes
-            base.localAvatar.setCameraFov(DefaultCameraFov)
-
             self.boss.toCraneMode()
 
             base.cmod.disable()
+            base.cr.playGame.getPlace().walkStateData.stopSprint()
+            base.localAvatar.setCameraFov(90)
             camera.reparentTo(self.hinge)
             camera.setPosHpr(0, -20, -5, 0, -20, 0)
-            base.camLens.setFov(90)
             self.tube.stash()
 
             base.localAvatar.setPosHpr(self.controls, 0, 0, 0, 0, 0, 0)

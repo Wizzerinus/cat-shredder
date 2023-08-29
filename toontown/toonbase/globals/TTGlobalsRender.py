@@ -65,6 +65,7 @@ def setAdditiveEffect(node_path, tag=None, bin_name=None, lighting_on=False, ref
 
 OriginalCameraFov = 70.0
 DefaultCameraFov = 70.0
+SprintCameraFov = 85.0
 BossBattleCameraFov = 72.0
 FloorOffset = 0.025
 CogHQCameraFov = 60.0

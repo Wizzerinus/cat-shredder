@@ -1,5 +1,5 @@
 ToonSpeedFactor = 1.25
-ToonRunSpeed = 32.0  # feet per second
+ToonRunSpeed = 20.0  # feet per second
 ToonReverseSpeed = 18.0
 ToonJumpForce = 24.0  # feet per second
 ToonStepSpeed = 10.0  # feet per second

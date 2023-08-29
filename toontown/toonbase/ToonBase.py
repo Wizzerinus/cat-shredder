@@ -7,6 +7,7 @@ from ctypes import cdll
 
 from direct.gui import DirectGuiGlobals
 from direct.gui.DirectGui import *
+from direct.interval.LerpInterval import LerpFunctionInterval
 from panda3d.core import *
 from panda3d.otp import *
 
@@ -16,7 +17,7 @@ from toontown.toonbase.Settings import Settings
 from toontown.toonbase.ToonControlManager import ToonControlManager
 from toontown.toonbase.globals.TTGlobalsCore import DisconnectCloseWindow
 from toontown.toonbase.globals.TTGlobalsMovement import *
-from toontown.toonbase.globals.TTGlobalsRender import DefaultCameraFar, DefaultCameraFov, DefaultCameraNear
+from toontown.toonbase.globals.TTGlobalsRender import *
 import contextlib
 
 
@@ -108,8 +109,6 @@ class ToonBase(OTPBase.OTPBase):
         self.glitchCount = 0
         self.walking = 0
         self.isSprinting = 0
-        self.accept(self.SPRINT, self.startSprint)
-        self.accept(f"{self.SPRINT}-up", self.stopSprint)
         if self.settings.getBool("frameRateMeter", False):
             base.setFrameRateMeter(True)
         else:
@@ -122,6 +121,19 @@ class ToonBase(OTPBase.OTPBase):
             and base.MOVE_RIGHT != "arrow_right"
         )
         self.accept("winow-event", self.windowEvent)
+        self.cameraIval = None
+
+    def changeFov(self, newFov, forceImmediate=False):
+        if self.cameraIval:
+            self.cameraIval.pause()
+            self.cameraIval = None
+        if forceImmediate:
+            self.camLens.setFov(newFov)
+            return
+        self.cameraIval = LerpFunctionInterval(
+            self.camLens.setFov, 0.3, self.camLens.getHfov(), newFov, "easeInOut"
+        )
+        self.cameraIval.start()
 
     def reloadControls(self):
         self.ignore(self.SCREENSHOT)
@@ -377,32 +389,6 @@ class ToonBase(OTPBase.OTPBase):
         if self.win is not None:
             return self.win.isValid()
         return 0
-
-    def startSprint(self):
-        if base.localAvatar:
-            base.localAvatar.currentSpeed = ToonForwardSpeedSprint
-            base.localAvatar.currentReverseSpeed = ToonReverseSpeedSprint
-            base.localAvatar.controlManager.setSpeeds(
-                ToonForwardSpeedSprint,
-                ToonJumpForce,
-                ToonReverseSpeedSprint,
-                ToonRotateSpeed,
-            )
-            self.isSprinting = 1
-        elif self.isSprinting == 1:
-            self.stopSprint()
-
-    def stopSprint(self):
-        if base.localAvatar:
-            base.localAvatar.currentSpeed = ToonRunSpeed
-            base.localAvatar.currentReverseSpeed = ToonReverseSpeed
-            base.localAvatar.controlManager.setSpeeds(
-                ToonRunSpeed,
-                ToonJumpForce,
-                ToonReverseSpeed,
-                ToonRotateSpeed,
-            )
-            self.isSprinting = 0
 
     def getScreenResolution(self):
         platf = platform.system()
