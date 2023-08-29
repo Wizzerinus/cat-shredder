@@ -42,6 +42,8 @@ This source code is vaguely based on source codes of Open-Toontown, Toontown Gal
 
 This source code requires a customized version of Panda3D to run. [Open-Toontown builds](https://github.com/open-toontown/panda3d) are fully supported. Note that only Python 3 builds will be supported (the minimum compatible version right now is Python 3.8).
 
+[Open-Toontown build for Windows](https://mega.nz/file/uAMxEKqL#yQfS9UPpYHzKYDR5vq-LF5gxxLa6HUmxLUp65uzneVo)
+
 ### Astron
 
 This source code requires Astron to run. [Official builds](https://github.com/astron/astron) are fully supported.
