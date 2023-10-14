@@ -31,6 +31,7 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
         cs = CollisionSphere(0, 0, 0, 6)
         cn.addSolid(cs)
         self.attachNewNode(cn)
+        self.absorbedDmg = 0
 
     def _doDebug(self, _=None):
         self.boss.safeStatesDebug(
@@ -45,6 +46,9 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
 
     def getIndex(self):
         return self.index
+
+    def getCurrentBonus(self):
+        return self.absorbedDmg
 
     def getMinImpact(self):
         if self.boss.heldObject:
@@ -78,7 +82,7 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
             if self.boss.attackCode == TTGlobalsBosses.BossCogDizzy:
                 # While the boss is dizzy, a safe hitting him in the
                 # head does lots of damage.
-                damage = int(impact * 50)
+                damage = int(impact * 50 + self.absorbedDmg)
                 crane = simbase.air.doId2do.get(craneId)
 
                 # Apply a multiplier if needed (heavy cranes)
@@ -97,6 +101,7 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
                 self.demand("Grabbed", self.boss.doId, self.boss.doId)
                 self.boss.heldObject = self
                 self.boss.d_updateSafePoints(avId, self.boss.ruleset.POINTS_PENALTY_SAFEHEAD)
+            self.resetAbsorbedDmg()
 
         elif impact >= GeneralCFOGlobals.CashbotBossSafeKnockImpact:
             self.boss.d_updateSafePoints(avId, self.boss.ruleset.POINTS_DESAFE)
@@ -106,6 +111,11 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
             self.avoidHelmet = 1
             self.boss.waitForNextHelmet()
         return
+
+    def resetAbsorbedDmg(self):
+        self.absorbedDmg = 0
+        self.notify.warning(f"Safe #{self.getIndex()}'s bonus damage has been reset.")
+        self.sendUpdate('setCurrentBonus', [self.absorbedDmg])
 
     def requestInitial(self):
         # The client controlling the safe dropped it through the
@@ -172,6 +182,10 @@ class DistributedCashbotBossSafeAI(DistributedCashbotBossObjectAI.DistributedCas
         self.sendUpdate("move", [x, y, z, rotation])
 
     # Called from client when a safe destroys a goon
-    def destroyedGoon(self):
+    def destroyedGoon(self, goonDmg):
         avId = self.air.getAvatarIdFromSender()
         self.boss.d_updateGoonKilledBySafe(avId)
+        if self.absorbedDmg <= 50:
+            self.absorbedDmg = min(self.absorbedDmg + goonDmg, 50)
+            self.notify.warning(f'Safe #{self.getIndex()} has absorbed {self.absorbedDmg} damage!')
+        self.sendUpdate('setCurrentBonus', [self.absorbedDmg])

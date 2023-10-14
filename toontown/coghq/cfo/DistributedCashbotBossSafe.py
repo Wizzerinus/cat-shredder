@@ -1,3 +1,4 @@
+import math
 from panda3d.core import *
 from panda3d.physics import *
 from direct.interval.IntervalGlobal import *
@@ -45,6 +46,7 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
         self.hitFloorSfx = loader.loadSfx("phase_5/audio/sfx/AA_drop_bigweight_miss.ogg")
         self.hitFloorSoundInterval = SoundInterval(self.hitFloorSfx, node=self)
         self.name = "safe"
+        self.bonus = 0
 
     def _doDebug(self, _=None):
         self.boss.safeStatesDebug(
@@ -129,8 +131,10 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
         if self.boss.ruleset.SAFES_STUN_GOONS:
             goon.doLocalStun()
         else:
+            dmg = math.ceil(0.5 * 25 * goon.scale * 0.8)
+            if not self.index == 0:
+                self.sendUpdate("destroyedGoon", [dmg])
             goon.b_destroyGoon()
-            self.sendUpdate("destroyedGoon", [])
 
     def resetToInitialPosition(self):
         posHpr = CraneLeagueGlobals.SAFE_POSHPR[self.index]
@@ -156,6 +160,16 @@ class DistributedCashbotBossSafe(DistributedCashbotBossObject.DistributedCashbot
 
     def d_requestInitial(self):
         self.sendUpdate("requestInitial")
+
+    def setCurrentBonus(self, bonus):
+        # todo Define bonusFlash earlier
+        bonusFlash = Sequence(LerpColorScaleInterval(self, duration=0.5, colorScale=Vec3(0.75, 0, 0), startColorScale=Vec3(1, 0, 0)),
+            LerpColorScaleInterval(self, duration=0.5, colorScale=Vec3(1, 0, 0), startColorScale=Vec3(0.75, 0, 0)))
+        if bonus < 50:
+            bonusFlash.finish()  # todo This doesn't work
+            self.setColorScale(Vec3(1, 1-bonus/50, 1-bonus/50))
+        else:
+            bonusFlash.loop()
 
     ### FSM States ###
 

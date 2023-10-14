@@ -512,7 +512,8 @@ dclass DistributedCashbotBossSafe : DistributedCashbotBossObject {
     setIndex(uint8) required broadcast ram;
     requestInitial() airecv clsend;
     move(int16/10, int16/10, int16/10, int16/10) broadcast ram clsend airecv;
-    destroyedGoon()  airecv clsend;
+    destroyedGoon(uint8) airecv clsend;
+    setCurrentBonus(uint8) required broadcast ram;
 };
 
 dclass DistributedCashbotBossGoon : DistributedCashbotBossObject {
